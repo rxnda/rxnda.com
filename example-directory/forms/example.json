@@ -1,0 +1,42 @@
+{
+  "title": "Example NDA",
+  "edition": "1e1d",
+  "released": "2017-07-03T03:13Z",
+  "description": ["a pretty terrible NDA"],
+  "repository": "https://github.com/rxnda/example",
+  "form": {
+    "content": [
+      "This is not a very good NDA between ",
+      {
+        "blank": ""
+      },
+      " and ",
+      {
+        "blank": ""
+      },
+      "."
+    ]
+  },
+  "directions": [
+    {
+      "blank": [
+        "content",
+        1
+      ],
+      "label": "First Party",
+      "notes": [
+        "Write the legal name of your company."
+      ]
+    },
+    {
+      "blank": [
+        "content",
+        3
+      ],
+      "label": "First Party",
+      "notes": [
+        "Writes the legal name of the other company."
+      ]
+    }
+  ]
+}

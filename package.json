@@ -11,7 +11,8 @@
     "lint": "standard",
     "prestart": "make",
     "test": "tap test/**.test.js",
-    "coverage": "tap test/**.test.js --100 --coverage-report=html --no-browser"
+    "coverage": "tap test/**.test.js --100 --coverage-report=html --no-browser",
+    "testserver": "NODE_ENV=test RECAPTCHA_PUBLIC=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe DIRECTORY=example-directory node server.js"
   },
   "dependencies": {
     "commonform-analyze": "^1.0.0",
