@@ -9,6 +9,7 @@ staticTemplate('/lawyers', 'lawyers.html')
 staticTemplate('/businessfolk', 'businessfolk.html')
 
 routes.set('/forms', require('./forms'))
+routes.set('/prices', require('./prices'))
 
 staticFile('normalize.css')
 staticFile('styles.css')

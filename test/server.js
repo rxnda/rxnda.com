@@ -23,6 +23,10 @@ module.exports = function (test) {
     var configuration = {
       directory: directory,
       log: pino({}, devNull()),
+      prices: {
+        sending: 10,
+        prescribing: 5
+      },
       forms: {
         'Example NDA': [
           {

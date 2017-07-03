@@ -16,6 +16,14 @@ var configuration = {
     ? ENV.DIRECTORY
     : path.join(process.cwd(), 'rxnda'),
   port: ENV.PORT ? parseInt(ENV.PORT) : 8080,
+  prices: {
+    use: ENV.USE_PRICE
+      ? parseInt(ENV.USE_PRICE)
+      : 10,
+    prescription: ENV.PRESCRIPTION_PRICE
+      ? parseInt(ENV.PRESCRIPTION_PRICE)
+      : 5
+  },
   log: log
 }
 
