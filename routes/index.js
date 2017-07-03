@@ -1,13 +1,14 @@
 var path = require('path')
 var pump = require('pump')
 var send = require('send')
-var serveFile = require('./serve-file')
 
 var routes = module.exports = require('http-hash')()
 
 staticTemplate('/', 'homepage.html')
 staticTemplate('/lawyers', 'lawyers.html')
 staticTemplate('/businessfolk', 'businessfolk.html')
+
+routes.set('/forms', require('./forms'))
 
 staticFile('normalize.css')
 staticFile('styles.css')
