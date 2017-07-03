@@ -28,6 +28,7 @@
     "pump": "^1.0.2",
     "reviewers-edition-compare": "^1.0.5",
     "reviewers-edition-parse": "^2.0.6",
+    "reviewers-edition-spell": "^1.0.3",
     "run-parallel": "^1.1.6",
     "run-series": "^1.1.4",
     "send": "^0.15.3",

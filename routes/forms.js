@@ -1,10 +1,11 @@
+var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
 var internalError = require('./internal-error')
+var pump = require('pump')
+var readTemplate = require('./read-template')
 var revedCompare = require('reviewers-edition-compare')
 var revedParse = require('reviewers-edition-parse')
 var trumpet = require('trumpet')
-var readTemplate = require('./read-template')
-var pump = require('pump')
 
 module.exports = function (configuration, request, response) {
   var body = trumpet()
@@ -34,6 +35,12 @@ module.exports = function (configuration, request, response) {
     displayed.description.forEach(function (string) {
       list.write(`<p class=description>${escape(string)}</p>`)
     })
+    list.write(
+  `<p class=send>
+    <a href=/send/${encodeTitle(title)}/${displayed.edition}
+      >Sign and send this NDA.</a>
+  </p>`
+    )
     list.write('</section>')
     list.write(
 `

@@ -15,6 +15,7 @@ module.exports = function (configuration, request, response) {
   var parsed = url.parse(request.url, true)
   request.query = parsed.query
   var route = routes.get(parsed.pathname)
+  request.params = route.params
   if (route.handler) {
     route.handler(configuration, request, response)
   } else {

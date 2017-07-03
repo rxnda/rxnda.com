@@ -10,6 +10,7 @@ staticTemplate('/businessfolk', 'businessfolk.html')
 
 routes.set('/forms', require('./forms'))
 routes.set('/prices', require('./prices'))
+routes.set('/send/:title/:edition', require('./send'))
 
 staticFile('normalize.css')
 staticFile('styles.css')

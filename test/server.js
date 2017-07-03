@@ -29,15 +29,7 @@ module.exports = function (test) {
       },
       forms: {
         'Example NDA': [
-          {
-            title: 'Example NDA',
-            edition: '1e1d',
-            released: '2017-07-03T03:13Z',
-            description: ['a pretty terrible NDA'],
-            repository: 'https://github.com/rxnda/example',
-            hash: hash(form),
-            form: form
-          }
+          require('../example-directory/forms/example.json')
         ]
       }
     }
