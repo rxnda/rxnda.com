@@ -1,8 +1,10 @@
+var devNull = require('dev-null')
 var fs = require('fs')
 var handler = require('../')
 var http = require('http')
 var os = require('os')
 var path = require('path')
+var pino = require('pino')
 
 module.exports = function (test) {
   var prefix = path.join(os.tmpdir(), 'rxnda')
@@ -11,7 +13,8 @@ module.exports = function (test) {
       throw error
     }
     var configuration = {
-      directory: directory
+      directory: directory,
+      log: pino({}, devNull())
     }
     http.createServer()
       .on('request', function (request, response) {

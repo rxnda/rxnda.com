@@ -1,6 +1,7 @@
 {
   "private": true,
   "devDependencies": {
+    "dev-null": "^0.1.1",
     "rimraf": "^2.6.1",
     "standard": "^10.0.2",
     "tap": "^10.7.0"
@@ -8,5 +9,9 @@
   "scripts": {
     "lint": "standard",
     "test": "tap test/**.test.js --100"
+  },
+  "dependencies": {
+    "pino": "^4.6.0",
+    "uuid": "^3.1.0"
   }
 }
