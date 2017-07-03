@@ -2,20 +2,17 @@ var http = require('http')
 var server = require('./server')
 var tap = require('tap')
 
-tap.test('GET /', function (test) {
+tap.test('GET /nonexistent', function (test) {
   server(function (port, closeServer) {
     http.request({
-      port: port
+      port: port,
+      path: '/nonexistent'
     })
       .once('response', function (response) {
+        var status = 404
         test.equal(
-          response.statusCode, 200,
-          'responds 200'
-        )
-        var contentType = 'text/html; charset=UTF-8'
-        test.equal(
-          response.headers['content-type'], contentType,
-          contentType
+          response.statusCode, status,
+          'responds ' + status
         )
         test.end()
         closeServer()

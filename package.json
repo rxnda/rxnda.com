@@ -11,6 +11,7 @@
     "test": "tap test/**.test.js --100"
   },
   "dependencies": {
+    "http-hash": "^2.0.0",
     "pino": "^4.6.0",
     "uuid": "^3.1.0"
   }
