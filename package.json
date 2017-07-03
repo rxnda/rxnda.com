@@ -1,3 +1,12 @@
 {
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "rimraf": "^2.6.1",
+    "standard": "^10.0.2",
+    "tap": "^10.7.0"
+  },
+  "scripts": {
+    "lint": "standard",
+    "test": "tap test/**.test.js --100"
+  }
 }
