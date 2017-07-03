@@ -3,22 +3,11 @@
 <head>
   <meta charset=ASCII>
   <title>&#8478;nda</title>
-<link href=normalize.css rel=stylesheet>
-<link href=styles.css rel=stylesheet>
+{{>stylesheets}}
 </head>
 <body>
-<header role=banner>
-  <h1>&#8478;nda</h1>
-</header>
-<nav role=navigation>
-  <ul>
-    <li><a href=/>Welcome</a></li>
-    <li><a href=forms>Forms</a></li>
-    <li><a href=prescriptions>Prescriptions</a></li>
-    <li><a href=businessfolk>For Businessfolk</a></li>
-    <li><a href=lawyers>For Lawyers</a></li>
-  </ul>
-</nav>
+{{>banner}}
+{{>nav}}
 <main>
   <blockquote>
     <p>
@@ -47,6 +36,6 @@
     <footer>&mdash; <cite>K.E. Mitchell</cite></footer>
   </blockquote>
 </main>
-<footer role=contentinfo>&copy; 2017</footer>
+{{>footer}}
 </body>
 </html>

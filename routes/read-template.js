@@ -1,10 +1,8 @@
-var path = require('path')
 var fs = require('fs')
+var path = require('path')
 
 module.exports = function (file, callback) {
-  fs.readFile(
-    path.join(__dirname, '..', 'templates', file),
-    'utf8',
-    callback
+  return fs.createReadStream(
+    path.join(__dirname, '..', 'templates', file)
   )
 }
