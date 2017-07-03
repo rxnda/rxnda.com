@@ -49,6 +49,23 @@ abbr[title] {
   text-decoration: none;
 }
 
+/* / */
+
+blockquote {
+  font-size: 95%;
+  margin: 1rem;
+  position: relative;
+}
+
+blockquote:before {
+  content: '\201C';
+  display: block;
+  font-size: 2rem;
+  left: -2rem;
+  position: absolute;
+  top: -0.5rem;
+}
+
 /* /forms */
 
 .form {
