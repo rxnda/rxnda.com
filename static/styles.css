@@ -48,3 +48,11 @@ abbr[title] {
   border-bottom: 1px dotted black;
   text-decoration: none;
 }
+
+/* /forms */
+
+.form {
+  border: 1px solid black;
+  margin: 1rem 0;
+  padding: 1rem;
+}
