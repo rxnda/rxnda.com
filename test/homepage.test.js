@@ -1,3 +1,4 @@
+var concat = require('./concat')
 var http = require('http')
 var server = require('./server')
 var tap = require('tap')
@@ -17,8 +18,16 @@ tap.test('GET /', function (test) {
           response.headers['content-type'], contentType,
           contentType
         )
-        test.end()
-        closeServer()
+        concat(response, function (error, body) {
+          test.ifError(error)
+          var name = '&#8478;nda'
+          test.assert(
+            body.indexOf(name) !== -1,
+            'includes ' + JSON.stringify(name)
+          )
+          test.end()
+          closeServer()
+        })
       })
       .end()
   })
