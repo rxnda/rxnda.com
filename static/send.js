@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var elements = stripe.elements()
   var card = elements.create('card')
   card.mount('#card')
-  var form = document.getElementById('form')
+  var form = document.forms[0]
   form.addEventListener('submit', function (event) {
     event.preventDefault()
     stripe.createToken(card).then(function (result) {
@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', function () {
         input.setAttribute('value', result.token.id)
         form.appendChild(input)
         form.submit()
+        var button = document.getElementById('submitButton')
+        button.setAttribute('disabled', true)
+        button.value = 'Sending...'
       }
     })
   })

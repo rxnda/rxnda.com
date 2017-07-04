@@ -1,6 +1,7 @@
 var analyze = require('commonform-analyze')
 var isCommonForm = require('commonform-validate').form
 var revedParse = require('reviewers-edition-parse')
+var sameArray = require('./same-array')
 var signaturePageSchema = require('signature-page-schema')
 delete signaturePageSchema.$schema
 var AJV = require('ajv')
@@ -24,7 +25,7 @@ module.exports = function (argument) {
     // Repository
     isString(argument.repository) &&
     // Form Content
-    isCommonForm(argument.form) &&
+    isCommonForm(argument.commonform) &&
     // Fill-in-the-Blank Directions
     argument.directions.every(function (direction) {
       return (
@@ -36,7 +37,7 @@ module.exports = function (argument) {
         })
       )
     }) &&
-    analyze(argument.form).blanks.every(function (formBlank) {
+    analyze(argument.commonform).blanks.every(function (formBlank) {
       return argument.directions.some(function (direction) {
         return sameArray(direction.blank, formBlank)
       })
@@ -53,11 +54,3 @@ function isString (argument) {
   return typeof argument === 'string' && argument.length !== 0
 }
 
-function sameArray (a, b) {
-  return (
-    a.length === b.length &&
-    a.every(function (element, index) {
-      return b[index] === element
-    })
-  )
-}

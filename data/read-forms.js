@@ -23,7 +23,7 @@ module.exports = function (configuration, callback) {
                 if (!result.hasOwnProperty(title)) {
                   result[title] = []
                 }
-                json.hash = hash(json.form)
+                json.hash = hash(json.commonform)
                 result[title].push(json)
                 done()
               }

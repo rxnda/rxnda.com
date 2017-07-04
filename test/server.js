@@ -33,7 +33,8 @@ module.exports = function (test) {
         ]
       },
       stripe: {
-        public: 'pk_test_rt396uxq5mkg7U6WRXyqDftT'
+        public: process.env.STRIPE_PUBLIC_KEY,
+        private: process.env.STRIPE_PRIVATE_KEY
       }
     }
     http.createServer()

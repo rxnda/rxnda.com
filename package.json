@@ -13,15 +13,17 @@
     "test": "tap test/**.test.js",
     "coverage": "tap test/**.test.js --100 --coverage-report=html --no-browser",
     "pretestserver": "make",
-    "testserver": "NODE_ENV=test STRIPE_PUBLIC_KEY=pk_test_rt396uxq5mkg7U6WRXyqDftT DIRECTORY=example-directory node server.js"
+    "testserver": "NODE_ENV=test DIRECTORY=example-directory node server.js"
   },
   "dependencies": {
     "ajv": "^5.2.0",
+    "busboy": "^0.2.14",
     "commonform-analyze": "^1.0.0",
     "commonform-hash": "^0.4.3",
     "commonform-validate": "^0.6.5",
     "ecb": "^1.0.0",
     "escape-html": "^1.0.3",
+    "form-data": "^2.2.0",
     "glob": "^7.1.2",
     "http-hash": "^2.0.0",
     "json-parse-errback": "^2.0.1",
@@ -36,7 +38,9 @@
     "run-series": "^1.1.4",
     "send": "^0.15.3",
     "signature-page-schema": "^1.0.1",
+    "stripe": "^4.23.1",
     "trumpet": "^1.7.2",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "word-wrap": "^1.2.3"
   }
 }

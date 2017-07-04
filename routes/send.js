@@ -1,11 +1,23 @@
+var Busboy = require('busboy')
+var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
+var ecb = require('ecb')
 var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
+var fs = require('fs')
+var mailgun = require('../mailgun')
+var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
+var path = require('path')
 var pump = require('pump')
 var readTemplate = require('./read-template')
+var runParallel = require('run-parallel')
+var runSeries = require('run-series')
 var spell = require('reviewers-edition-spell')
+var stripe = require('stripe')
 var trumpet = require('trumpet')
+var validPost = require('../data/valid-post')
+var wordWrap = require('word-wrap')
 
 module.exports = function (configuration, request, response) {
   var title = decodeTitle(request.params.title)
@@ -37,17 +49,18 @@ function get (configuration, request, response, edition) {
 }
 
 function form (configuration, edition) {
-  return (
-`
-  <noscript>
-    <p>JavaScript has been disabled in your browser.</p>
-    <p>You must enabled JavaScript to send.</p>
-  </noscript>
-  <form
-    id=form
-    method=post
-    action=/send/${encodeTitle(edition.title)}/${edition.edition}/>
-  <h2>Send <cite>${escape(edition.title)}, ${spell(edition.edition)}</cite></h2>
+  return `
+<noscript>
+  <p>JavaScript has been disabled in your browser.</p>
+  <p>You must enabled JavaScript to send.</p>
+</noscript>
+<form
+  method=post
+  action=/send/${encodeTitle(edition.title)}/${edition.edition}/>
+  <h2>
+    Send
+    <cite>${escape(edition.title)}, ${spell(edition.edition)}</cite>
+  </h2>
   <p>
     <a
         href=https://commonform.org/forms/${edition.hash}
@@ -87,10 +100,8 @@ function form (configuration, edition) {
       </li>
     </ol>
   </section>
-  <input type=submit value='Sign &amp; Send'>
-</form>
-`
-  )
+  <input id=submitButton type=submit value='Sign &amp; Send' >
+</form>`
 
   function draftWarning () {
     if (edition.edition.endsWith('d')) {
@@ -99,8 +110,7 @@ function form (configuration, edition) {
   This is a draft form, not a final, published edition.  Unless you
   have a specific reason to prefer this particular draft, you should
   probably use a published edition of the form, instead.
-</p>
-      `
+</p>`
     } else {
       return ''
     }
@@ -112,7 +122,7 @@ function form (configuration, edition) {
         .directions
         .map(function (direction) {
           var name = (
-            'blanks-' +
+            'directions-' +
             direction
               .blank
               .map(function (element) {
@@ -124,11 +134,10 @@ function form (configuration, edition) {
         })
         .join('')
       return `
-  <section class=blanks>
-    <h3>Fill in the Blanks</h3>
-    ${list}
-  </section>
-  `
+<section class=blanks>
+  <h3>Fill in the Blanks</h3>
+  ${list}
+</section>`
     } else {
       return ''
     }
@@ -137,8 +146,7 @@ function form (configuration, edition) {
   function signatures (data) {
     var sender = data[0]
     var recipient = data[1]
-    return (
-`
+    return `
 <section class=signatures>
   <h3>Signatures</h3>
 
@@ -164,7 +172,6 @@ function form (configuration, edition) {
 
   <section class=theirSignature>
     <h4>The Other Side</h4>
-    ${recipientBlock(recipient)}
     <section class=field>
       <label for=signatures-recipient-email>Their Email</label>
       ${asterisk()}
@@ -173,10 +180,9 @@ function form (configuration, edition) {
           type=email
           required>
     </section>
+    ${recipientBlock(recipient)}
   </section>
-</section>
-`
-    )
+</section>`
   }
 }
 
@@ -184,10 +190,25 @@ function senderBlock (signature) {
   if (Array.isArray(signature.entities)) {
     // Entity Signatory
     return (
-      input('signatures-sender-company-name', 'Your Company&rsquo;s Name', [
+      input('signatures-sender-company', 'Your Company&rsquo;s Name', [
         'Enter the legal name of your company.',
         'For example, &ldquo;YourCo, Inc.&rdquo;.'
       ]) +
+      input(
+        'signatures-sender-form', 'Your Company&rsquo;s Legal Form', [
+          'Enter the legal form of your company.',
+          'For example, &ldquo;corporation&rdquo;.'
+        ]
+      ) +
+      input(
+        'signatures-sender-jurisdiction',
+        'Your Company&rsquo;s Legal Jurisdiction',
+        [
+          'Enter the legal jurisdiction under whose laws ' +
+          'your company is formed.',
+          'For example, &ldquo;Delaware&rdquo;.'
+        ]
+      ) +
       input('signatures-sender-name', 'Your Name', [
         'Enter your full legal name.'
       ]),
@@ -212,11 +233,31 @@ function recipientBlock (signature) {
   if (Array.isArray(signature.entities)) {
     // Entity Signatory
     return (
-      input('signatures-recipient-company-name', 'Their Company Name', [
-        'Optionally enter the legal name of the other side&rsquo;s company.',
-        'For example, &ldquo;TheirCo, LLC&rdquo;.',
-        'If you leave this blank, the recipient can fill it out.'
-      ]) +
+      input(
+        'signatures-recipient-company', 'Their Company Name',
+        [
+          'Optionally enter the legal name of the other ' +
+          'side&rsquo;s company.',
+          'For example, &ldquo;TheirCo, LLC&rdquo;.',
+          'If you leave this blank, the recipient can fill it out.'
+        ]
+      ) +
+      input(
+        'signatures-recipient-form', 'Their Company&rsquo;s Legal Form',
+        [
+          'Enter the legal form of their company.',
+          'For example, &ldquo;limited liability company&rdquo;.'
+        ]
+      ) +
+      input(
+        'signatures-recipient-jurisdiction',
+        'Their Company&rsquo;s Legal jurisdiction',
+        [
+          'Enter the legal jurisdiction under whose laws their ' +
+          'company is formed.',
+          'For example, &ldquo;Delaware&rdquo;.'
+        ]
+      ) +
       input('signatures-recipient-name', 'Their Name', [
         'Optionally enter the person who will sign for the other side.',
         'If you leave this blank, the recipient can fill it out.'
@@ -230,19 +271,20 @@ function recipientBlock (signature) {
   } else {
     // Individual Signatory
     return (
-      input('signatures-recipient-name', 'Their Name', [
-        'Enter the other side&rsquo;s full legal name.',
-        'For example, &ldquo;Jane Doe&rdquo;.',,
-        'If you leave this blank, the recipient can fill it out.'
-      ])
+      input(
+        'signatures-recipient-name', 'Their Name', [
+          'Enter the other side&rsquo;s full legal name.',
+          'For example, &ldquo;Jane Doe&rdquo;.',
+          'If you leave this blank, the recipient can fill it out.'
+        ]
+     )
     )
   }
 }
 
 function input (name, label, notes, value) {
   if (value) {
-    return (
-`
+    return `
 <section class=field>
   <label for=${name}>${label}</label>
   <input
@@ -252,16 +294,13 @@ function input (name, label, notes, value) {
       required
       disabled>
   ${paragraphs(notes)}
-</section>
-`
-    )
+</section>`
   } else {
     var required = (
       name.startsWith('signatures-sender-') ||
-      name.startsWith('blanks-')
+      name.startsWith('directions-')
     )
-    return (
-`
+    return `
 <section class=field>
   <label for='${name}'>${label}</label>
   ${required ? asterisk() : ''}
@@ -271,9 +310,7 @@ function input (name, label, notes, value) {
       type=${name === 'email' ? 'email' : 'text'}
       ${required ? 'required' : ''}>
   ${paragraphs(notes)}
-</section>
-`
-    )
+</section>`
   }
 }
 
@@ -300,8 +337,7 @@ function byline () {
     enter into a legally binding contract, on the terms of the form,
     with the other side.
   </p>
-</section>
-  `
+</section>`
 }
 
 function paragraphs (array) {
@@ -312,6 +348,246 @@ function paragraphs (array) {
     .join('')
 }
 
-function post (configuration, request, response, edition) {
-  response.end()
+function post (configuration, request, response, form) {
+  var data = {
+    signatures: {
+      sender: {},
+      recipient: {}
+    },
+    directions: [],
+    token: null
+  }
+  pump(
+    request,
+    new Busboy({headers: request.headers})
+      .on('field', function (name, value) {
+        if (value) {
+          var key
+          if (name.startsWith('signatures-sender-')) {
+            key = name.slice(18)
+            if (validSignatureProperty(key)) {
+              data.signatures.sender[key] = value
+            }
+          } else if (name.startsWith('signatures-recipient-')) {
+            key = name.slice(21)
+            if (validSignatureProperty(key)) {
+              data.signatures.recipient[key] = value
+            }
+          } else if (name.startsWith('directions-')) {
+            data.directions.push({
+              blank: name
+                .slice(11)
+                .split(',')
+                .map(function (element) {
+                  return /\d/.test(element)
+                    ? parseInt(element)
+                    : element
+                }),
+              value: value
+            })
+          } else if (name === 'token') {
+            data.token = value
+          }
+        }
+      })
+      .once('finish', function () {
+        request.log.info({data: data})
+        if (!validPost(data, form)) {
+          response.statusCode = 400
+          response.end()
+        } else {
+          write(configuration, request, response, data, form)
+        }
+      })
+  )
+}
+
+var signatureProperties = [
+  'name', 'company', 'signature', 'address', 'company', 'form',
+  'email', 'jurisdiction'
+]
+
+function validSignatureProperty (name) {
+  return signatureProperties.includes(name)
+}
+
+function write (configuration, request, response, data, form) {
+  var domain = configuration.mailgun.domain
+  var directory = configuration.directory
+  var timestamp = new Date().toISOString()
+  data.timestamp = timestamp
+  data.form = form
+  data.price = configuration.prices.use
+  var sender = data.signatures.sender
+  var senderName = sender.company || sender.name
+  var recipient = data.signatures.recipient
+  var recipientName = recipient.company || recipient.name || recipient.email
+  runSeries([
+    function generateCapabilities (done) {
+      runParallel([
+        capabilityToProperty(data, 'cancel'),
+        capabilityToProperty(data, 'sign')
+      ], done)
+    },
+    function writeFiles (done) {
+      runParallel([
+        function writeCancelFile (done) {
+          mkdirpThenWriteFile(
+            path.join(directory, 'cancel'),
+            data.cancel, data.sign, done
+          )
+        },
+        function writeSignFile (done) {
+          mkdirpThenWriteFile(
+            path.join(directory, 'sign'),
+            data.sign, data, done
+          )
+        }
+      ], done)
+    },
+    function sendEmails (done) {
+      runSeries([
+        function emailCancelLink (done) {
+          mailgun(configuration, {
+            to: sender.email,
+            subject: 'Your ' + domain + ' Cancellation Link',
+            text: wordWrap([
+              'You have offered to sign a nondisclosure agreement ' +
+              (sender.company ? 'on behalf of ' + sender.company : '') +
+              ' with ' + recipientName +
+              'on the terms of ' + domain + '\'s ' +
+              form.title + ' form agreement, ' +
+              spell(form.edition) + '.',
+              'To cancel your request before the other side signs, ' +
+              'visit this link:',
+              'https://' + domain + '/cancel/' + data.cancel
+            ].join('\n\n'))
+          }, done)
+        },
+        function emailSignLink (done) {
+          mailgun(configuration, {
+            to: recipient.email,
+            subject: 'NDA Request from ' + senderName,
+            text: wordWrap([
+              senderName + ' offers to sign a nondisclosure ' +
+              'agreement with ' +
+              (recipient.company ? recipient.company : 'you') +
+              'on the terms of ' + domain + '\'s ' +
+              form.title + ' form agreement, ' +
+              spell(form.edition) + '.',
+              'To review the proposal, sign online, and ' +
+              'receive a fully executed copy, visit:',
+              'https://' + domain + '/cancel/' + data.sign
+            ].join('\n\n'))
+          }, done)
+        }
+      ], done)
+    },
+    function handlePayment (done) {
+      var chargeID = null
+      runSeries([
+        function createCharge (done) {
+          stripe(configuration.stripe.private).charges.create({
+            amount: data.price * 100, // dollars to cents
+            currency: 'usd',
+            description: domain,
+            // Important: Authorize, but don't capture/charge yet.
+            capture: false,
+            source: data.token
+          }, ecb(done, function (charge) {
+            chargeID = charge.id
+            request.log.info({charge: chargeID})
+            done()
+          }))
+        },
+        function writeChargeFile (done) {
+          mkdirpThenWriteFile(
+            path.join(directory, 'charge'),
+            data.sign, chargeID, done
+          )
+        },
+        function emailReceipt (done) {
+          mailgun(configuration, {
+            to: data.signatures.sender.email,
+            subject: 'Your ' + domain + ' Order',
+            text: [
+              'Thank you for sending an NDA with ' + domain + '!',
+              'Form: ' + form.title,
+              'Edition: ' + form.edition,
+              domain + ' will authorize a payment of ' + data.price
+            ].join('\n\n')
+          }, done)
+        }
+      ], done)
+    }
+  ], function (error) {
+    if (error) {
+      request.log.error(error)
+      response.statusCode = 500
+      response.end()
+    } else {
+      var body = trumpet()
+      response.setHeader('Content-Type', 'text/html; charset=ASCII')
+      pump(body, response)
+      body.select('main')
+        .createWriteStream()
+        .end(success(configuration, data))
+      pump(readTemplate('sent.html'), body)
+    }
+  })
+
+  function capabilityToProperty (object, key) {
+    return function (done) {
+      randomCapability(ecb(done, function (capability) {
+        object[key] = capability
+        request.log.info(key, capability)
+        done()
+      }))
+    }
+  }
+
+  function mkdirpThenWriteFile (directory, file, data, callback) {
+    runSeries([
+      function (done) {
+        mkdirp(directory, done)
+      },
+      function (done) {
+        var filePath = path.join(directory, file)
+        var json = JSON.stringify(data)
+        fs.writeFile(filePath, json, ecb(done, function () {
+          request.log.info('wrote ' + filePath)
+          done()
+        }))
+      }
+    ], callback)
+  }
+}
+
+function success (configuration, data) {
+  var sender = data.signatures.sender
+  var recipient = data.signatures.recipient
+  var recipientName = recipient.company || recipient.name || recipient.email
+  var domain = configuration.mailgun.domain
+  return `
+<h1>NDA Sent!</h1>
+<p>
+  You have offered to sign a nondisclosure agreement
+  ${sender.company ? 'on behalf of ' + sender.company : ''}
+  with ${recipientName} on the terms of ${domain}&rsquo;s
+  ${data.form.title}  form agreement, ${spell(data.form.edition)}.
+</p>
+<p>
+  To cancel your request before the other side signs, visit
+  <a href=https://${domain}/cancel/${data.cancel}>this link</a>.
+</p>`
+}
+
+function randomCapability (callback) {
+  crypto.randomBytes(32, function (error, bytes) {
+    if (error) {
+      callback(error)
+    } else {
+      callback(null, bytes.toString('hex'))
+    }
+  })
 }

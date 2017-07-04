@@ -26,7 +26,12 @@ var configuration = {
   },
   log: log,
   stripe: {
-    public: ENV.STRIPE_PUBLIC_KEY
+    public: ENV.STRIPE_PUBLIC_KEY,
+    private: ENV.STRIPE_PRIVATE_KEY
+  },
+  mailgun: {
+    key: ENV.MAILGUN_KEY,
+    domain: 'rxnda.com'
   }
 }
 

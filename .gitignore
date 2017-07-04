@@ -1,1 +1,4 @@
 templates/*.html
+example-directory/cancel
+example-directory/charge
+example-directory/sign

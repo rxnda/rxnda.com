@@ -6,7 +6,7 @@
     "a pretty terrible NDA"
   ],
   "repository": "https://github.com/rxnda/example",
-  "form": {
+  "commonform": {
     "content": [
       "This is not a very good NDA. The parties will share information for ",
       {
