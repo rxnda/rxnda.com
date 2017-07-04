@@ -31,6 +31,9 @@ module.exports = function (test) {
         'Example NDA': [
           require('../example-directory/forms/example.json')
         ]
+      },
+      stripe: {
+        public: 'pk_test_rt396uxq5mkg7U6WRXyqDftT'
       }
     }
     http.createServer()

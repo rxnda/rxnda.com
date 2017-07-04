@@ -59,7 +59,13 @@ function form (configuration, edition) {
     ${inputs()}
   </section>
   ${signatures(edition.signatures)}
+  <section id=payment>
+    <h3>Credit Card Payment</h3>
+    <div id=card></div>
+    <div id=card-errors></div>
+  </section>
   <section class=information>
+    <h3>Next Steps</h3>
     <p>Once you press Sign &amp; Send:</p>
     <ol>
       <li>

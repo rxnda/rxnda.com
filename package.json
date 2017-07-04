@@ -13,7 +13,7 @@
     "test": "tap test/**.test.js",
     "coverage": "tap test/**.test.js --100 --coverage-report=html --no-browser",
     "pretestserver": "make",
-    "testserver": "NODE_ENV=test RECAPTCHA_PUBLIC=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe DIRECTORY=example-directory node server.js"
+    "testserver": "NODE_ENV=test STRIPE_PUBLIC_KEY=pk_test_rt396uxq5mkg7U6WRXyqDftT DIRECTORY=example-directory node server.js"
   },
   "dependencies": {
     "ajv": "^5.2.0",
@@ -28,6 +28,7 @@
     "mkdirp": "^0.5.1",
     "pino": "^4.6.0",
     "pump": "^1.0.2",
+    "replacestream": "^4.0.2",
     "reviewers-edition-compare": "^1.0.5",
     "reviewers-edition-parse": "^2.0.6",
     "reviewers-edition-spell": "^1.0.3",

@@ -12,4 +12,25 @@ document.addEventListener('DOMContentLoaded', function () {
         )
       }
     })
+  var stripe = window.Stripe(STRIPE_PUBLIC_KEY)
+  var elements = stripe.elements()
+  var card = elements.create('card')
+  card.mount('#card')
+  var form = document.getElementById('form')
+  form.addEventListener('submit', function (event) {
+    event.preventDefault()
+    stripe.createToken(card).then(function (result) {
+      if (result.error) {
+        var errorElement = document.getElementById('card-errors')
+        errorElement.textContent = result.error.message
+      } else {
+        var input = document.createElement('input')
+        input.setAttribute('type', 'hidden')
+        input.setAttribute('name', 'token')
+        input.setAttribute('value', result.token.id)
+        form.appendChild(input)
+        form.submit()
+      }
+    })
+  })
 })

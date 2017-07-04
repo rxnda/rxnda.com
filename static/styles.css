@@ -108,11 +108,15 @@ input[type=submit] {
   margin: 2rem 0;
 }
 
+form > section {
+  padding-bottom: 2rem;
+}
+
 .asterisk {
   color: red;
   display: block;
-  position: absolute;
   font-size: 130%;
   left: -1rem;
+  position: absolute;
   top: 0;
 }

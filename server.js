@@ -24,7 +24,10 @@ var configuration = {
       ? parseInt(ENV.PRESCRIPTION_PRICE)
       : 5
   },
-  log: log
+  log: log,
+  stripe: {
+    public: ENV.STRIPE_PUBLIC_KEY
+  }
 }
 
 runSeries([
