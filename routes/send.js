@@ -47,17 +47,15 @@ function form (configuration, edition) {
     id=form
     method=post
     action=/send/${encodeTitle(edition.title)}/${edition.edition}/>
-  <h2>Send ${escape(edition.title)}, ${spell(edition.edition)}</h2>
+  <h2>Send <cite>${escape(edition.title)}, ${spell(edition.edition)}</cite></h2>
   <p>
     <a
         href=https://commonform.org/forms/${edition.hash}
         target=_blank
       >Review the text of the form on commonform.org.</a>
   </p>
-  <section class=blanks>
-    <h3>Fill-in-the-Blanks</h3>
-    ${inputs()}
-  </section>
+  ${draftWarning()}
+  ${inputs()}
   ${signatures(edition.signatures)}
   <section id=payment>
     <h3>Credit Card Payment</h3>
@@ -69,28 +67,23 @@ function form (configuration, edition) {
     <p>Once you press Sign &amp; Send:</p>
     <ol>
       <li>
-        The site will authorize a charge of
-        $${configuration.prices.use} to your credit card.  Your credit
-        card will not be charged unless the other side countersigns.
-      </li>
-      <li>
-        The site will send you an e-mail with a secret link that
-        you can use to cancel your offer before the other side
-        countersigns.
-      </li>
-      <li>
         The site will send the other side a secret link that they
         can use to countersign online.
       </li>
       <li>
-        Both links will expire in seven days.
+        The site will send you an e-mail with a secret link that
+        you can use to cancel before the other side countersigns.
       </li>
       <li>
-        If the other side countersigns within seven days, the site
-        will charge your credit card for $${configuration.prices.use}.
-        If the other side does not countersign in seven days, of you
-        cancel your offer before they countersign, your credit card
-        will not be charged.
+        The site will authorize a charge of
+        $${configuration.prices.use} to your credit card now.
+      </li>
+      <li>
+        If the other side countersigns within seven days, the site will
+        make the authorized charge of $${configuration.prices.use}
+        to your credit card.  If the other side does not countersign
+        in seven days, of you cancel before they countersign, your
+        credit card will not be charged.
       </li>
     </ol>
   </section>
@@ -99,22 +92,46 @@ function form (configuration, edition) {
 `
   )
 
+  function draftWarning () {
+    if (edition.edition.endsWith('d')) {
+      return `
+<p class=warning>
+  This is a draft form, not a final, published edition.  Unless you
+  have a specific reason to prefer this particular draft, you should
+  probably use a published edition of the form, instead.
+</p>
+      `
+    } else {
+      return ''
+    }
+  }
+
   function inputs () {
-    return edition
-      .directions
-      .map(function (direction) {
-        var name = (
-          'blanks-' +
-          direction
-            .blank
-            .map(function (element) {
-              return element.toString()
-            })
-            .join(',')
-        )
-        return input(name, direction.label, direction.notes)
-      })
-      .join('')
+    if (edition.directions.length !== 0) {
+      var list = edition
+        .directions
+        .map(function (direction) {
+          var name = (
+            'blanks-' +
+            direction
+              .blank
+              .map(function (element) {
+                return element.toString()
+              })
+              .join(',')
+          )
+          return input(name, direction.label, direction.notes)
+        })
+        .join('')
+      return `
+  <section class=blanks>
+    <h3>Fill in the Blanks</h3>
+    ${list}
+  </section>
+  `
+    } else {
+      return ''
+    }
   }
 
   function signatures (data) {

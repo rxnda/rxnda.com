@@ -82,6 +82,17 @@ blockquote:before {
 
 /* /send/:title/:edition */
 
+.warning {
+  border: 1px solid orange;
+  color: orange;
+  padding: 1rem;
+}
+
+.warning:before {
+  content: 'Warning!';
+  font-weight: bold;
+}
+
 form .note {
   font-size: 90%;
   font-style: italic;
@@ -96,12 +107,12 @@ form input {
 }
 
 form .field {
-  padding-bottom: 1.5rem;
   position: relative;
 }
 
 .signature {
   font-family: "Brush Script", "Lucida Handwriting", "Apple Chancery", cursive;
+  font-style: italic;
 }
 
 input[type=submit] {
@@ -109,7 +120,7 @@ input[type=submit] {
 }
 
 form > section {
-  padding-bottom: 2rem;
+  padding-bottom: 1rem;
 }
 
 .asterisk {
