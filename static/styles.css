@@ -131,3 +131,20 @@ form > section {
   position: absolute;
   top: 0;
 }
+
+/* /sign */
+
+dl {
+  padding: 0 1rem;
+}
+
+dt {
+  clear: left;
+  float: left;
+  font-weight: bold;
+  width: 20%;
+}
+
+dt:after {
+  content: ': ';
+}

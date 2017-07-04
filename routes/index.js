@@ -13,6 +13,8 @@ staticTemplate('/businessfolk', 'businessfolk.html')
 routes.set('/forms', require('./forms'))
 routes.set('/prices', require('./prices'))
 routes.set('/send/:title/:edition', require('./send'))
+routes.set('/sign/:capability', require('./sign'))
+routes.set('/view/:capability', require('./view'))
 
 routes.set('/send.js', function (configuration, request, response) {
   response.setHeader('Content-Type', 'application/javascript')
