@@ -1,8 +1,12 @@
-var revedParse = require('reviewers-edition-parse')
-var isCommonForm = require('commonform-validate').form
 var analyze = require('commonform-analyze')
+var isCommonForm = require('commonform-validate').form
+var revedParse = require('reviewers-edition-parse')
+var signaturePageSchema = require('signature-page-schema')
+delete signaturePageSchema.$schema
+var AJV = require('ajv')
 
 module.exports = function (argument) {
+  var ajv = new AJV()
   return (
     // Title
     isString(argument.title) &&
@@ -21,6 +25,7 @@ module.exports = function (argument) {
     isString(argument.repository) &&
     // Form Content
     isCommonForm(argument.form) &&
+    // Fill-in-the-Blank Directions
     argument.directions.every(function (direction) {
       return (
         Array.isArray(direction.blank) &&
@@ -35,6 +40,11 @@ module.exports = function (argument) {
       return argument.directions.some(function (direction) {
         return sameArray(direction.blank, formBlank)
       })
+    }) &&
+    // Signature Pages
+    Array.isArray(argument.signatures) &&
+    argument.signatures.every(function (signaturePage) {
+      return ajv.validate(signaturePageSchema, signaturePage)
     })
   )
 }

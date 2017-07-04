@@ -12,9 +12,11 @@
     "prestart": "make",
     "test": "tap test/**.test.js",
     "coverage": "tap test/**.test.js --100 --coverage-report=html --no-browser",
+    "pretestserver": "make",
     "testserver": "NODE_ENV=test RECAPTCHA_PUBLIC=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI RECAPTCHA_SECRET=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe DIRECTORY=example-directory node server.js"
   },
   "dependencies": {
+    "ajv": "^5.2.0",
     "commonform-analyze": "^1.0.0",
     "commonform-hash": "^0.4.3",
     "commonform-validate": "^0.6.5",
@@ -32,6 +34,7 @@
     "run-parallel": "^1.1.6",
     "run-series": "^1.1.4",
     "send": "^0.15.3",
+    "signature-page-schema": "^1.0.1",
     "trumpet": "^1.7.2",
     "uuid": "^3.1.0"
   }
