@@ -60,9 +60,5 @@ function content (configuration, data) {
     data.directions,
     {html5: true}
   )}
-</article>
-<a href=/sign/${data.sign}>
-  Return to the page where you can countersign this NDA.
-</a>
-`
+</article>`
 }

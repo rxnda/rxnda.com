@@ -16,6 +16,7 @@ routes.set('/prices', require('./prices'))
 routes.set('/send/:title/:edition', require('./send'))
 routes.set('/sign/:capability', require('./sign'))
 routes.set('/view/:capability', require('./view'))
+routes.set('/cancel/:capability', require('./cancel'))
 
 routes.set('/send.js', function (configuration, request, response) {
   response.setHeader('Content-Type', 'application/javascript')
@@ -31,6 +32,7 @@ routes.set('/send.js', function (configuration, request, response) {
 })
 
 staticFile('sign.js')
+staticFile('cancel.js')
 staticFile('normalize.css')
 staticFile('styles.css')
 

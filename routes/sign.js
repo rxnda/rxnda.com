@@ -95,7 +95,7 @@ function form (configuration, data) {
     <a
         href=/view/${data.sign}
         target=_blank>
-      Click here to view the full text of the proposed NDA online.
+      Click here to view the full text of the NDA.
     </a>
   </p>
   <p>
@@ -415,7 +415,7 @@ function write (configuration, request, response, data) {
       mailgun(configuration, {
         to: sender.email + ',' + recipient.email,
         subject: 'Signed NDA',
-        text: formatEmail([
+        text: formatEmail(configuration, [
           'Attached please find a countersigned copy of the NDA ' +
           'between' + senderName + ' and ' + recipientName + '.'
         ].join('\n\n')),
@@ -502,7 +502,7 @@ function success (configuration, data) {
   var domain = configuration.domain
   var form = data.send.form
   return `
-<h1>NDA Agreed!</h1>
+<h2>NDA Agreed!</h2>
 <p>
   You have countersigned a nondisclosure agreement
   ${

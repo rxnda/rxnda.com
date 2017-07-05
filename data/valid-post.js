@@ -27,7 +27,6 @@ module.exports = function (data, form) {
         return element !== 'date'
       })
       .every(function (element) {
-        console.log(element)
         return sender[element] && typeof sender[element] === 'string'
       }) &&
     // Recipient

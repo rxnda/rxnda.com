@@ -605,7 +605,7 @@ function success (configuration, data) {
 </p>
 <p>
   To cancel your request before the other side signs, visit
-  <a href=https://${domain}/cancel/${data.cancel}>this link</a>.
+  <a href=/cancel/${data.cancel}>this link</a>.
 </p>`
 }
 
