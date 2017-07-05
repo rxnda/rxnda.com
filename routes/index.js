@@ -9,6 +9,7 @@ var routes = module.exports = require('http-hash')()
 staticTemplate('/', 'homepage.html')
 staticTemplate('/lawyers', 'lawyers.html')
 staticTemplate('/businessfolk', 'businessfolk.html')
+staticTemplate('/plans', 'plans.html')
 
 routes.set('/forms', require('./forms'))
 routes.set('/prices', require('./prices'))
