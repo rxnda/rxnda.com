@@ -30,6 +30,7 @@ routes.set('/send.js', function (configuration, request, response) {
   )
 })
 
+staticFile('sign.js')
 staticFile('normalize.css')
 staticFile('styles.css')
 
