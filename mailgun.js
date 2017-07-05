@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'test') {
   var events = new EventEmitter()
   module.exports = function (configuration, message, callback) {
     var log = configuration.log.child({subsystem: 'mailgun'})
-    log.info(message)
+    log.info(elide(message, 'docx'))
     events.emit('message', message)
     callback()
   }
@@ -18,14 +18,25 @@ if (process.env.NODE_ENV === 'test') {
   module.exports = function (configuration, message, callback) {
     var domain = configuration.mailgun.domain
     var key = configuration.mailgun.key
-    var from = 'notifications@' + domain
+    var from = configuration.mailgun.sender + '@' + domain
     var log = configuration.log.child({subsystem: 'mailgun'})
-    log.info(message)
+    log.info(elide(message, 'docx'))
     var form = new FormData()
     form.append('from', from)
     form.append('to', message.to)
     form.append('subject', message.subject)
     form.append('text', message.text)
+    if (message.docx) {
+      form.append('attachments', JSON.stringify([{
+        size: message.docx.data.length,
+        name: message.docx.name,
+        'content-type': (
+          'application/' +
+          'vnd.openxmlformats-officedocument.wordprocessingml.document'
+        )
+      }]))
+      form.append('attachment', message.docx.data)
+    }
     var options = {
       method: 'POST',
       host: 'api.mailgun.net',
@@ -59,4 +70,19 @@ if (process.env.NODE_ENV === 'test') {
       }
     }))
   }
+}
+
+function elide () {
+  var args = Array.prototype.slice.call(arguments)
+  var object = args[0]
+  var drop = args.slice(1)
+  var returned = {}
+  Object.keys(object).forEach(function (key) {
+    if (drop.includes(key)) {
+      returned[key] = 'ELIDED'
+    } else {
+      returned[key] = object[key]
+    }
+  })
+  return returned
 }

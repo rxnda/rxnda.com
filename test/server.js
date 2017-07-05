@@ -1,4 +1,5 @@
 var devNull = require('dev-null')
+var ed25519 = require('ed25519')
 var fs = require('fs')
 var handler = require('../')
 var hash = require('commonform-hash')
@@ -10,6 +11,7 @@ var rimraf = require('rimraf')
 
 module.exports = function (test) {
   var prefix = path.join(os.tmpdir(), 'rxnda')
+  var keypair = ed25519.MakeKeypair(crypto.randomBytes(32))
   fs.mkdtemp(prefix, function (error, directory) {
     if (error) {
       throw error
@@ -32,9 +34,18 @@ module.exports = function (test) {
           require('../example-directory/forms/example.json')
         ]
       },
+      domain: 'rxnda.com',
       stripe: {
         public: process.env.STRIPE_PUBLIC_KEY,
         private: process.env.STRIPE_PRIVATE_KEY
+      },
+      mailgun: {
+        domain: 'rxnda.com',
+        sender: 'notifications'
+      },
+      keys: {
+        public: keypair.publicKey,
+        private: keypair.privateKey
       }
     }
     http.createServer()

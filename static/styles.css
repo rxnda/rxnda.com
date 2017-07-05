@@ -4,7 +4,8 @@ html {
   text-align: center;
 }
 
-header[role=banner], nav, main, footer[role=contentinfo] {
+header[role=banner], nav,
+main, footer[role=contentinfo] {
   margin: 0 auto;
   width: 600px;
 }
@@ -98,12 +99,13 @@ form .note {
   font-style: italic;
 }
 
-form input {
+form input,
+form textarea {
   box-sizing: border-box;
   display: block;
+  margin: 0.5rem 0;
   padding: 0.5rem;
   width: 100%;
-  margin: 0.5rem 0;
 }
 
 form .field {
@@ -117,6 +119,10 @@ form .field {
 
 input[type=submit] {
   margin: 2rem 0;
+}
+
+input[readonly=readonly] {
+  background: #eee;
 }
 
 form > section {
@@ -142,9 +148,14 @@ dt {
   clear: left;
   float: left;
   font-weight: bold;
-  width: 20%;
+  width: 8rem;
 }
 
 dt:after {
   content: ': ';
+}
+
+dd {
+  display: block;
+  margin-left: 8rem;
 }

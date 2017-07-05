@@ -44,9 +44,11 @@ module.exports = function (argument) {
     }) &&
     // Signature Pages
     Array.isArray(argument.signatures) &&
+    argument.signatures.length === 2 &&
     argument.signatures.every(function (signaturePage) {
       return ajv.validate(signaturePageSchema, signaturePage)
-    })
+    }) &&
+    true
   )
 }
 

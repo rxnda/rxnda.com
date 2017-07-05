@@ -29,9 +29,15 @@ var configuration = {
     public: ENV.STRIPE_PUBLIC_KEY,
     private: ENV.STRIPE_PRIVATE_KEY
   },
+  domain: ENV.DOMAIN || 'rxnda.com',
   mailgun: {
     key: ENV.MAILGUN_KEY,
-    domain: 'rxnda.com'
+    domain: ENV.MAILGUN_DOMAIN,
+    sender: ENV.MAILGUN_SENDER || 'notifications'
+  },
+  keys: {
+    public: Buffer.from(ENV.PUBLIC_KEY, 'hex'),
+    private: Buffer.from(ENV.PRIVATE_KEY, 'hex')
   }
 }
 

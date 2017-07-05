@@ -1,16 +1,35 @@
 var analyze = require('commonform-analyze')
 var sameArray = require('./same-array')
 
-module.exports = function (data, edition) {
-  var formBlanks = analyze(edition.commonform).blanks
+module.exports = function (data, form) {
+  var formBlanks = analyze(form.commonform).blanks
   var sender = data.signatures.sender
   var recipient = data.signatures.recipient
+  var page = form.signatures[0]
   return (
     // Sender
     sender.name &&
     sender.signature &&
     sender.name === sender.signature &&
     sender.email &&
+    // Signature Page
+    (
+      !page.entities ||
+      (
+        sender.company &&
+        sender.jurisdiction &&
+        sender.form &&
+        sender.title
+      )
+    ) &&
+    (page.information || [])
+      .filter(function (element) {
+        return element !== 'date'
+      })
+      .every(function (element) {
+        console.log(element)
+        return sender[element] && typeof sender[element] === 'string'
+      }) &&
     // Recipient
     recipient.email &&
     // Directions

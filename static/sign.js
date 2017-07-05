@@ -12,4 +12,10 @@ document.addEventListener('DOMContentLoaded', function () {
         )
       }
     })
+  var form = document.forms[0]
+  form.addEventListener('submit', function (event) {
+    var button = document.getElementById('submitButton')
+    button.setAttribute('disabled', true)
+    button.value = 'Sending...'
+  })
 })

@@ -1,25 +1,29 @@
 var Busboy = require('busboy')
-var escapeStringRegexp = require('escape-string-regexp')
-var crypto = require('crypto')
-var sameArray = require('../data/same-array')
+var docx = require('commonform-docx')
 var ecb = require('ecb')
+var ed25519 = require('ed25519')
 var escape = require('escape-html')
+var escapeStringRegexp = require('escape-string-regexp')
+var formatEmail = require('../format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var mailgun = require('../mailgun')
-var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
+var ooxmlSignaturePages = require('ooxml-signature-pages')
+var outlineNumbering = require('outline-numbering')
 var parse = require('json-parse-errback')
 var path = require('path')
 var pump = require('pump')
 var readTemplate = require('./read-template')
-var runParallel = require('run-parallel')
 var runSeries = require('run-series')
+var sameArray = require('../data/same-array')
+var signatureProperties = require('../data/signature-properties')
 var spell = require('reviewers-edition-spell')
+var stringify = require('json-stable-stringify')
 var stripe = require('stripe')
 var trumpet = require('trumpet')
-var validPost = require('../data/valid-post')
-var wordWrap = require('word-wrap')
+var validSignPost = require('../data/valid-sign-post')
+var xtend = require('xtend')
 
 module.exports = function (configuration, request, response) {
   var directory = configuration.directory
@@ -53,13 +57,13 @@ module.exports = function (configuration, request, response) {
   })
 }
 
-function get (configuration, request, response, edition) {
+function get (configuration, request, response, data) {
   var body = trumpet()
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   pump(body, response)
   body.select('main')
     .createWriteStream()
-    .end(form(configuration, edition))
+    .end(form(configuration, data))
   pump(readTemplate('sign.html'), body)
 }
 
@@ -82,23 +86,30 @@ function form (configuration, data) {
       >${escape(sender.email)}</a>)
     offers to enter into an
     NDA with ${escape(recipient.company || 'you')}
-    on the terms of an Rxnda standard form NDA.
-    You can accept the offer online, at this address,
+    on the terms of an &#8478;nda standard form NDA.
+    You can accept the offer by countersigning online, at this address,
     until ${expires.toLocaleString()}.
   </p>
   ${data.directions.length !== 0 ? blanks() : ''}
   <p>
     <a
-      href=/view/${data.sign}
-      target=_blank>
+        href=/view/${data.sign}
+        target=_blank>
       Click here to view the full text of the proposed NDA online.
     </a>
   </p>
   <p>
     <a
-      href=/
-      target=_blank>
+        href=/
+        target=_blank>
       Click here to read more about Rxnda and how it works.
+    </a>
+  </p>
+  <p>
+    <a
+        href=/cancel/${data.cancel}
+        target=_blank>
+      Click here to visit a page where you can decline this request.
     </a>
   </p>
   ${signatures()}
@@ -146,12 +157,12 @@ function form (configuration, data) {
             'for ' +
             escape(sender.company) + ', ' +
             (startsWithVowel(sender.jurisdiction) ? 'an' : 'a') +
-            escape(sender.jurisdiction) + ' ' +
+            ' ' + escape(sender.jurisdiction) + ' ' +
             escape(sender.form)
           )
-          : ''
+          : ' as an individual '
       }
-      ${new Date(data.timestamp).toLocaleString()}
+      ${new Date(data.timestamp).toLocaleString()}.
     </p>
   </section>
 
@@ -162,17 +173,14 @@ function form (configuration, data) {
     ${
       data.form.signatures[1].information
         .filter(function (name) {
-          return name !== 'email'
+          return name !== 'email' && name !== 'date'
         })
         .map(function (name) {
           return input(
             'signatures-recipient-' + name,
             (name === 'date' ? '' : 'Your ') +
             name[0].toUpperCase() + name.slice(1),
-            [],
-            name === 'date'
-              ? new Date().toLocaleDateString()
-              : undefined
+            []
           )
         })
         .join('')
@@ -181,12 +189,12 @@ function form (configuration, data) {
       <p>Once you press Countersign:</p>
       <ol>
         <li>
-          The site will e-mail both you and the other side,
+          ${escape(data.address)} will e-mail both you and the other side,
           attaching a fully-signed Word copy of the NDA.
         </li>
         <li>
-          The sender will be charged for using the site.
-          You will not.
+          ${escape(configuration.domain)} will charge the sender.
+          You will not be charged.
         </li>
       </ol>
     </section>
@@ -218,7 +226,7 @@ function recipientBlock (page, data) {
       ) +
       input(
         'signatures-recipient-jurisdiction',
-        'Your Company&rsquo;s Legal jurisdiction',
+        'Your Company&rsquo;s Legal Jurisdiction',
         [
           'Enter the legal jurisdiction under whose laws your ' +
           'company is formed.',
@@ -254,22 +262,38 @@ function recipientBlock (page, data) {
   }
 }
 
+function startsWithVowel (string) {
+  return ['a', 'e', 'i', 'o', 'u', 'y']
+    .includes(string[0].toLowerCase())
+}
+
 function input (name, label, notes, value) {
   if (value) {
     return `
 <section class=field>
   <label for=${name}>${label}</label>
-  ${asterisk()}
   <input
       name=${name}
-      value=${value}
+      value='${escape(value)}'
       type=text
       required
-      disabled>
+      readonly=readonly>
   ${value ? prefilled() : paragraphs(notes)}
 </section>`
   } else {
-    return `
+    if (name.endsWith('address')) {
+      return `
+<section class=field>
+  <label for='${name}'>${label}</label>
+  ${asterisk()}
+  <textarea
+      rows=3
+      name=${name}
+      required
+  ></textarea>
+</section>`
+    } else {
+      return `
 <section class=field>
   <label for='${name}'>${label}</label>
   ${asterisk()}
@@ -280,6 +304,7 @@ function input (name, label, notes, value) {
       required>
   ${paragraphs(notes)}
 </section>`
+    }
   }
 
   function prefilled () {
@@ -288,8 +313,8 @@ function input (name, label, notes, value) {
     } else {
       return `
 <p class=note>
-  The sender prefilled this field for you.
-  If they did so incorrectly, tell the sender to resend the request.
+  The sender filled this blank out for you.
+  If they did so incorrectly, tell them to resend the request.
 </p>`
     }
   }
@@ -309,7 +334,11 @@ function byline (recipient) {
     class=signature
     name=signatures-recipient-signature
     type=text
-    pattern="${escapeStringRegexp(recipient.name)}"
+    ${
+      recipient.name
+        ? `pattern="${escapeStringRegexp(recipient.name)}"`
+        : ''
+    }
     required>
   <p class=note>
     To sign the form, enter your name, exactly as above.
@@ -330,176 +359,109 @@ function paragraphs (array) {
     .join('')
 }
 
-function post (configuration, request, response, form) {
-  var data = {
-    signatures: {
-      sender: {},
-      recipient: {}
-    },
-    directions: [],
-    token: null
-  }
+function post (configuration, request, response, send) {
+  var countersign = {}
   pump(
     request,
     new Busboy({headers: request.headers})
       .on('field', function (name, value) {
         if (value) {
-          var key
-          if (name.startsWith('signatures-sender-')) {
-            key = name.slice(18)
-            if (validSignatureProperty(key)) {
-              data.signatures.sender[key] = value
+          if (name.startsWith('signatures-recipient-')) {
+            request.log.info(name + '=' + value)
+            var key = name.slice(21)
+            if (signatureProperties.includes(key)) {
+              countersign[key] = value
+                .trim()
+                .replace(/\r?\n/, '\n')
             }
-          } else if (name.startsWith('signatures-recipient-')) {
-            key = name.slice(21)
-            if (validSignatureProperty(key)) {
-              data.signatures.recipient[key] = value
-            }
-          } else if (name.startsWith('directions-')) {
-            data.directions.push({
-              blank: name
-                .slice(11)
-                .split(',')
-                .map(function (element) {
-                  return /\d/.test(element)
-                    ? parseInt(element)
-                    : element
-                }),
-              value: value
-            })
-          } else if (name === 'token') {
-            data.token = value
           }
+        } else {
+          request.log.info(name)
         }
       })
       .once('finish', function () {
-        request.log.info({data: data})
-        if (!validPost(data, form)) {
+        request.log.info({countersign: countersign})
+        if (!validSignPost(countersign, send.form)) {
           response.statusCode = 400
           response.end()
         } else {
-          write(configuration, request, response, data, form)
+          countersign.date = new Date().toISOString()
+          var data = {
+            send: send,
+            countersign: countersign,
+            address: (
+              configuration.mailgun.sender + '@' +
+              configuration.mailgun.domain
+            )
+          }
+          write(configuration, request, response, data)
         }
       })
   )
 }
 
-var signatureProperties = [
-  'name', 'company', 'signature', 'address', 'company', 'form',
-  'email', 'jurisdiction'
-]
-
-function validSignatureProperty (name) {
-  return signatureProperties.includes(name)
-}
-
-function write (configuration, request, response, data, form) {
-  var domain = configuration.mailgun.domain
+function write (configuration, request, response, data) {
   var directory = configuration.directory
-  var timestamp = new Date().toISOString()
-  data.timestamp = timestamp
-  data.form = form
-  data.price = configuration.prices.use
-  var sender = data.signatures.sender
+  var sender = data.send.signatures.sender
   var senderName = sender.company || sender.name
-  var recipient = data.signatures.recipient
-  var recipientName = recipient.company || recipient.name || recipient.email
+  var recipient = xtend(
+    data.send.signatures.recipient, data.countersign
+  )
+  var recipientName = (
+    recipient.company || recipient.name || recipient.email
+  )
   runSeries([
-    function generateCapabilities (done) {
-      runParallel([
-        capabilityToProperty(data, 'cancel'),
-        capabilityToProperty(data, 'sign')
-      ], done)
+    function emailDOCX (done) {
+      mailgun(configuration, {
+        to: sender.email + ',' + recipient.email,
+        subject: 'Signed NDA',
+        text: formatEmail([
+          'Attached please find a countersigned copy of the NDA ' +
+          'between' + senderName + ' and ' + recipientName + '.'
+        ].join('\n\n')),
+        docx: {
+          data: makeDOCX(configuration, data),
+          name: 'NDA.docx'
+        }
+      }, done)
     },
-    function writeFiles (done) {
-      runParallel([
-        function writeCancelFile (done) {
-          mkdirpThenWriteFile(
-            path.join(directory, 'cancel'),
-            data.cancel, data.sign, done
+    function rmFiles (done) {
+      runSeries([
+        function rmSignFile (done) {
+          fs.unlink(
+            path.join(directory, 'sign', data.send.sign),
+            done
           )
         },
-        function writeSignFile (done) {
-          mkdirpThenWriteFile(
-            path.join(directory, 'sign'),
-            data.sign, data, done
+        continueOnError(function rmCancelFile (done) {
+          fs.unlink(
+            path.join(directory, 'cancel', data.send.cancel),
+            done
           )
-        }
+        })
       ], done)
     },
-    function sendEmails (done) {
+    function chargeSender (done) {
+      var chargeFile = path.join(directory, 'charge', data.send.sign)
+      var chargeID
       runSeries([
-        function emailCancelLink (done) {
-          mailgun(configuration, {
-            to: sender.email,
-            subject: 'Your ' + domain + ' Cancellation Link',
-            text: wordWrap([
-              'You have offered to sign a nondisclosure agreement ' +
-              (sender.company ? 'on behalf of ' + sender.company : '') +
-              ' with ' + recipientName +
-              'on the terms of ' + domain + '\'s ' +
-              form.title + ' form agreement, ' +
-              spell(form.edition) + '.',
-              'To cancel your request before the other side signs, ' +
-              'visit this link:',
-              'https://' + domain + '/cancel/' + data.cancel
-            ].join('\n\n'))
-          }, done)
+        function readChargeID (done) {
+          fs.readFile(chargeFile, ecb(done, function (json) {
+            parse(json, ecb(done, function (parsed) {
+              chargeID = parsed
+              done()
+            }))
+          }))
         },
-        function emailSignLink (done) {
-          mailgun(configuration, {
-            to: recipient.email,
-            subject: 'NDA Request from ' + senderName,
-            text: wordWrap([
-              senderName + ' offers to sign a nondisclosure ' +
-              'agreement with ' +
-              (recipient.company ? recipient.company : 'you') +
-              'on the terms of ' + domain + '\'s ' +
-              form.title + ' form agreement, ' +
-              spell(form.edition) + '.',
-              'To review the proposal, sign online, and ' +
-              'receive a fully executed copy, visit:',
-              'https://' + domain + '/cancel/' + data.sign
-            ].join('\n\n'))
-          }, done)
-        }
-      ], done)
-    },
-    function handlePayment (done) {
-      var chargeID = null
-      runSeries([
-        function createCharge (done) {
-          stripe(configuration.stripe.private).charges.create({
-            amount: data.price * 100, // dollars to cents
-            currency: 'usd',
-            description: domain,
-            // Important: Authorize, but don't capture/charge yet.
-            capture: false,
-            source: data.token
-          }, ecb(done, function (charge) {
-            chargeID = charge.id
-            request.log.info({charge: chargeID})
+        function captureCharge (done) {
+          stripe.charges.capture(chargeID, ecb(done, function (charge) {
+            request.log.info({charge: charge})
             done()
           }))
         },
-        function writeChargeFile (done) {
-          mkdirpThenWriteFile(
-            path.join(directory, 'charge'),
-            data.sign, chargeID, done
-          )
-        },
-        function emailReceipt (done) {
-          mailgun(configuration, {
-            to: data.signatures.sender.email,
-            subject: 'Your ' + domain + ' Order',
-            text: [
-              'Thank you for sending an NDA with ' + domain + '!',
-              'Form: ' + form.title,
-              'Edition: ' + form.edition,
-              domain + ' will authorize a payment of ' + data.price
-            ].join('\n\n')
-          }, done)
-        }
+        continueOnError(function rmChargeFile (done) {
+          fs.unlink(chargeFile, done)
+        })
       ], done)
     }
   ], function (error) {
@@ -514,67 +476,111 @@ function write (configuration, request, response, data, form) {
       body.select('main')
         .createWriteStream()
         .end(success(configuration, data))
-      pump(readTemplate('sent.html'), body)
+      pump(readTemplate('agreed.html'), body)
     }
   })
 
-  function capabilityToProperty (object, key) {
+  function continueOnError (task) {
     return function (done) {
-      randomCapability(ecb(done, function (capability) {
-        object[key] = capability
-        request.log.info(key, capability)
+      task(function (error) {
+        if (error) {
+          request.log.error(error, 'continuing')
+        }
         done()
-      }))
+      })
     }
-  }
-
-  function mkdirpThenWriteFile (directory, file, data, callback) {
-    runSeries([
-      function (done) {
-        mkdirp(directory, done)
-      },
-      function (done) {
-        var filePath = path.join(directory, file)
-        var json = JSON.stringify(data)
-        fs.writeFile(filePath, json, ecb(done, function () {
-          request.log.info('wrote ' + filePath)
-          done()
-        }))
-      }
-    ], callback)
   }
 }
 
 function success (configuration, data) {
-  var sender = data.signatures.sender
-  var recipient = data.signatures.recipient
-  var recipientName = recipient.company || recipient.name || recipient.email
-  var domain = configuration.mailgun.domain
+  var sender = data.send.signatures.sender
+  var senderName = sender.company || sender.name
+  var recipient = xtend(
+    data.send.signatures.recipient,
+    data.countersign
+  )
+  var domain = configuration.domain
+  var form = data.send.form
   return `
-<h1>NDA Sent!</h1>
+<h1>NDA Agreed!</h1>
 <p>
-  You have offered to sign a nondisclosure agreement
-  ${sender.company ? 'on behalf of ' + sender.company : ''}
-  with ${recipientName} on the terms of ${domain}&rsquo;s
-  ${data.form.title}  form agreement, ${spell(data.form.edition)}.
+  You have countersigned a nondisclosure agreement
+  ${
+    recipient.company
+      ? 'on behalf of ' + escape(recipient.company)
+      : ''
+  }
+  with ${escape(senderName)} on the terms of ${domain}&rsquo;s
+  ${escape(form.title)} form agreement,
+  ${spell(form.edition)}.
 </p>
 <p>
-  To cancel your request before the other side signs, visit
-  <a href=https://${domain}/cancel/${data.cancel}>this link</a>.
+  You will receive a fully-signed Word copy by e-mail
+  from ${escape(data.address)} shortly.
 </p>`
 }
 
-function randomCapability (callback) {
-  crypto.randomBytes(32, function (error, bytes) {
-    if (error) {
-      callback(error)
-    } else {
-      callback(null, bytes.toString('hex'))
+function makeDOCX (configuration, data) {
+  var send = data.send
+  var countersign = data.countersign
+  var form = data.send.form
+  var zip = docx(
+    form.commonform,
+    send.directions,
+    {
+      title: 'Rxnda ' + form.title + '\n' + spell(form.edition),
+      numbering: outlineNumbering,
+      indentMargins: false,
+      centerTitle: true,
+      after: ooxmlSignaturePages([
+        // Sender Page
+        prefilledSignaturePage(
+          configuration,
+          form.signatures[0],
+          xtend(send.signatures.sender, {date: send.timestamp})
+        ),
+        // Recipient Page
+        prefilledSignaturePage(
+          configuration,
+          form.signatures[1],
+          xtend(send.signatures.recipient, countersign)
+        )
+      ])
     }
-  })
+  )
+  return zip.generate({output: 'nodebuffer'})
 }
 
-function startsWithVowel (string) {
-  return ['a', 'e', 'i', 'o', 'u', 'y']
-    .includes(string[0].toLowerCase())
+function prefilledSignaturePage (configuration, page, data) {
+  var returned = clone(page)
+  returned.name = data.name
+  returned.meta = (
+    'Signed via rxnda.com. Ed25519:\n' +
+    ed25519.Sign(
+      Buffer.from(stringify(data), 'utf8'),
+      configuration.keys.private
+    ).toString('hex')
+  )
+  if (returned.entities) {
+    returned.entities = [
+      {
+        name: data.company,
+        jurisdiction: data.jurisdiction,
+        form: data.form,
+        by: data.title
+      }
+    ]
+  }
+  returned.conformed = '/' + data.signature + '/'
+  // Replace information array with prefilled information object.
+  returned.information = returned.information
+    .reduce(function (object, key) {
+      object[key] = data[key]
+      return object
+    }, {})
+  return returned
+}
+
+function clone (argument) {
+  return JSON.parse(JSON.stringify(argument))
 }

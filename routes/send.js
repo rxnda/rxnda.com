@@ -1,4 +1,5 @@
 var Busboy = require('busboy')
+var formatEmail = require('../format-email')
 var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
 var ecb = require('ecb')
@@ -17,7 +18,6 @@ var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
 var trumpet = require('trumpet')
 var validPost = require('../data/valid-post')
-var wordWrap = require('word-wrap')
 
 module.exports = function (configuration, request, response) {
   var title = decodeTitle(request.params.title)
@@ -49,6 +49,10 @@ function get (configuration, request, response, edition) {
 }
 
 function form (configuration, edition) {
+  var address = (
+    configuration.mailgun.sender + '@' +
+    configuration.mailgun.domain
+  )
   return `
 <noscript>
   <p>JavaScript has been disabled in your browser.</p>
@@ -80,23 +84,23 @@ function form (configuration, edition) {
     <p>Once you press Sign &amp; Send:</p>
     <ol>
       <li>
-        The site will send the other side a secret link that they
-        can use to countersign online.
+        ${escape(address)} will send the other side a secret link
+        that they can use to countersign online.
       </li>
       <li>
-        The site will send you an e-mail with a secret link that
-        you can use to cancel before the other side countersigns.
+        ${escape(address)} will send you an e-mail with a secret link
+        that you can use to cancel before the other side countersigns.
       </li>
       <li>
-        The site will authorize a charge of
+        ${escape(configuration.domain)} will authorize a charge of
         $${configuration.prices.use} to your credit card now.
       </li>
       <li>
-        If the other side countersigns within seven days, the site will
-        make the authorized charge of $${configuration.prices.use}
-        to your credit card.  If the other side does not countersign
-        in seven days, of you cancel before they countersign, your
-        credit card will not be charged.
+        If the other side countersigns within seven days,
+        ${escape(address)} will make the authorized charge of
+        $${configuration.prices.use} to your credit card.  If the
+        other side does not countersign in seven days, of you cancel
+        before they countersign, your credit card will not be charged.
       </li>
     </ol>
   </section>
@@ -211,11 +215,11 @@ function senderBlock (signature) {
       ) +
       input('signatures-sender-name', 'Your Name', [
         'Enter your full legal name.'
-      ]),
+      ]) +
       input('signatures-sender-title', 'Your Title', [
         'Enter your title at your company.',
         'For example, &ldquo;Chief Executive Officer&rdquo;.'
-      ]),
+      ]) +
       byline()
     )
   } else {
@@ -300,17 +304,30 @@ function input (name, label, notes, value) {
       name.startsWith('signatures-sender-') ||
       name.startsWith('directions-')
     )
-    return `
+    if (name.endsWith('address')) {
+      return `
+<section class=field>
+  <label for='${name}'>${label}</label>
+  ${required ? asterisk() : ''}
+  <textarea
+      rows=3
+      name=${name}
+      ${required ? 'required' : ''}
+  ></textarea>
+</section>`
+    } else {
+      return `
 <section class=field>
   <label for='${name}'>${label}</label>
   ${required ? asterisk() : ''}
   <input
-      name=${name}
+      name='${name}'
       ${name === 'signatures-sender-name' ? 'id=name' : ''}
       type=${name === 'email' ? 'email' : 'text'}
       ${required ? 'required' : ''}>
   ${paragraphs(notes)}
 </section>`
+    }
   }
 }
 
@@ -362,6 +379,9 @@ function post (configuration, request, response, form) {
     new Busboy({headers: request.headers})
       .on('field', function (name, value) {
         if (value) {
+          value = value
+            .trim()
+            .replace(/\r?\n/, '\n')
           var key
           if (name.startsWith('signatures-sender-')) {
             key = name.slice(18)
@@ -402,17 +422,14 @@ function post (configuration, request, response, form) {
   )
 }
 
-var signatureProperties = [
-  'name', 'company', 'signature', 'address', 'company', 'form',
-  'email', 'jurisdiction'
-]
+var signatureProperties = require('../data/signature-properties')
 
 function validSignatureProperty (name) {
   return signatureProperties.includes(name)
 }
 
 function write (configuration, request, response, data, form) {
-  var domain = configuration.mailgun.domain
+  var domain = configuration.domain
   var directory = configuration.directory
   var timestamp = new Date().toISOString()
   data.timestamp = timestamp
@@ -421,7 +438,9 @@ function write (configuration, request, response, data, form) {
   var sender = data.signatures.sender
   var senderName = sender.company || sender.name
   var recipient = data.signatures.recipient
-  var recipientName = recipient.company || recipient.name || recipient.email
+  var recipientName = (
+    recipient.company || recipient.name || recipient.email
+  )
   runSeries([
     function generateCapabilities (done) {
       runParallel([
@@ -451,33 +470,36 @@ function write (configuration, request, response, data, form) {
           mailgun(configuration, {
             to: sender.email,
             subject: 'Your ' + domain + ' Cancellation Link',
-            text: wordWrap([
+            text: formatEmail(configuration, [
               'You have offered to sign a nondisclosure agreement ' +
               (sender.company ? 'on behalf of ' + sender.company : '') +
-              ' with ' + recipientName +
+              ' with ' + recipientName + ' ' +
               'on the terms of ' + domain + '\'s ' +
               form.title + ' form agreement, ' +
               spell(form.edition) + '.',
               'To cancel your request before the other side signs, ' +
               'visit this link:',
-              'https://' + domain + '/cancel/' + data.cancel
+              'https://' + domain + '/cancel/' + data.cancel,
+              'Keep this link safe and secure.  The special code ' +
+              'within it is your digital key to cancel ' +
+              'the request.'
             ].join('\n\n'))
           }, done)
         },
         function emailSignLink (done) {
           mailgun(configuration, {
             to: recipient.email,
-            subject: 'NDA Request from ' + senderName,
-            text: wordWrap([
+            subject: 'NDA Offer from ' + senderName,
+            text: formatEmail(configuration, [
               senderName + ' offers to sign a nondisclosure ' +
               'agreement with ' +
-              (recipient.company ? recipient.company : 'you') +
-              'on the terms of ' + domain + '\'s ' +
-              form.title + ' form agreement, ' +
-              spell(form.edition) + '.',
-              'To review the proposal, sign online, and ' +
-              'receive a fully executed copy, visit:',
-              'https://' + domain + '/cancel/' + data.sign
+              (recipient.company ? recipient.company : 'you') + ' ' +
+              'via ' + domain + '.',
+              'To review the offer, and sign or decline online visit: ' +
+              'https://' + domain + '/sign/' + data.sign,
+              'Keep this link safe and secure.  The special code ' +
+              'within it is your digital key to see and sign ' +
+              'the NDA.'
             ].join('\n\n'))
           }, done)
         }
@@ -510,12 +532,15 @@ function write (configuration, request, response, data, form) {
           mailgun(configuration, {
             to: data.signatures.sender.email,
             subject: 'Your ' + domain + ' Order',
-            text: [
+            text: formatEmail(configuration, [
               'Thank you for sending an NDA with ' + domain + '!',
               'Form: ' + form.title,
               'Edition: ' + form.edition,
-              domain + ' will authorize a payment of ' + data.price
-            ].join('\n\n')
+              // TODO: Detailed text summary in receipt e-mail.
+              domain + ' will authorize a payment of ' +
+              '$' + data.price + ' now, but your card will not be ' +
+              'charged unless and until the other side countersigns.'
+            ].join('\n\n'))
           }, done)
         }
       ], done)
@@ -566,12 +591,14 @@ function write (configuration, request, response, data, form) {
 function success (configuration, data) {
   var sender = data.signatures.sender
   var recipient = data.signatures.recipient
-  var recipientName = recipient.company || recipient.name || recipient.email
-  var domain = configuration.mailgun.domain
+  var recipientName = (
+    recipient.company || recipient.name || recipient.email
+  )
+  var domain = configuration.domain
   return `
 <h1>NDA Sent!</h1>
 <p>
-  You have offered to sign a nondisclosure agreement
+  You have offered to enter a nondisclosure agreement
   ${sender.company ? 'on behalf of ' + sender.company : ''}
   with ${recipientName} on the terms of ${domain}&rsquo;s
   ${data.form.title}  form agreement, ${spell(data.form.edition)}.
