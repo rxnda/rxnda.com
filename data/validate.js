@@ -55,4 +55,3 @@ module.exports = function (argument) {
 function isString (argument) {
   return typeof argument === 'string' && argument.length !== 0
 }
-

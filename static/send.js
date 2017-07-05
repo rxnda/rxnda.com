@@ -1,3 +1,4 @@
+/* global STRIPE_PUBLIC_KEY */
 document.addEventListener('DOMContentLoaded', function () {
   // Add an event handler to validate the signature <input>.
   var name = document.getElementById('name')

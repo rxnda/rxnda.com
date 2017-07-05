@@ -1,6 +1,5 @@
 var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
-var internalError = require('./internal-error')
 var pump = require('pump')
 var readTemplate = require('./read-template')
 var revedCompare = require('reviewers-edition-compare')
@@ -22,7 +21,7 @@ module.exports = function (configuration, request, response) {
     var current = editions.find(function (edition) {
       return revedParse(edition.edition).draft === undefined
     })
-    var displayed = current ? current : editions[0]
+    var displayed = current || editions[0]
     list.write('<section class=form>')
     list.write(`<h3>${escape(title)}</h3>`)
     list.write(

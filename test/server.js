@@ -1,8 +1,8 @@
+var crypto = require('crypto')
 var devNull = require('dev-null')
 var ed25519 = require('ed25519')
 var fs = require('fs')
 var handler = require('../')
-var hash = require('commonform-hash')
 var http = require('http')
 var os = require('os')
 var path = require('path')
@@ -15,12 +15,6 @@ module.exports = function (test) {
   fs.mkdtemp(prefix, function (error, directory) {
     if (error) {
       throw error
-    }
-    var form = {
-      content: [
-        'This is not a very good NDA between ',
-        {blank: ''}, ' and ', {blank: ''}, '.'
-      ]
     }
     var configuration = {
       directory: directory,
