@@ -35,6 +35,7 @@ staticFile('sign.js')
 staticFile('cancel.js')
 staticFile('normalize.css')
 staticFile('styles.css')
+staticFile('robots.txt')
 
 function staticTemplate (pathname, file) {
   var filePath = path.join(__dirname, '..', 'templates', file)
