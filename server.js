@@ -5,11 +5,13 @@ var path = require('path')
 var pino = require('pino')
 var readForms = require('./data/read-forms')
 var runSeries = require('run-series')
+var sweep = require('./sweep')
 var uuid = require('uuid')
 
 var ENV = process.env
 
 var log = pino({server: uuid.v4()})
+var timeout
 
 var configuration = {
   directory: ENV.DIRECTORY
@@ -58,6 +60,9 @@ runSeries([
       server.close(function () {
         log.info('closed')
         process.exit(0)
+        if (timeout) {
+          clearTimeout(timeout)
+        }
       })
     }
 
@@ -79,6 +84,25 @@ runSeries([
       log.info({port: configuration.port}, 'listening')
       done()
     })
+  },
+  function filesweeper (done) {
+    var log = configuration.log.child({subsystem: 'filesweeper'})
+    function schedule () {
+      var now = new Date()
+      var toMidnight = (
+        ((24 - now.getHours()) * 60 * 60 * 1000) +
+        ((60 - now.getMinutes()) * 60 * 1000)
+      )
+      log.info({delay: toMidnight}, 'setTimeout')
+      timeout = setTimeout(
+        function () {
+          sweep(configuration, schedule)
+        },
+        toMidnight
+      )
+    }
+    sweep(configuration, schedule)
+    done()
   }
 ], function (error) {
   if (error) {
