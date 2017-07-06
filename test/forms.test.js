@@ -1,9 +1,9 @@
 var concat = require('./concat')
 var http = require('http')
 var server = require('./server')
-var tap = require('tap')
+var tape = require('tape')
 
-tap.test('GET /forms', function (test) {
+tape.test('GET /forms', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,

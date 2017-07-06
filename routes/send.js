@@ -59,6 +59,7 @@ function form (configuration, edition) {
   <p>You must enabled JavaScript to send.</p>
 </noscript>
 <form
+  id=sendForm
   method=post
   action=/send/${encodeTitle(edition.title)}/${edition.edition}/>
   <h2>
@@ -596,7 +597,7 @@ function success (configuration, data) {
   )
   var domain = configuration.domain
   return `
-<h1>NDA Sent!</h1>
+<h2 class=sent>NDA Sent!</h2>
 <p>
   You have offered to enter a nondisclosure agreement
   ${sender.company ? 'on behalf of ' + sender.company : ''}

@@ -1,12 +1,12 @@
 var http = require('http')
 var server = require('./server')
-var tap = require('tap')
+var tape = require('tape')
 
 testCSS('/normalize.css')
 testCSS('/styles.css')
 
 function testCSS (path) {
-  tap.test('GET ' + path, function (test) {
+  tape.test('GET ' + path, function (test) {
     server(function (port, closeServer) {
       http.request({
         port: port,

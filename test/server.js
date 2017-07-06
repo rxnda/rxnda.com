@@ -1,5 +1,4 @@
 var crypto = require('crypto')
-var devNull = require('dev-null')
 var ed25519 = require('ed25519')
 var fs = require('fs')
 var handler = require('../')
@@ -18,10 +17,9 @@ module.exports = function (test) {
     }
     var configuration = {
       directory: directory,
-      log: pino({}, devNull()),
+      log: pino(fs.createWriteStream('test-server.log')),
       prices: {
-        sending: 10,
-        prescribing: 5
+        use: 10
       },
       forms: {
         'Example NDA': [

@@ -1,8 +1,8 @@
 var http = require('http')
 var server = require('./server')
-var tap = require('tap')
+var tape = require('tape')
 
-tap.test('GET /nonexistent', function (test) {
+tape.test('GET /nonexistent', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
