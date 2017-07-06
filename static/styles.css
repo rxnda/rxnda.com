@@ -59,9 +59,10 @@ li {
 /* / */
 
 blockquote {
-  font-size: 95%;
-  margin: 1rem;
+  font-size: 80%;
+  margin: 1rem auto;
   position: relative;
+  width: 80%;
 }
 
 blockquote:before {

@@ -16,6 +16,93 @@
 
   <h3>Is this &ldquo;AI&rdquo;?</h3>
   <p>Not even close.</p>
+
+  <h3>What about confidential information?</h3>
+  <p>
+    &#8478;nda&rsquo;s technical and operational approach
+    to information from and about customers is:
+  </p>
+  <ol>
+    <li>Accept as little as possible.</li>
+    <li>Put it as few places as possible.</li>
+    <li>Get rid of it, all of it, at first practical opportunity.</li>
+    <li>No eyeballs or special handling without specific permission.</li>
+  </ol>
+  <p>
+    In a nutshell, we treat information from customers
+    like asbestos and lead.  Moving it between parties
+    is part of our business.  But we don&rsquo;t want any
+    more of it around than necessary, and we sure as Hell
+    don&rsquo;t want to touch it.
+  </p>
+
+  <h3>What information do you store?</h3>
+  <p>
+    For each NDA request, our software creates a single
+    file on the server containing the information submitted
+    on the NDA send form, minus credit card details, which
+    go directly to our payment processor.  That means our
+    files have, for example:
+  </p>
+  <ul>
+    <li>date of submission</li>
+    <li>the sender&rsquo;s choice of form</li>
+    <li>their name</li>
+    <li>their e-mail address</li>
+    <li>
+      their company affilition, if signing for a company
+    </li>
+    <li>
+      any form blanks they filled in, like purpose or
+      governing law state
+    </li>
+    <li>
+      the information they provided about the other side,
+      at least an e-mail address
+    </li>
+  </ul>
+
+  <h3>How long do you keep it?</h3>
+  <p>
+    Once an NDA is countersigned or canceled, the site
+    deletes the file holding information on the offer.
+    A program runs at least once per day to delete files
+    for offers expired after seven days.
+  </p>
+  <p>
+    Some offer information may be preserved in server logs.
+    Logs linger on in case of technical error or issue
+    requiring a record for diagnosis.  We also delete log
+    entries on a rolling basis.
+  </p>
+
+  <h3>How do the countersign and cancel links work?</h3>
+
+  <p>
+    Links sent by e-mail to cancel and countersign NDA
+    offers all end with long strings of the letters
+    <code>a</code> through <code>f</code> and the
+    digits <code>0</code> through <code>9</code>.  Those
+    characters represent a pair of very large numbers,
+    chosen at random for each NDA offer.  The numbers work
+    like keys.
+  </p>
+  <p>
+    Anyone who receives the link with a key-number can
+    visit the page and take the corresponding action.
+    If you have the cancel link, you can cancel the offer.
+    If you have the countersign link, you can countersign
+    <em>or</em> cancel.
+  </p>
+  <p>
+    The security of these links lies in the size of the
+    random number.  Guessing a key-number for a particular
+    offer would require the same luck as guessing whether
+    a fair coin will land heads or tails 256 six times
+    in a row, or guessing the key to a combination lock
+    with 115 quattuorvigintillion possible combinations.
+    That isn&rsquo;t practical, even with computers.
+  </p>
 </main>
 {{>footer}}
 </body>
