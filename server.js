@@ -21,10 +21,7 @@ var configuration = {
   prices: {
     use: ENV.USE_PRICE
       ? parseInt(ENV.USE_PRICE)
-      : 10,
-    prescription: ENV.PRESCRIPTION_PRICE
-      ? parseInt(ENV.PRESCRIPTION_PRICE)
-      : 5
+      : 10
   },
   log: log,
   stripe: {

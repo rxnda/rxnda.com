@@ -9,8 +9,5 @@ module.exports = function (configuration, request, response) {
   body.select('span#use-price')
     .createWriteStream()
     .end('$' + configuration.prices.use)
-  body.select('span#prescription-price')
-    .createWriteStream()
-    .end('$' + configuration.prices.prescription)
   pump(body, response)
 }
