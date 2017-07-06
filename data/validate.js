@@ -3,11 +3,12 @@ var isCommonForm = require('commonform-validate').form
 var revedParse = require('reviewers-edition-parse')
 var sameArray = require('./same-array')
 var signaturePageSchema = require('signature-page-schema')
-delete signaturePageSchema.$schema
 var AJV = require('ajv')
+var draft4Schema = require('ajv/lib/refs/json-schema-draft-04.json')
 
 module.exports = function (argument) {
   var ajv = new AJV()
+  ajv.addMetaSchema(draft4Schema)
   return (
     // Title
     isString(argument.title) &&
