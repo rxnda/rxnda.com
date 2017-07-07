@@ -540,7 +540,7 @@ function makeDOCX (configuration, data) {
       ])
     }
   )
-  return zip.generate({output: 'nodebuffer'})
+  return zip.generate({type: 'nodebuffer'})
 }
 
 function prefilledSignaturePage (configuration, page, data) {

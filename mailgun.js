@@ -27,15 +27,14 @@ if (process.env.NODE_ENV === 'test') {
     form.append('subject', message.subject)
     form.append('text', message.text)
     if (message.docx) {
-      form.append('attachments', JSON.stringify([{
-        size: message.docx.data.length,
-        name: message.docx.name,
-        'content-type': (
+      form.append('attachment', message.docx.data, {
+        filename: message.docx.name,
+        contentType: (
           'application/' +
           'vnd.openxmlformats-officedocument.wordprocessingml.document'
-        )
-      }]))
-      form.append('attachment', message.docx.data)
+        ),
+        knownLength: message.docx.data.length
+      })
     }
     var options = {
       method: 'POST',
