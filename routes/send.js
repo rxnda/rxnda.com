@@ -30,9 +30,6 @@ module.exports = function (configuration, request, response) {
   var edition = configuration.forms[title].find(function (edition) {
     return edition.edition === request.params.edition
   })
-  if (!edition) {
-    return notFound.apply(null, arguments)
-  }
 
   if (request.method === 'POST') {
     post(configuration, request, response, edition)
