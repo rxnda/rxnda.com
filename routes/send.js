@@ -178,7 +178,7 @@ function form (configuration, edition) {
   </section>
 
   <section class=theirSignature>
-    <h4>The Other Side</h4>
+    <h4>The Other Side&rsquo;s Signature</h4>
     <section class=field>
       <label for=signatures-recipient-email>Their Email</label>
       ${asterisk()}
