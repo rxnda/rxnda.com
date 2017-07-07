@@ -15,7 +15,7 @@
     "pretest": "make",
     "precoverage": "make",
     "coverage": "NODE_ENV=test istanbul cover -- tape test/*.test.js",
-    "postcoverage": "istanbul check-coverage coverage/coverage.json",
+    "postcoverage": "istanbul check-coverage coverage/coverage.json --statements 100 --functions 100 --branches 100 --lines 100",
     "test": "NODE_ENV=test tape test/**.test.js",
     "pretestserver": "make",
     "testserver": "TMP=$(mktemp) ; ./make-keypair > $TMP ; . $TMP ; DIRECTORY=example-directory MAILGUN_DOMAIN=mail.rxnda.com node server.js ; rm $TMP"
