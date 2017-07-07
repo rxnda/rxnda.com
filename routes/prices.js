@@ -6,8 +6,10 @@ module.exports = function (configuration, request, response) {
   var body = trumpet()
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   pump(readTemplate('prices.html'), body)
-  body.select('span#use-price')
-    .createWriteStream()
-    .end('$' + configuration.prices.use)
+  body.selectAll('span.use-price', function (span) {
+    span
+      .createWriteStream()
+      .end('$' + configuration.prices.use)
+  })
   pump(body, response)
 }
