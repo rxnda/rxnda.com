@@ -444,10 +444,12 @@ function write (configuration, request, response, data) {
           }))
         },
         function captureCharge (done) {
-          stripe.charges.capture(chargeID, ecb(done, function (charge) {
-            request.log.info({charge: charge})
-            done()
-          }))
+          stripe(configuration.stripe.private)
+            .charges
+            .capture(chargeID, ecb(done, function (charge) {
+              request.log.info({charge: charge})
+              done()
+            }))
         },
         continueOnError(function rmChargeFile (done) {
           fs.unlink(chargeFile, done)
