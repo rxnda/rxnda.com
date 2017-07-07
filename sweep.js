@@ -1,8 +1,11 @@
+var cancelPath = require('./data/cancel-path')
+var chargePath = require('./data/charge-path')
 var fs = require('fs')
 var path = require('path')
 var readJSONFile = require('../data/read-json-file')
 var runParallelLimit = require('run-parallel-limit')
 var runSeries = require('run-series')
+var signPath = require('./data/sign-path')
 
 module.exports = function (configuration, callback) {
   var directory = configuration.directory
@@ -37,18 +40,15 @@ module.exports = function (configuration, callback) {
                   fileLog.info({expired: expiration}, 'expired')
                   runSeries(
                     [
-                      path.join('signs', parsed.sign),
-                      path.join('charge', parsed.sign),
-                      path.join('cancel', parsed.cancel)
-                    ].map(function (suffix) {
+                      signPath(configuration, parsed.sign),
+                      chargePath(configuration, parsed.sign),
+                      cancelPath(configuration, parsed.cancel)
+                    ].map(function (fix) {
                       return function (done) {
-                        fs.unlink(
-                          path.join(directory, suffix),
-                          function (error) {
-                            log.error(error)
-                            done()
-                          }
-                        )
+                        fs.unlink(file, function (error) {
+                          log.error(error)
+                          done()
+                        })
                       }
                     }),
                     done
