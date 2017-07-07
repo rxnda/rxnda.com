@@ -496,7 +496,7 @@ function write (configuration, request, response, data, form) {
               'agreement with ' +
               (recipient.company ? recipient.company : 'you') + ' ' +
               'via ' + domain + '.',
-              'To review the offer, and sign or decline online visit: ' +
+              'To review the offer and sign or decline online visit: ' +
               'https://' + domain + '/sign/' + data.sign,
               'Keep this link safe and secure.  The special code ' +
               'within it is your digital key to see and sign ' +

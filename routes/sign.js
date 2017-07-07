@@ -187,8 +187,8 @@ function form (configuration, data) {
       <p>Once you press Countersign:</p>
       <ol>
         <li>
-          ${escape(data.address)} will e-mail both you and the other side,
-          attaching a fully-signed Word copy of the NDA.
+          ${escape(data.address)} will e-mail both you and the other
+          side, attaching a fully-signed Word copy of the NDA.
         </li>
         <li>
           ${escape(configuration.domain)} will charge the sender.

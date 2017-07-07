@@ -57,9 +57,6 @@ runSeries([
       server.close(function () {
         log.info('closed')
         process.exit(0)
-        if (timeout) {
-          clearTimeout(timeout)
-        }
       })
     }
 

@@ -31,7 +31,8 @@ tape.test('Send', function (test) {
         'recipient@example.com'
       )
       .waitForExist('iframe')
-      .element('iframe').then(function (response) {
+      .element('iframe')
+      .then(function (response) {
         return webdriver.frame(response.value)
       })
       .setValue('input[name="cardnumber"]', '4242 4242 4242 4242')
@@ -42,14 +43,14 @@ tape.test('Send', function (test) {
       .frameParent()
       .click('input[type="submit"]')
       .waitForExist('.sent', 20000)
-      .getText('h2').then(function (h1Text) {
+      .getText('h2')
+      .then(function (h1Text) {
         test.assert(
           h1Text.includes('Sent!'),
           '<h2> says "Sent!"'
         )
         test.end()
         closeServer()
-        // webdriver.shutdown()
       })
   })
 })
