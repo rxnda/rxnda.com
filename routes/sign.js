@@ -494,7 +494,7 @@ function success (configuration, data) {
   var domain = configuration.domain
   var form = data.send.form
   return `
-<h2>NDA Agreed!</h2>
+<h2 class=agreed>NDA Agreed!</h2>
 <p>
   You have countersigned a nondisclosure agreement
   ${

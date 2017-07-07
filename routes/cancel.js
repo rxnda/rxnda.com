@@ -169,7 +169,7 @@ function success (configuration, data) {
   var domain = configuration.domain
   var form = data.form
   return `
-<h2>NDA Canceled!</h2>
+<h2 class=canceled>NDA Canceled!</h2>
 <p>
   You have canceled a nondisclosure agreement offered
   by ${escape(recipient.name)}

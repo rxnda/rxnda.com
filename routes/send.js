@@ -564,8 +564,9 @@ function write (configuration, request, response, data, form) {
   function capabilityToProperty (object, key) {
     return function (done) {
       randomCapability(ecb(done, function (capability) {
-        object[key] = capability
-        request.log.info(key, capability)
+        var logObject = {}
+        logObject[key] = object[key] = capability
+        request.log.info(logObject)
         done()
       }))
     }
