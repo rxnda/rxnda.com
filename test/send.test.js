@@ -1,7 +1,9 @@
-var tape = require('tape')
-var server = require('./server')
-var webdriver = require('./webdriver')
+var FormData = require('form-data')
+var http = require('http')
 var sendSimple = require('./send-simple')
+var server = require('./server')
+var tape = require('tape')
+var webdriver = require('./webdriver')
 
 tape.test('Send', function (test) {
   server(function (port, closeServer) {
@@ -16,5 +18,29 @@ tape.test('Send', function (test) {
         test.end()
         closeServer()
       })
+  })
+})
+
+tape.test('invalid send', function (test) {
+  server(function (port, closeServer) {
+    var form = new FormData()
+    form.append('name', 'K')
+    form.append('signature', 'K')
+    http
+      .request({
+        port: port,
+        method: 'POST',
+        path: '/send/Testing/1e',
+        headers: form.getHeaders()
+      })
+      .once('response', function (response) {
+        test.equal(
+          response.statusCode, 400,
+          'responds 400'
+        )
+        test.end()
+        closeServer()
+      })
+      .end()
   })
 })
