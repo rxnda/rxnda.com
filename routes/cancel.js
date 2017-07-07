@@ -120,8 +120,7 @@ function post (configuration, request, response, data) {
         })
       ], done)
     },
-    // TODO: Remove
-    continueOnError(function emailConfirmations (done) {
+    function emailConfirmations (done) {
       mailgun(configuration, {
         to: sender.email + ', ' + recipient.email,
         subject: 'NDA Offer Cancelled',
@@ -132,7 +131,7 @@ function post (configuration, request, response, data) {
           'No one will be charged.'
         ].join('\n\n'))
       }, done)
-    })
+    }
   ], function (error) {
     if (error) {
       request.log.error(error)
