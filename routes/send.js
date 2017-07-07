@@ -528,6 +528,7 @@ function write (configuration, request, response, data, form) {
       ], done)
     }
   ], function (error) {
+    /* istanbul ignore if */
     if (error) {
       request.log.error(error)
       response.statusCode = 500
@@ -593,6 +594,7 @@ function success (configuration, data) {
 
 function randomCapability (callback) {
   crypto.randomBytes(32, function (error, bytes) {
+    /* istanbul ignore if */
     if (error) {
       callback(error)
     } else {
