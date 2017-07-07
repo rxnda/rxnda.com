@@ -1,3 +1,4 @@
+var clone = require('../data/clone')
 var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
 var pump = require('pump')
@@ -66,8 +67,4 @@ module.exports = function (configuration, request, response) {
     list.write('</section>')
   })
   list.end()
-}
-
-function clone (argument) {
-  return JSON.parse(JSON.stringify(argument))
 }

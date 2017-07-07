@@ -1,4 +1,5 @@
 var Busboy = require('busboy')
+var clone = require('../data/clone')
 var docx = require('commonform-docx')
 var ecb = require('ecb')
 var ed25519 = require('ed25519')
@@ -568,8 +569,4 @@ function prefilledSignaturePage (configuration, page, data) {
       return object
     }, {})
   return returned
-}
-
-function clone (argument) {
-  return JSON.parse(JSON.stringify(argument))
 }
