@@ -11,7 +11,6 @@ var uuid = require('uuid')
 var ENV = process.env
 
 var log = pino({server: uuid.v4()})
-var timeout
 
 var configuration = {
   directory: ENV.DIRECTORY
@@ -88,7 +87,7 @@ runSeries([
         ((60 - now.getMinutes()) * 60 * 1000)
       )
       log.info({delay: toMidnight}, 'setTimeout')
-      timeout = setTimeout(
+      setTimeout(
         function () {
           sweep(configuration, schedule)
         },
