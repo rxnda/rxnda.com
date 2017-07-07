@@ -4,7 +4,7 @@ var hash = require('commonform-hash')
 var path = require('path')
 var readJSONFile = require('./read-json-file')
 var runParallel = require('run-parallel')
-var validate = require('./validate')
+var validForm = require('./valid-form')
 
 module.exports = function (configuration, callback) {
   var pattern = path.join(configuration.directory, 'forms', '*.json')
@@ -14,7 +14,7 @@ module.exports = function (configuration, callback) {
       files.map(function (file) {
         return function (done) {
           readJSONFile(file, ecb(done, function (json) {
-            if (!validate(json)) {
+            if (!validForm(json)) {
               done(new Error('Invalid record in ' + file))
             } else {
               var title = json.title
