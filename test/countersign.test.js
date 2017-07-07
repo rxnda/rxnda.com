@@ -16,7 +16,7 @@ tape.test('Countersign', function (test) {
       .waitForExist('.sent', 20000)
       .then(function () {
         return webdriver.url(
-          'http://localhost:' + port + '/sign/' +
+          'http://localhost:' + port + '/countersign/' +
           /([a-f0-9]{64})/.exec(signEMail.text)[1]
         )
       })
