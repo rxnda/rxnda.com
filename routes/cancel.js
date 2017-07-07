@@ -2,6 +2,7 @@ var cancelPath = require('../data/cancel-path')
 var chargePath = require('../data/charge-path')
 var ecb = require('ecb')
 var escape = require('escape-html')
+var expirationDate = require('../data/expiration-date')
 var formatEmail = require('../format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
@@ -66,8 +67,7 @@ function get (configuration, request, response, data) {
 function form (configuration, data) {
   var recipient = data.signatures.recipient
   var sender = data.signatures.sender
-  var expires = new Date(data.timestamp)
-  expires.setDate(expires.getDate() + 7)
+  var expires = expirationDate(data)
   return `
 <form
   method=post

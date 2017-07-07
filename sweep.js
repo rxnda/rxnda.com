@@ -1,5 +1,6 @@
 var cancelPath = require('./data/cancel-path')
 var chargePath = require('./data/charge-path')
+var expired = require('./data/expired')
 var fs = require('fs')
 var path = require('path')
 var readJSONFile = require('../data/read-json-file')
@@ -29,15 +30,8 @@ module.exports = function (configuration, callback) {
                 fileLog.error(error)
                 done()
               } else {
-                var now = new Date()
-                var expiration = new Date(parsed.timestamp)
-                expiration.setDate(
-                  expiration.getDate() + // creation
-                  7 + // one week
-                  1 // extra day
-                )
-                if (now.getTime() > expiration.getTime()) {
-                  fileLog.info({expired: expiration}, 'expired')
+                if (expired(parsed)) {
+                  fileLog.info('expired')
                   runSeries(
                     [
                       signPath(configuration, parsed.sign),

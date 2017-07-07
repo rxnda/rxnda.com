@@ -4,6 +4,7 @@ var ecb = require('ecb')
 var ed25519 = require('ed25519')
 var escape = require('escape-html')
 var escapeStringRegexp = require('escape-string-regexp')
+var expirationDate = require('../data/expiration-date')
 var formatEmail = require('../format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
@@ -67,8 +68,7 @@ function get (configuration, request, response, data) {
 function form (configuration, data) {
   var recipient = data.signatures.recipient
   var sender = data.signatures.sender
-  var expires = new Date(data.timestamp)
-  expires.setDate(expires.getDate() + 7)
+  var expires = expirationDate(data)
   return `
 <noscript>
   <p>JavaScript has been disabled in your browser.</p>
