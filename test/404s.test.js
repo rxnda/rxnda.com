@@ -1,11 +1,10 @@
-var concat = require('./concat')
 var http = require('http')
 var server = require('./server')
 var tape = require('tape')
 
 var IMPROBABLE_CAPABILITY = 'a'.repeat(64)
 
-tape.test('GET /${nonexistent}', function (test) {
+tape.test('GET /{nonexistent}', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
@@ -23,7 +22,7 @@ tape.test('GET /${nonexistent}', function (test) {
   })
 })
 
-tape.test('GET /view/${invalid}', function (test) {
+tape.test('GET /view/{invalid}', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
@@ -41,7 +40,7 @@ tape.test('GET /view/${invalid}', function (test) {
   })
 })
 
-tape.test('GET /cancel/${invalid}', function (test) {
+tape.test('GET /cancel/{invalid}', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
@@ -59,7 +58,7 @@ tape.test('GET /cancel/${invalid}', function (test) {
   })
 })
 
-tape.test('GET /countersign/${invalid}', function (test) {
+tape.test('GET /countersign/{invalid}', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
@@ -77,7 +76,7 @@ tape.test('GET /countersign/${invalid}', function (test) {
   })
 })
 
-tape.test('GET /send/${just-title}', function (test) {
+tape.test('GET /send/{just-title}', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
@@ -95,7 +94,7 @@ tape.test('GET /send/${just-title}', function (test) {
   })
 })
 
-tape.test('GET /send/${nonexistent}/${nonexistent}', function (test) {
+tape.test('GET /send/{nonexistent}/{nonexistent}', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
