@@ -1,10 +1,12 @@
 var Busboy = require('busboy')
-var formatEmail = require('../format-email')
+var cancelPath = require('../data/cancel-path')
+var chargePath = require('../data/charge-path')
 var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
 var ecb = require('ecb')
 var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
+var formatEmail = require('../format-email')
 var fs = require('fs')
 var mailgun = require('../mailgun')
 var mkdirp = require('mkdirp')
@@ -14,6 +16,7 @@ var pump = require('pump')
 var readTemplate = require('./read-template')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
+var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
 var trumpet = require('trumpet')
@@ -431,7 +434,6 @@ function validSignatureProperty (name) {
 
 function write (configuration, request, response, data, form) {
   var domain = configuration.domain
-  var directory = configuration.directory
   var timestamp = new Date().toISOString()
   data.timestamp = timestamp
   data.form = form
@@ -453,14 +455,12 @@ function write (configuration, request, response, data, form) {
       runParallel([
         function writeCancelFile (done) {
           mkdirpThenWriteFile(
-            path.join(directory, 'cancel'),
-            data.cancel, data.sign, done
+            cancelPath(configuration, data.cancel), data.sign, done
           )
         },
         function writeSignFile (done) {
           mkdirpThenWriteFile(
-            path.join(directory, 'sign'),
-            data.sign, data, done
+            signPath(configuration, data.sign), data, done
           )
         }
       ], done)
@@ -525,8 +525,7 @@ function write (configuration, request, response, data, form) {
         },
         function writeChargeFile (done) {
           mkdirpThenWriteFile(
-            path.join(directory, 'charge'),
-            data.sign, chargeID, done
+            chargePath(configuration, data.sign), chargeID, done
           )
         },
         function emailReceipt (done) {
@@ -572,13 +571,12 @@ function write (configuration, request, response, data, form) {
     }
   }
 
-  function mkdirpThenWriteFile (directory, file, data, callback) {
+  function mkdirpThenWriteFile (filePath, data, callback) {
     runSeries([
       function (done) {
-        mkdirp(directory, done)
+        mkdirp(path.dirname(filePath), done)
       },
       function (done) {
-        var filePath = path.join(directory, file)
         var json = JSON.stringify(data)
         fs.writeFile(filePath, json, ecb(done, function () {
           request.log.info('wrote ' + filePath)

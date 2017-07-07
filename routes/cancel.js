@@ -1,3 +1,5 @@
+var cancelPath = require('../data/cancel-path')
+var chargePath = require('../data/charge-path')
 var ecb = require('ecb')
 var escape = require('escape-html')
 var formatEmail = require('../format-email')
@@ -6,24 +8,23 @@ var internalError = require('./internal-error')
 var mailgun = require('../mailgun')
 var notFound = require('./not-found')
 var parse = require('json-parse-errback')
-var path = require('path')
 var pump = require('pump')
 var readTemplate = require('./read-template')
 var runSeries = require('run-series')
+var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var trumpet = require('trumpet')
 var xtend = require('xtend')
 
 module.exports = function (configuration, request, response) {
-  var directory = configuration.directory
   var signCapability
   var data
   runSeries([
     function readCancelFile (done) {
-      var cancelPath = path.join(
-        directory, 'cancel', request.params.capability
+      var cancelFile = cancelPath(
+        configuration, request.params.capability
       )
-      fs.readFile(cancelPath, ecb(done, function (json) {
+      fs.readFile(cancelFile, ecb(done, function (json) {
         parse(json, ecb(done, function (parsed) {
           signCapability = parsed
           done()
@@ -31,7 +32,7 @@ module.exports = function (configuration, request, response) {
       }))
     },
     function readSignFile (done) {
-      var signFile = path.join(directory, 'sign', signCapability)
+      var signFile = signPath(configuration, signCapability)
       fs.readFile(signFile, ecb(done, function (json) {
         parse(json, ecb(done, function (parsed) {
           data = parsed
@@ -99,7 +100,6 @@ function form (configuration, data) {
 }
 
 function post (configuration, request, response, data) {
-  var directory = configuration.directory
   var sender = data.signatures.sender
   var senderName = sender.company || sender.name
   var recipient = data.signatures.recipient
@@ -110,13 +110,13 @@ function post (configuration, request, response, data) {
     function rmFiles (done) {
       runSeries([
         function rmSignFile (done) {
-          fs.unlink(path.join(directory, 'sign', data.sign), done)
+          fs.unlink(signPath(configuration, data.sign), done)
         },
         continueOnError(function rmCancelFile (done) {
-          fs.unlink(path.join(directory, 'cancel', data.cancel), done)
+          fs.unlink(cancelPath(configuration, data.cancel), done)
         }),
         continueOnError(function rmChargeFile (done) {
-          fs.unlink(path.join(directory, 'charge', data.sign), done)
+          fs.unlink(chargePath(configuration, data.sign), done)
         })
       ], done)
     },

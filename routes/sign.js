@@ -17,6 +17,7 @@ var pump = require('pump')
 var readTemplate = require('./read-template')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
+var signPath = require('../data/sign-path')
 var signatureProperties = require('../data/signature-properties')
 var spell = require('reviewers-edition-spell')
 var stringify = require('json-stable-stringify')
@@ -26,14 +27,11 @@ var validSignPost = require('../data/valid-sign-post')
 var xtend = require('xtend')
 
 module.exports = function (configuration, request, response) {
-  var directory = configuration.directory
   var data
   runSeries([
     function readSignFile (done) {
-      var signPath = path.join(
-        directory, 'sign', request.params.capability
-      )
-      fs.readFile(signPath, ecb(done, function (json) {
+      var signFile = signPath(configuration, request.params.capability)
+      fs.readFile(signFile, ecb(done, function (json) {
         parse(json, ecb(done, function (parsed) {
           data = parsed
           done()
