@@ -24,6 +24,10 @@ module.exports = function (test) {
       forms: {
         'Example NDA': [
           require('../example-directory/forms/example.json')
+        ],
+        'Testing': [
+          require('../example-directory/forms/simple-1e1d.json'),
+          require('../example-directory/forms/simple-1e.json')
         ]
       },
       domain: 'rxnda.com',
