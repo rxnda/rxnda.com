@@ -5,6 +5,7 @@ var ed25519 = require('ed25519')
 var escape = require('escape-html')
 var escapeStringRegexp = require('escape-string-regexp')
 var expirationDate = require('../data/expiration-date')
+var expired = require('../data/expired')
 var formatEmail = require('../format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
@@ -12,7 +13,6 @@ var mailgun = require('../mailgun')
 var notFound = require('./not-found')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
-var parse = require('json-parse-errback')
 var path = require('path')
 var pump = require('pump')
 var readJSONFile = require('../data/read-json-file')
@@ -29,16 +29,8 @@ var validSignPost = require('../data/valid-sign-post')
 var xtend = require('xtend')
 
 module.exports = function (configuration, request, response) {
-  var data
-  runSeries([
-    function readSignFile (done) {
-      var signFile = signPath(configuration, request.params.capability)
-      readJSONFile(signFile, ecb(done, function (parsed) {
-        data = parsed
-        done()
-      }))
-    }
-  ], function (error) {
+  var signFile = signPath(configuration, request.params.capability)
+  readJSONFile(signFile, function (error, data) {
     if (error) {
       if (error.code === 'ENOENT') {
         notFound(configuration, request, response)
@@ -46,7 +38,9 @@ module.exports = function (configuration, request, response) {
         internalError(configuration, request, response, error)
       }
     } else {
-      if (request.method === 'POST') {
+      if (expired(data)) {
+        notFound(configuration, request, response)
+      } else if (request.method === 'POST') {
         post(configuration, request, response, data)
       } else {
         get(configuration, request, response, data)

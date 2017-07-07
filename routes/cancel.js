@@ -3,6 +3,7 @@ var chargePath = require('../data/charge-path')
 var ecb = require('ecb')
 var escape = require('escape-html')
 var expirationDate = require('../data/expiration-date')
+var expired = require('../data/expired')
 var formatEmail = require('../format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
@@ -45,7 +46,9 @@ module.exports = function (configuration, request, response) {
         internalError(configuration, request, response, error)
       }
     } else {
-      if (request.method === 'POST') {
+      if (expired(data)) {
+        notFound(configuration, request, response)
+      } else if (request.method === 'POST') {
         post(configuration, request, response, data)
       } else {
         get(configuration, request, response, data)
