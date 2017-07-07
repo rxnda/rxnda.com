@@ -14,7 +14,7 @@ staticTemplate('/plans', 'plans.html')
 routes.set('/forms', require('./forms'))
 routes.set('/prices', require('./prices'))
 routes.set('/send/:title/:edition', require('./send'))
-routes.set('/sign/:capability', require('./sign'))
+routes.set('/countersign/:capability', require('./countersign'))
 routes.set('/view/:capability', require('./view'))
 routes.set('/cancel/:capability', require('./cancel'))
 
@@ -31,7 +31,7 @@ routes.set('/send.js', function (configuration, request, response) {
   )
 })
 
-staticFile('sign.js')
+staticFile('countersign.js')
 staticFile('cancel.js')
 staticFile('normalize.css')
 staticFile('styles.css')
