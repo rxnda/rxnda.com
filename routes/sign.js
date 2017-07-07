@@ -14,6 +14,7 @@ var outlineNumbering = require('outline-numbering')
 var parse = require('json-parse-errback')
 var path = require('path')
 var pump = require('pump')
+var readJSONFile = require('../data/read-json-file')
 var readTemplate = require('./read-template')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
@@ -31,11 +32,9 @@ module.exports = function (configuration, request, response) {
   runSeries([
     function readSignFile (done) {
       var signFile = signPath(configuration, request.params.capability)
-      fs.readFile(signFile, ecb(done, function (json) {
-        parse(json, ecb(done, function (parsed) {
-          data = parsed
-          done()
-        }))
+      readJSONFile(signFile, ecb(done, function (parsed) {
+        data = parsed
+        done()
       }))
     }
   ], function (error) {
@@ -444,11 +443,9 @@ function write (configuration, request, response, data) {
       var chargeID
       runSeries([
         function readChargeID (done) {
-          fs.readFile(chargeFile, ecb(done, function (json) {
-            parse(json, ecb(done, function (parsed) {
-              chargeID = parsed
-              done()
-            }))
+          readJSONFile(chargeFile, ecb(done, function (parsed) {
+            chargeID = parsed
+            done()
           }))
         },
         function captureCharge (done) {

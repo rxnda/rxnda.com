@@ -1,9 +1,8 @@
 var ecb = require('ecb')
-var fs = require('fs')
 var glob = require('glob')
 var hash = require('commonform-hash')
-var parse = require('json-parse-errback')
 var path = require('path')
+var readJSONFile = require('./read-json-file')
 var runParallel = require('run-parallel')
 var validate = require('./validate')
 
@@ -14,20 +13,18 @@ module.exports = function (configuration, callback) {
     runParallel(
       files.map(function (file) {
         return function (done) {
-          fs.readFile(file, ecb(done, function (buffer) {
-            parse(buffer, ecb(done, function (json) {
-              if (!validate(json)) {
-                done(new Error('Invalid record in ' + file))
-              } else {
-                var title = json.title
-                if (!result.hasOwnProperty(title)) {
-                  result[title] = []
-                }
-                json.hash = hash(json.commonform)
-                result[title].push(json)
-                done()
+          readJSONFile(file, ecb(done, function (json) {
+            if (!validate(json)) {
+              done(new Error('Invalid record in ' + file))
+            } else {
+              var title = json.title
+              if (!result.hasOwnProperty(title)) {
+                result[title] = []
               }
-            }))
+              json.hash = hash(json.commonform)
+              result[title].push(json)
+              done()
+            }
           }))
         }
       }),

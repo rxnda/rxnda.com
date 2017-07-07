@@ -7,8 +7,8 @@ var fs = require('fs')
 var internalError = require('./internal-error')
 var mailgun = require('../mailgun')
 var notFound = require('./not-found')
-var parse = require('json-parse-errback')
 var pump = require('pump')
+var readJSONFile = require('../data/read-json-file')
 var readTemplate = require('./read-template')
 var runSeries = require('run-series')
 var signPath = require('../data/sign-path')
@@ -24,20 +24,16 @@ module.exports = function (configuration, request, response) {
       var cancelFile = cancelPath(
         configuration, request.params.capability
       )
-      fs.readFile(cancelFile, ecb(done, function (json) {
-        parse(json, ecb(done, function (parsed) {
-          signCapability = parsed
-          done()
-        }))
+      readJSONFile(cancelFile, ecb(done, function (parsed) {
+        signCapability = parsed
+        done()
       }))
     },
     function readSignFile (done) {
       var signFile = signPath(configuration, signCapability)
-      fs.readFile(signFile, ecb(done, function (json) {
-        parse(json, ecb(done, function (parsed) {
-          data = parsed
-          done()
-        }))
+      readJSONFile(signFile, ecb(done, function (parsed) {
+        data = parsed
+        done()
       }))
     }
   ], function (error) {
