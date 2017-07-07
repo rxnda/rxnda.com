@@ -286,26 +286,13 @@ function recipientBlock (signature) {
   }
 }
 
-function input (name, label, notes, value) {
-  if (value) {
+function input (name, label, notes) {
+  var required = (
+    name.startsWith('signatures-sender-') ||
+    name.startsWith('directions-')
+  )
+  if (name.endsWith('address')) {
     return `
-<section class=field>
-  <label for=${name}>${label}</label>
-  <input
-      name=${name}
-      value=${value}
-      type=text
-      required
-      disabled>
-  ${paragraphs(notes)}
-</section>`
-  } else {
-    var required = (
-      name.startsWith('signatures-sender-') ||
-      name.startsWith('directions-')
-    )
-    if (name.endsWith('address')) {
-      return `
 <section class=field>
   <label for='${name}'>${label}</label>
   ${required ? asterisk() : ''}
@@ -315,8 +302,8 @@ function input (name, label, notes, value) {
       ${required ? 'required' : ''}
   ></textarea>
 </section>`
-    } else {
-      return `
+  } else {
+    return `
 <section class=field>
   <label for='${name}'>${label}</label>
   ${required ? asterisk() : ''}
@@ -327,7 +314,6 @@ function input (name, label, notes, value) {
       ${required ? 'required' : ''}>
   ${paragraphs(notes)}
 </section>`
-    }
   }
 }
 
