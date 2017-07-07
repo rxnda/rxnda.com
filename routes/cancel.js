@@ -40,6 +40,7 @@ module.exports = function (configuration, request, response) {
     }
   ], function (error) {
     if (error) {
+      /* istanbul ignore else */
       if (error.code === 'ENOENT') {
         notFound(configuration, request, response)
       } else {

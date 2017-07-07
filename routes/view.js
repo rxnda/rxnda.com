@@ -13,6 +13,7 @@ module.exports = function (configuration, request, response) {
   var signFile = signPath(configuration, request.params.capability)
   readJSONFile(signFile, function (error, parsed) {
     if (error) {
+      /* istanbul ignore else */
       if (error.code === 'ENOENT') {
         notFound(configuration, request, response)
       } else {
