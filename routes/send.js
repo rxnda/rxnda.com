@@ -163,15 +163,14 @@ function form (configuration, edition) {
     ${senderBlock(sender)}
     ${
       sender.information
+        .filter(function (name) {
+          return name !== 'date'
+        })
         .map(function (name) {
           return input(
             'signatures-sender-' + name,
-            (name === 'date' ? '' : 'Your ') +
-            name[0].toUpperCase() + name.slice(1),
-            [],
-            name === 'date'
-              ? new Date().toLocaleDateString()
-              : undefined
+            'Your ' + name[0].toUpperCase() + name.slice(1),
+            []
           )
         })
         .join('')
