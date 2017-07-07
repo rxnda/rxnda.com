@@ -44,17 +44,9 @@ function staticTemplate (pathname, file) {
   })
 }
 
-function staticFile (file, transform) {
+function staticFile (file) {
   var filePath = path.join(__dirname, '..', 'static', file)
   routes.set('/' + file, function (configuration, request, response) {
-    if (transform) {
-      pump(
-        send(request, filePath),
-        transform(),
-        response
-      )
-    } else {
-      pump(send(request, filePath), response)
-    }
+    pump(send(request, filePath), response)
   })
 }
