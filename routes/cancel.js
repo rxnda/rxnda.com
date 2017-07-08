@@ -7,7 +7,7 @@ var expired = require('../data/expired')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
-var mailgun = require('../mailgun')
+var email = require('../email')
 var notFound = require('./not-found')
 var pump = require('pump')
 var readJSONFile = require('../data/read-json-file')
@@ -121,7 +121,7 @@ function post (configuration, request, response, data) {
       ], done)
     },
     function emailConfirmations (done) {
-      mailgun(configuration, {
+      email(configuration, {
         to: sender.email + ', ' + recipient.email,
         subject: 'NDA Offer Cancelled',
         text: formatEmail(configuration, [

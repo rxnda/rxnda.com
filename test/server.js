@@ -35,7 +35,7 @@ module.exports = function (test) {
         public: process.env.STRIPE_PUBLIC_KEY,
         private: process.env.STRIPE_PRIVATE_KEY
       },
-      mailgun: {
+      email: {
         domain: 'rxnda.com',
         sender: 'notifications'
       },

@@ -10,7 +10,7 @@ var expired = require('../data/expired')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
-var mailgun = require('../mailgun')
+var email = require('../email')
 var notFound = require('./not-found')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
@@ -383,8 +383,8 @@ function post (configuration, request, response, send) {
             send: send,
             countersign: countersign,
             address: (
-              configuration.mailgun.sender + '@' +
-              configuration.mailgun.domain
+              configuration.email.sender + '@' +
+              configuration.email.domain
             )
           }
           write(configuration, request, response, data)
@@ -405,7 +405,7 @@ function write (configuration, request, response, data) {
   )
   runSeries([
     function emailDOCX (done) {
-      mailgun(configuration, {
+      email(configuration, {
         to: sender.email + ',' + recipient.email,
         subject: 'Signed NDA',
         text: formatEmail(configuration, [

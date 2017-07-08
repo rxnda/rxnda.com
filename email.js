@@ -5,7 +5,7 @@ if (process.env.NODE_ENV === 'test') {
   var EventEmitter = require('events').EventEmitter
   var events = new EventEmitter()
   module.exports = function (configuration, message, callback) {
-    var log = configuration.log.child({subsystem: 'mailgun'})
+    var log = configuration.log.child({subsystem: 'email'})
     log.info(elide(message, 'docx'))
     events.emit('message', message)
     callback()
@@ -16,10 +16,10 @@ if (process.env.NODE_ENV === 'test') {
   var https = require('https')
   var pump = require('pump')
   module.exports = function (configuration, message, callback) {
-    var domain = configuration.mailgun.domain
-    var key = configuration.mailgun.key
-    var from = configuration.mailgun.sender + '@' + domain
-    var log = configuration.log.child({subsystem: 'mailgun'})
+    var domain = configuration.email.domain
+    var key = configuration.email.key
+    var from = configuration.email.sender + '@' + domain
+    var log = configuration.log.child({subsystem: 'email'})
     log.info(elide(message, 'docx'))
     var form = new FormData()
     form.append('from', from)

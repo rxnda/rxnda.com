@@ -28,7 +28,7 @@ var configuration = {
     private: ENV.STRIPE_PRIVATE_KEY
   },
   domain: ENV.DOMAIN || 'rxnda.com',
-  mailgun: {
+  email: {
     key: ENV.MAILGUN_KEY,
     domain: ENV.MAILGUN_DOMAIN,
     sender: ENV.MAILGUN_SENDER || 'notifications'

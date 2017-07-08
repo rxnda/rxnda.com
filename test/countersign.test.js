@@ -1,4 +1,4 @@
-var mailgun = require('../mailgun')
+var email = require('../email')
 var sendSimple = require('./send-simple')
 var server = require('./server')
 var tape = require('tape')
@@ -6,7 +6,7 @@ var webdriver = require('./webdriver')
 
 tape.test('Countersign', function (test) {
   var signEMail
-  mailgun.events.on('message', function (data) {
+  email.events.on('message', function (data) {
     if (data.subject && data.subject.indexOf('NDA Offer') === 0) {
       signEMail = data
     }

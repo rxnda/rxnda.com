@@ -8,7 +8,7 @@ var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
-var mailgun = require('../mailgun')
+var email = require('../email')
 var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
 var path = require('path')
@@ -50,8 +50,8 @@ function get (configuration, request, response, edition) {
 
 function form (configuration, edition) {
   var address = (
-    configuration.mailgun.sender + '@' +
-    configuration.mailgun.domain
+    configuration.email.sender + '@' +
+    configuration.email.domain
   )
   return `
 <noscript>
@@ -450,7 +450,7 @@ function write (configuration, request, response, data, form) {
     function sendEmails (done) {
       runSeries([
         function emailCancelLink (done) {
-          mailgun(configuration, {
+          email(configuration, {
             to: sender.email,
             subject: 'Your ' + domain + ' Cancellation Link',
             text: formatEmail(configuration, [
@@ -470,7 +470,7 @@ function write (configuration, request, response, data, form) {
           }, done)
         },
         function emailSignLink (done) {
-          mailgun(configuration, {
+          email(configuration, {
             to: recipient.email,
             subject: 'NDA Offer from ' + senderName,
             text: formatEmail(configuration, [
@@ -511,7 +511,7 @@ function write (configuration, request, response, data, form) {
           )
         },
         function emailReceipt (done) {
-          mailgun(configuration, {
+          email(configuration, {
             to: data.signatures.sender.email,
             subject: 'Your ' + domain + ' Order',
             text: formatEmail(configuration, [
