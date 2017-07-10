@@ -20,7 +20,7 @@ tape.test('GET /', function (test) {
         )
         concat(response, function (error, body) {
           test.ifError(error)
-          var name = '&#8478;nda'
+          var name = 'RxNDA'
           test.assert(
             body.indexOf(name) !== -1,
             'includes ' + JSON.stringify(name)

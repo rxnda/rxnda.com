@@ -79,7 +79,7 @@ function form (configuration, data) {
       >${escape(sender.email)}</a>)
     offers to enter into an
     NDA with ${escape(recipient.company || 'you')}
-    on the terms of an &#8478;nda standard form NDA.
+    on the terms of an RxNDA standard form NDA.
     You can accept the offer by countersigning online, at this address,
     until ${expires.toLocaleString()}.
   </p>
@@ -95,7 +95,7 @@ function form (configuration, data) {
     <a
         href=/
         target=_blank>
-      Click here to read more about Rxnda and how it works.
+      Click here to read more about RxNDA and how it works.
     </a>
   </p>
   <p>
@@ -521,7 +521,7 @@ function makeDOCX (configuration, data) {
     form.commonform,
     send.directions,
     {
-      title: 'Rxnda ' + form.title + '\n' + spell(form.edition),
+      title: 'RxNDA ' + form.title + '\n' + spell(form.edition),
       numbering: outlineNumbering,
       indentMargins: false,
       centerTitle: true,

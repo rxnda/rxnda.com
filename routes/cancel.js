@@ -82,7 +82,7 @@ function form (configuration, data) {
       >${escape(sender.email)}</a>)
     offered to enter into an NDA with
     ${escape(recipient.company || recipient.name || recipient.email)}
-    on the terms of an &#8478;nda standard form NDA.
+    on the terms of an RxNDA standard form NDA.
     The offer expires ${escape(expires.toLocaleString())}.
   </p>
   <p>
