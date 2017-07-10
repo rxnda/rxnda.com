@@ -15,7 +15,12 @@ var webdriver = module.exports = require('webdriverio')
   .remote({
     host: 'localhost',
     port: 9515,
-    desiredCapabilities: {browserName: 'chrome'}
+    desiredCapabilities: {
+      browserName: 'chrome',
+      chromeOptions: process.env.DISABLE_HEADLESS
+        ? undefined
+        : {args: ['headless', '--disable-gpu']}
+    }
   })
   .init()
   .timeouts('script', 1000)
