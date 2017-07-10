@@ -593,12 +593,7 @@ function success (configuration, data) {
 }
 
 function randomCapability (callback) {
-  crypto.randomBytes(32, function (error, bytes) {
-    /* istanbul ignore if */
-    if (error) {
-      callback(error)
-    } else {
-      callback(null, bytes.toString('hex'))
-    }
-  })
+  crypto.randomBytes(32, ecb(callback, function (bytes) {
+    callback(null, bytes.toString('hex'))
+  }))
 }
