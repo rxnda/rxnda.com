@@ -86,6 +86,12 @@ blockquote:before {
 
 /* /send/:title/:edition */
 
+.error {
+  border: 1px solid red;
+  color: red;
+  padding: 1rem;
+}
+
 .warning {
   border: 1px solid orange;
   color: orange;

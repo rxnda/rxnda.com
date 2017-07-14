@@ -17,6 +17,7 @@ var pump = require('pump')
 var readTemplate = require('./read-template')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
+var sameArray = require('../data/same-array')
 var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
@@ -39,17 +40,18 @@ module.exports = function (configuration, request, response) {
   }
 }
 
-function get (configuration, request, response, edition) {
-  var body = trumpet()
+function get (configuration, request, response, edition, postData) {
+  response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
+  var body = trumpet()
   pump(body, response)
   body.select('main')
     .createWriteStream()
-    .end(form(configuration, edition))
+    .end(form(configuration, edition, postData))
   pump(readTemplate('send.html'), body)
 }
 
-function form (configuration, edition) {
+function form (configuration, edition, postData) {
   var address = (
     configuration.email.sender + '@' +
     configuration.email.domain
@@ -74,8 +76,9 @@ function form (configuration, edition) {
       >Review the text of the form on commonform.org.</a>
   </p>
   ${draftWarning()}
-  ${inputs()}
-  ${signatures(edition.signatures)}
+  ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
+  ${inputs(postData)}
+  ${signatures(edition.signatures, postData)}
   <section id=payment>
     <h3>Credit Card Payment</h3>
     <div id=card></div>
@@ -122,7 +125,7 @@ function form (configuration, edition) {
     }
   }
 
-  function inputs () {
+  function inputs (postData) {
     if (edition.directions.length !== 0) {
       var list = edition
         .directions
@@ -136,7 +139,15 @@ function form (configuration, edition) {
               })
               .join(',')
           )
-          return input(name, direction.label, direction.notes)
+          return input(
+            name,
+            direction.label,
+            direction.notes,
+            postData
+              ? priorValue(direction.blank, postData)
+              : undefined,
+            errorsFor(name, postData)
+          )
         })
         .join('')
       return `
@@ -149,7 +160,16 @@ function form (configuration, edition) {
     }
   }
 
-  function signatures (data) {
+  function priorValue (blank, prior) {
+    var match = prior.directions.find(function (direction) {
+      return sameArray(blank, direction.blank)
+    })
+    if (match) {
+      return match.value
+    }
+  }
+
+  function signatures (data, postData) {
     var sender = data[0]
     var recipient = data[1]
     return `
@@ -158,17 +178,20 @@ function form (configuration, edition) {
 
   <section class=ownSignature>
     <h4>Your Side&rsquo;s Signature</h4>
-    ${senderBlock(sender)}
+    ${senderBlock(sender, postData)}
     ${
       sender.information
         .filter(function (name) {
           return name !== 'date'
         })
-        .map(function (name) {
+        .map(function (suffix) {
+          var name = 'signatures-sender-' + suffix
           return input(
-            'signatures-sender-' + name,
-            'Your ' + name[0].toUpperCase() + name.slice(1),
-            []
+            name,
+            'Your ' + suffix[0].toUpperCase() + suffix.slice(1),
+            [],
+            undefined,
+            errorsFor(name, postData)
           )
         })
         .join('')
@@ -183,7 +206,12 @@ function form (configuration, edition) {
       <input
           name=signatures-recipient-email
           type=email
-          required>
+          required
+          value=${
+            postData
+              ? escape(postData.signatures.recipient.email)
+              : ''
+          }>
     </section>
     ${recipientBlock(recipient)}
   </section>
@@ -191,21 +219,25 @@ function form (configuration, edition) {
   }
 }
 
-function senderBlock (signature) {
+function senderBlock (signature, postData) {
   if (Array.isArray(signature.entities)) {
     // Entity Signatory
     return (
-      input('signatures-sender-company', 'Your Company&rsquo;s Name', [
-        'Enter the legal name of your company.',
-        'For example, &ldquo;YourCo, Inc.&rdquo;.'
-      ]) +
-      input(
-        'signatures-sender-form', 'Your Company&rsquo;s Legal Form', [
+      inputWithPrior(
+        'signatures-sender-company', 'Your Company&rsquo;s Name',
+        [
+          'Enter the legal name of your company.',
+          'For example, &ldquo;YourCo, Inc.&rdquo;.'
+        ]
+      ) +
+      inputWithPrior(
+        'signatures-sender-form', 'Your Company&rsquo;s Legal Form',
+        [
           'Enter the legal form of your company.',
           'For example, &ldquo;corporation&rdquo;.'
         ]
       ) +
-      input(
+      inputWithPrior(
         'signatures-sender-jurisdiction',
         'Your Company&rsquo;s Legal Jurisdiction',
         [
@@ -214,23 +246,40 @@ function senderBlock (signature) {
           'For example, &ldquo;Delaware&rdquo;.'
         ]
       ) +
-      input('signatures-sender-name', 'Your Name', [
-        'Enter your full legal name.'
-      ]) +
-      input('signatures-sender-title', 'Your Title', [
-        'Enter your title at your company.',
-        'For example, &ldquo;Chief Executive Officer&rdquo;.'
-      ]) +
+      inputWithPrior(
+        'signatures-sender-name', 'Your Name',
+        ['Enter your full legal name.']
+      ) +
+      inputWithPrior(
+        'signatures-sender-title', 'Your Title',
+        [
+          'Enter your title at your company.',
+          'For example, &ldquo;Chief Executive Officer&rdquo;.'
+        ]
+      ) +
       byline()
     )
   } else {
     // Individual Signatory
     return (
-      input('signatures-sender-name', 'Your Name', [
-        'Enter your full legal name.'
-      ]) +
+      inputWithPrior(
+        'signatures-sender-name', 'Your Name',
+        ['Enter your full legal name.']
+      ) +
       byline()
     )
+  }
+
+  function inputWithPrior (name, label, notes) {
+    if (postData) {
+      return input(
+        name, label, notes,
+        postData.signatures.sender[name.split('-').reverse()[0]],
+        errorsFor(name, postData)
+      )
+    } else {
+      return input(name, label, notes)
+    }
   }
 }
 
@@ -287,7 +336,7 @@ function recipientBlock (signature) {
   }
 }
 
-function input (name, label, notes) {
+function input (name, label, notes, value, errors) {
   var required = (
     name.startsWith('signatures-sender-') ||
     name.startsWith('directions-')
@@ -297,22 +346,25 @@ function input (name, label, notes) {
 <section class=field>
   <label for='${name}'>${label}</label>
   ${required ? asterisk() : ''}
+  ${errors ? paragraphs(errors, 'error') : ''}
   <textarea
       rows=3
       name=${name}
       ${required ? 'required' : ''}
-  ></textarea>
+  >${value ? escape(value) : ''}</textarea>
 </section>`
   } else {
     return `
 <section class=field>
   <label for='${name}'>${label}</label>
   ${required ? asterisk() : ''}
+  ${errors ? paragraphs(errors, 'error') : ''}
   <input
       name='${name}'
       ${name === 'signatures-sender-name' ? 'id=name' : ''}
       type=${name === 'email' ? 'email' : 'text'}
-      ${required ? 'required' : ''}>
+      ${required ? 'required' : ''}
+      value='${value ? escape(value) : ''}'>
   ${paragraphs(notes)}
 </section>`
   }
@@ -322,11 +374,13 @@ function asterisk () {
   return '<span class=asterisk>*</span>'
 }
 
-function byline () {
+function byline (postData) {
+  var errors = errorsFor('signatures-sender-signature', postData)
   return `
 <section class=field>
   <label for=signatures-sender-signature>Signature</label>
   ${asterisk()}
+  ${errors ? paragraphs(errors, 'error') : ''}
   <input
     id=signature
     class=signature
@@ -344,10 +398,11 @@ function byline () {
 </section>`
 }
 
-function paragraphs (array) {
+function paragraphs (array, className) {
+  className = className || 'note'
   return array
     .map(function (element) {
-      return `<p class=note>${element}</p>`
+      return `<p class=${className}>${element}</p>`
     })
     .join('')
 }
@@ -406,9 +461,8 @@ function post (configuration, request, response, form) {
         request.log.info({data: data})
         var errors = validPost(data, form)
         if (errors.length !== 0) {
-          // TODO: Render form again, with messages.
-          response.statusCode = 400
-          response.end()
+          data.errors = errors
+          get(configuration, request, response, form, data)
         } else {
           write(configuration, request, response, data, form)
         }
@@ -625,4 +679,30 @@ function verificationCode (configuration, capability, recipient) {
     signature.slice(64, 96) + '\n' +
     signature.slice(96)
   )
+}
+
+function errorsFor (name, postData) {
+  if (postData) {
+    return postData.errors
+      .filter(function (error) {
+        return error.name === name
+      })
+      .map(function (error) {
+        return error.message
+      })
+  } else {
+    return []
+  }
+}
+
+function errorsHeader (errors) {
+  return `
+<p class=error>
+  There
+  ${errors.length === 1 ? 'was an error' : 'were some errors'}
+  in the form as you submitted it.
+  Look below for
+  ${errors.length === 1 ? 'another box' : 'more boxes'}
+  like this one.
+</p>`
 }
