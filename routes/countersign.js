@@ -521,7 +521,9 @@ function makeDOCX (configuration, data) {
     form.commonform,
     send.directions,
     {
-      title: 'RxNDA ' + form.title + '\n' + spell(form.edition),
+      title: 'RxNDA ' + form.title,
+      edition: spell(form.edition),
+      hash: true,
       numbering: outlineNumbering,
       indentMargins: false,
       centerTitle: true,

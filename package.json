@@ -24,7 +24,7 @@
     "ajv": "^5.2.0",
     "busboy": "^0.2.14",
     "commonform-analyze": "^1.0.0",
-    "commonform-docx": "^1.0.0",
+    "commonform-docx": "^1.1.0",
     "commonform-hash": "^0.4.3",
     "commonform-html": "^1.0.0",
     "commonform-validate": "^0.6.5",
