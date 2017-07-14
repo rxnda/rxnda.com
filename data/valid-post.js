@@ -10,19 +10,17 @@ module.exports = function (data, form) {
 
   // Sender
 
-  if (!sender.name) {
-    errors.push({
-      name: 'signatures-sender-name',
-      message: 'You must provide your name.'
-    })
-  }
+  isString(
+    sender.name,
+    'signatures-sender-name',
+    'You must provide your name.'
+  )
 
-  if (!sender.signature) {
-    errors.push({
-      name: 'signatures-sender-signature',
-      message: 'You must sign to send.'
-    })
-  }
+  isString(
+    sender.signature,
+    'signatures-sender-signature',
+    'You must sign to send.'
+  )
 
   if (sender.name !== sender.signature) {
     errors.push({
@@ -31,42 +29,37 @@ module.exports = function (data, form) {
     })
   }
 
-  if (!sender.email) {
-    errors.push({
-      name: 'signatures-sender-email',
-      message: 'Your must provide your e-mail address.'
-    })
-  }
+  isString(
+    sender.email,
+    'signatures-sender-email',
+    'Your must provide your e-mail address.'
+  )
 
   // Signature Page
   if (page.entities) {
-    if (!sender.company) {
-      errors.push({
-        name: 'signatures-sender-company',
-        message: 'You must provide your company\u2019s name.'
-      })
-    }
+    isString(
+      sender.company,
+      'signatures-sender-company',
+      'You must provide your company\u2019s name.'
+    )
 
-    if (!sender.form) {
-      errors.push({
-        name: 'signatures-sender-form',
-        message: 'You must provide your company\u2019s legal form.'
-      })
-    }
+    isString(
+      sender.form,
+      'signatures-sender-form',
+      'You must provide your company\u2019s legal form.'
+    )
 
-    if (!sender.jurisdiction) {
-      errors.push({
-        name: 'signatures-sender-jurisdiction',
-        message: 'You must provide your company\u2019s legal jurisdiction.'
-      })
-    }
+    isString(
+      sender.jurisdiction,
+      'signatures-sender-jurisdiction',
+      'You must provide your company\u2019s legal jurisdiction.'
+    )
 
-    if (!sender.title) {
-      errors.push({
-        name: 'signatures-sender-title',
-        message: 'You must provide your title.'
-      })
-    }
+    isString(
+      sender.title,
+      'signatures-sender-title',
+      'You must provide your title.'
+    )
   }
 
   (page.information || [])
@@ -74,22 +67,20 @@ module.exports = function (data, form) {
       return element !== 'date'
     })
     .forEach(function (element) {
-      if (!sender[element]) {
-        errors.push({
-          name: 'signatures-sender-' + element,
-          message: 'You must fill in ' + element
-        })
-      }
+      isString(
+        sender[element],
+        'signatures-sender-' + element,
+        'You must fill in ' + element
+      )
     })
 
   // Recipient
 
-  if (!recipient.email) {
-    errors.push({
-      name: 'signatures-recipient-email',
-      message: 'You must provide the recipient\u2019s e-mail address.'
-    })
-  }
+  isString(
+    recipient.email,
+    'signatures-recipient-email',
+    'You must provide the recipient\u2019s e-mail address.'
+  )
 
   // Directions
 
@@ -108,9 +99,7 @@ module.exports = function (data, form) {
       }
       if (!direction.value) {
         errors.push({
-          message: (
-            'Direction ' + (index + 1) + ' must specify a value.'
-          )
+          message: 'Direction ' + (index + 1) + ' must specify a value.'
         })
       }
     })
@@ -145,4 +134,13 @@ module.exports = function (data, form) {
   }
 
   return errors
+
+  function isString (value, name, message) {
+    if (!value) {
+      errors.push({
+        name: name,
+        message: message
+      })
+    }
+  }
 }
