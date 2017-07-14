@@ -4,6 +4,7 @@ var chargePath = require('../data/charge-path')
 var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
 var ecb = require('ecb')
+var ed25519 = require('ed25519')
 var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
 var formatEmail = require('../util/format-email')
@@ -351,6 +352,11 @@ function paragraphs (array) {
     .join('')
 }
 
+var VERIFICATION_CODE_EXPLANATION = (
+  'Customer service may ask you to share this verification ' +
+  'code if you request assistance:'
+)
+
 function post (configuration, request, response, form) {
   var data = {
     signatures: {
@@ -465,7 +471,11 @@ function write (configuration, request, response, data, form) {
               'https://' + domain + '/cancel/' + data.cancel,
               'Keep this link safe and secure.  The special code ' +
               'within it is your digital key to cancel ' +
-              'the request.'
+              'the request.',
+              VERIFICATION_CODE_EXPLANATION,
+              verificationCode(
+                configuration, data.cancel, sender.email
+              )
             ].join('\n\n'))
           }, done)
         },
@@ -482,7 +492,11 @@ function write (configuration, request, response, data, form) {
               'https://' + domain + '/countersign/' + data.sign,
               'Keep this link safe and secure.  The special code ' +
               'within it is your digital key to see and sign ' +
-              'the NDA.'
+              'the NDA.',
+              VERIFICATION_CODE_EXPLANATION,
+              verificationCode(
+                configuration, data.sign, recipient.email
+              )
             ].join('\n\n'))
           }, done)
         }
@@ -596,4 +610,17 @@ function randomCapability (callback) {
   crypto.randomBytes(32, ecb(callback, function (bytes) {
     callback(null, bytes.toString('hex'))
   }))
+}
+
+function verificationCode (configuration, capability, recipient) {
+  var signature = ed25519.Sign(
+    Buffer.from(capability + ' ' + recipient, 'utf8'),
+    configuration.keys.private
+  ).toString('hex')
+  return (
+    signature.slice(0, 32) + '\n' +
+    signature.slice(32, 64) + '\n' +
+    signature.slice(64, 96) + '\n' +
+    signature.slice(96)
+  )
 }
