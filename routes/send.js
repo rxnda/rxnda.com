@@ -404,7 +404,9 @@ function post (configuration, request, response, form) {
       })
       .once('finish', function () {
         request.log.info({data: data})
-        if (!validPost(data, form)) {
+        var errors = validPost(data, form)
+        if (errors.length !== 0) {
+          // TODO: Render form again, with messages.
           response.statusCode = 400
           response.end()
         } else {
