@@ -1,6 +1,7 @@
 var crypto = require('crypto')
 var ed25519 = require('ed25519')
 var fs = require('fs')
+var glob = require('glob')
 var handler = require('../')
 var http = require('http')
 var os = require('os')
@@ -21,15 +22,7 @@ module.exports = function (test) {
       prices: {
         use: 10
       },
-      forms: {
-        'Example NDA': [
-          require('../example-directory/forms/example.json')
-        ],
-        'Testing': [
-          require('../example-directory/forms/simple-1e1d.json'),
-          require('../example-directory/forms/simple-1e.json')
-        ]
-      },
+      forms: require('../example-directory/forms/'),
       domain: 'rxnda.com',
       stripe: {
         public: process.env.STRIPE_PUBLIC_KEY,
