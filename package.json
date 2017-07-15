@@ -21,7 +21,7 @@
     "testserver": "TMP=$(mktemp) ; ./make-keypair > $TMP ; . $TMP ; DIRECTORY=example-directory MAILGUN_DOMAIN=mail.rxnda.com node server.js ; rm $TMP"
   },
   "dependencies": {
-    "ajv": "^5.2.0",
+    "ajv": "^5.2.2",
     "busboy": "^0.2.14",
     "commonform-analyze": "^1.0.0",
     "commonform-docx": "^1.1.0",
