@@ -698,9 +698,6 @@ function errorsFor (name, postData) {
 function errorsHeader (errors) {
   return `
 <p class=error>
-  There
-  ${errors.length === 1 ? 'was an error' : 'were some errors'}
-  in the form as you submitted it.
   Look below for
   ${errors.length === 1 ? 'another box' : 'more boxes'}
   like this one.
