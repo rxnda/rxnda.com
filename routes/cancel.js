@@ -18,7 +18,7 @@ var spell = require('reviewers-edition-spell')
 var trumpet = require('trumpet')
 var xtend = require('xtend')
 
-module.exports = function (configuration, request, response) {
+module.exports = function cancel (configuration, request, response) {
   var signCapability
   var data
   runSeries([

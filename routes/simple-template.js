@@ -3,7 +3,7 @@ var pump = require('pump')
 var readTemplate = require('./read-template')
 var trumpet = require('trumpet')
 
-module.exports = function (file) {
+module.exports = function simpleTemplate (file) {
   return function (configuration, request, response) {
     response.setHeader('Content-Type', 'text/html; charset=UTF-8')
     var body = trumpet()

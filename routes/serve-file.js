@@ -2,7 +2,7 @@ var fs = require('fs')
 var path = require('path')
 var pump = require('pump')
 
-module.exports = function (
+module.exports = function serveFile (
   configuration, request, response, file, contentType
 ) {
   pump(

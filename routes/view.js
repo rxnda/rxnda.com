@@ -9,7 +9,7 @@ var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var trumpet = require('trumpet')
 
-module.exports = function (configuration, request, response) {
+module.exports = function view (configuration, request, response) {
   var signFile = signPath(configuration, request.params.capability)
   readJSONFile(signFile, function (error, parsed) {
     if (error) {
@@ -26,8 +26,8 @@ module.exports = function (configuration, request, response) {
 }
 
 function get (configuration, request, response, edition) {
-  var body = trumpet()
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
+  var body = trumpet()
   pump(body, response)
   body.select('main')
     .createWriteStream()

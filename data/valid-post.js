@@ -2,7 +2,7 @@ var analyze = require('commonform-analyze')
 var sameArray = require('./same-array')
 var validEMail = require('w3-is-email')
 
-module.exports = function (data, form) {
+module.exports = function validPost (data, form) {
   var formBlanks = analyze(form.commonform).blanks
   var sender = data.signatures.sender
   var recipient = data.signatures.recipient
@@ -10,7 +10,6 @@ module.exports = function (data, form) {
   var errors = []
 
   // Sender
-
   isString(
     sender.name,
     'signatures-sender-name',
@@ -82,7 +81,6 @@ module.exports = function (data, form) {
     })
 
   // Recipient
-
   isString(
     recipient.email,
     'signatures-recipient-email',
@@ -95,9 +93,7 @@ module.exports = function (data, form) {
     'You must provide a valid e-mail address.'
   )
 
-
   // Directions
-
   if (!Array.isArray(data.directions)) {
     errors.push({
       message: 'Invalid directions.'
@@ -141,6 +137,7 @@ module.exports = function (data, form) {
     }
   }
 
+  // Payment
   if (!data.token) {
     errors.push({
       message: 'Provide a payment token.'

@@ -7,7 +7,7 @@ var revedCompare = require('reviewers-edition-compare')
 var revedParse = require('reviewers-edition-parse')
 var trumpet = require('trumpet')
 
-module.exports = function (configuration, request, response) {
+module.exports = function forms (configuration, request, response) {
   var body = trumpet()
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   pump(body, response)
@@ -35,34 +35,30 @@ module.exports = function (configuration, request, response) {
     displayed.description.forEach(function (string) {
       list.write(`<p class=description>${escape(string)}</p>`)
     })
-    list.write(
-  `<p class=send>
-    <a href=/send/${encodeTitle(title)}/${displayed.edition}
-      >Sign and send this NDA.</a>
-  </p>`
+    list.write(`
+<p class=send>
+  <a href=/send/${encodeTitle(title)}/${displayed.edition}
+    >Sign and send this NDA.</a>
+</p>`
     )
     list.write('</section>')
-    list.write(
-`
+    list.write(`
 <p class=commonform>
   View the text of this edition of the form
   <a
     href=https://commonform.org/forms/${displayed.hash}
     target=_blank
     >on CommonForm.org</a>.
-</p>
-`
+</p>`
   )
-    list.write(
-`
+    list.write(`
 <p class=repository>
   To give submit feedback or propose changes to this form, visit
   <a
     href=${displayed.repository}
     target=_blank
     >${displayed.repository}</a>.
-</p>
-`
+</p>`
   )
     list.write('</section>')
   })

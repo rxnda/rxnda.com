@@ -8,7 +8,7 @@ var runParallelLimit = require('run-parallel-limit')
 var runSeries = require('run-series')
 var signPath = require('./data/sign-path')
 
-module.exports = function (configuration, callback) {
+module.exports = function sweep (configuration, callback) {
   var directory = configuration.directory
   var signs = path.join(directory, 'sign')
   var log = configuration.log.child({subsystem: 'filesweeper'})

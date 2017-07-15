@@ -5,11 +5,11 @@ var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
 var ecb = require('ecb')
 var ed25519 = require('ed25519')
+var email = require('../email')
 var encodeTitle = require('../util/encode-title')
 var escape = require('escape-html')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
-var email = require('../email')
 var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
 var path = require('path')
@@ -24,7 +24,7 @@ var stripe = require('stripe')
 var trumpet = require('trumpet')
 var validPost = require('../data/valid-post')
 
-module.exports = function (configuration, request, response) {
+module.exports = function send (configuration, request, response) {
   var title = decodeTitle(request.params.title)
   if (!configuration.forms.hasOwnProperty(title)) {
     return notFound.apply(null, arguments)

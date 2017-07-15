@@ -1,3 +1,3 @@
-module.exports = function (title) {
+module.exports = function encodeTitle (title) {
   return encodeURIComponent(title.replace(/ /g, '_'))
 }

@@ -29,7 +29,9 @@ var trumpet = require('trumpet')
 var validCountersignPost = require('../data/valid-countersign-post')
 var xtend = require('xtend')
 
-module.exports = function (configuration, request, response) {
+module.exports = function counterisgn (
+  configuration, request, response
+) {
   var signFile = signPath(configuration, request.params.capability)
   readJSONFile(signFile, function (error, data) {
     if (error) {

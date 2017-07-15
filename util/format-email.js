@@ -1,6 +1,6 @@
 var wordWrap = require('word-wrap')
 
-module.exports = function wrapEmail (configuration, string) {
+module.exports = function wrapEMail (configuration, string) {
   return wordWrap(
     (
       string + '\n\n' +

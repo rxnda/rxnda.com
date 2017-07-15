@@ -6,7 +6,7 @@ var signaturePageSchema = require('signature-page-schema')
 var AJV = require('ajv')
 var draft4Schema = require('ajv/lib/refs/json-schema-draft-04.json')
 
-module.exports = function (argument) {
+module.exports = function validForm (argument) {
   var ajv = new AJV()
   ajv.addMetaSchema(draft4Schema)
   return (

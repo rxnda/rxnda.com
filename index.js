@@ -3,7 +3,7 @@ var routes = require('./routes')
 var url = require('url')
 var uuid = require('uuid')
 
-module.exports = function (configuration, request, response) {
+module.exports = function onRequest (configuration, request, response) {
   // Logging
   var log = configuration.log
   request.log = log.child({request: uuid.v4()})
@@ -12,6 +12,7 @@ module.exports = function (configuration, request, response) {
     request.log.info(response)
   })
 
+  // Routing
   var parsed = url.parse(request.url, true)
   request.query = parsed.query
   var route = routes.get(parsed.pathname)
