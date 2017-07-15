@@ -26,7 +26,7 @@ var spell = require('reviewers-edition-spell')
 var stringify = require('json-stable-stringify')
 var stripe = require('stripe')
 var trumpet = require('trumpet')
-var validSignPost = require('../data/valid-countersign-post')
+var validCountersignPost = require('../data/valid-countersign-post')
 var xtend = require('xtend')
 
 module.exports = function (configuration, request, response) {
@@ -51,20 +51,21 @@ module.exports = function (configuration, request, response) {
   })
 }
 
-function get (configuration, request, response, data) {
+function get (configuration, request, response, data, postData) {
   var body = trumpet()
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
+  response.statusCode = postData ? 400 : 200
   pump(body, response)
   body.select('main')
     .createWriteStream()
-    .end(form(configuration, data))
+    .end(form(configuration, data, postData))
   pump(readTemplate('countersign.html'), body)
 }
 
-function form (configuration, data) {
-  var recipient = data.signatures.recipient
-  var sender = data.signatures.sender
-  var expires = expirationDate(data)
+function form (configuration, send, postData) {
+  var recipient = send.signatures.recipient
+  var sender = send.signatures.sender
+  var expires = expirationDate(send)
   return `
 <noscript>
   <p>JavaScript has been disabled in your browser.</p>
@@ -72,7 +73,7 @@ function form (configuration, data) {
 </noscript>
 <form
   method=post
-  action=/countersign/${data.sign}
+  action=/countersign/${send.sign}
   <p>
     ${escape(sender.name)}
     (<a href="mailto:${encodeURIComponent(sender.email)}"
@@ -83,10 +84,11 @@ function form (configuration, data) {
     You can accept the offer by countersigning online, at this address,
     until ${expires.toLocaleString()}.
   </p>
-  ${data.directions.length !== 0 ? blanks() : ''}
+  ${send.directions.length !== 0 ? blanks() : ''}
+  ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
   <p>
     <a
-        href=/view/${data.sign}
+        href=/view/${send.sign}
         target=_blank>
       Click here to view the full text of the NDA.
     </a>
@@ -100,7 +102,7 @@ function form (configuration, data) {
   </p>
   <p>
     <a
-        href=/cancel/${data.cancel}
+        href=/cancel/${send.cancel}
         target=_blank>
       Click here to visit a page where you can decline this request.
     </a>
@@ -112,15 +114,14 @@ function form (configuration, data) {
   function blanks () {
     return `
 <dl>
-  <dt>Form</dt><dd>${escape(data.form.title)}</dd>
-  <dt>Edition</dt><dd>${escape(spell(data.form.edition))}</dd>
+  <dt>Form</dt><dd>${escape(send.form.title)}</dd>
+  <dt>Edition</dt><dd>${escape(spell(send.form.edition))}</dd>
   ${dtdds()}
-</dl>
-`
+</dl>`
     function dtdds () {
-      return data.directions
+      return send.directions
         .map(function (direction) {
-          var label = data.form.directions.find(function (element) {
+          var label = send.form.directions.find(function (element) {
             return sameArray(element.blank, direction.blank)
           })
             .label
@@ -155,25 +156,29 @@ function form (configuration, data) {
           )
           : ' as an individual '
       }
-      ${new Date(data.timestamp).toLocaleString()}.
+      ${new Date(send.timestamp).toLocaleString()}.
     </p>
   </section>
 
   <section class=yourSignature>
     <h4>Your Signature</h4>
-    ${recipientBlock(data.form.signatures[1], recipient)}
-    ${byline(recipient)}
+    ${recipientBlock(send.form.signatures[1], recipient)}
+    ${byline(recipient, postData)}
     ${
-      data.form.signatures[1].information
+      send.form.signatures[1].information
         .filter(function (name) {
           return name !== 'email' && name !== 'date'
         })
-        .map(function (name) {
+        .map(function (suffix) {
+          var name = 'signatures-recipient-' + suffix
           return input(
-            'signatures-recipient-' + name,
-            (name === 'date' ? '' : 'Your ') +
-            name[0].toUpperCase() + name.slice(1),
-            []
+            name,
+            (suffix === 'date' ? '' : 'Your ') +
+            suffix[0].toUpperCase() + suffix.slice(1),
+            [],
+            undefined,
+            (postData ? postData[suffix] : undefined),
+            errorsFor(name, postData)
           )
         })
         .join('')
@@ -182,7 +187,7 @@ function form (configuration, data) {
       <p>Once you press Countersign:</p>
       <ol>
         <li>
-          ${escape(data.address)} will e-mail both you and the other
+          ${escape(send.address)} will e-mail both you and the other
           side, attaching a fully-signed Word copy of the NDA.
         </li>
         <li>
@@ -196,28 +201,28 @@ function form (configuration, data) {
   }
 }
 
-function recipientBlock (page, data) {
+function recipientBlock (page, send, postData) {
   if (Array.isArray(page.entities)) {
     // Entity Signatory
     return (
-      input(
+      inputWithPrior(
         'signatures-recipient-company', 'Your Company Name',
         [
           'Enter the legal name of your company.',
           'For example, &ldquo;SomeCo, LLC&rdquo;.',
           'If you leave this blank, the recipient can fill it out.'
         ],
-        data.company
+        send.company
       ) +
-      input(
+      inputWithPrior(
         'signatures-recipient-form', 'Your Company&rsquo;s Legal Form',
         [
           'Enter the legal form of your company.',
           'For example, &ldquo;limited liability company&rdquo;.'
         ],
-        data.form
+        send.form
       ) +
-      input(
+      inputWithPrior(
         'signatures-recipient-jurisdiction',
         'Your Company&rsquo;s Legal Jurisdiction',
         [
@@ -225,20 +230,20 @@ function recipientBlock (page, data) {
           'company is formed.',
           'For example, &ldquo;Delaware&rdquo;.'
         ],
-        data.jurisdiction
+        send.jurisdiction
       ) +
-      input(
+      inputWithPrior(
         'signatures-recipient-name', 'Your Name', [
           'Enter your name.'
         ],
-        data.name
+        send.name
       ) +
-      input(
+      inputWithPrior(
         'signatures-recipient-title', 'Your Title', [
           'Enter your title at the company.',
           'For example, &ldquo;Chief Executive Officer&rdquo;.'
         ],
-        data.title
+        send.title
       )
     )
   } else {
@@ -249,9 +254,21 @@ function recipientBlock (page, data) {
           'Enter your full legal name.',
           'For example, &ldquo;Jane Doe&rdquo;.'
         ],
-        data.name
+        send.name
      )
     )
+  }
+
+  function inputWithPrior (name, label, notes, value) {
+    if (postData) {
+      return input(
+        name, label, notes, value,
+        postData[name.split('-').reverse()[0]],
+        errorsFor(name, postData)
+      )
+    } else {
+      return input(name, label, notes)
+    }
   }
 }
 
@@ -260,18 +277,18 @@ function startsWithVowel (string) {
     .includes(string[0].toLowerCase())
 }
 
-function input (name, label, notes, value) {
-  if (value) {
+function input (name, label, notes, sendValue, postValue, errors) {
+  if (sendValue) {
     return `
 <section class=field>
   <label for=${name}>${label}</label>
   <input
       name=${name}
-      value='${escape(value)}'
+      value='${escape(sendValue)}'
       type=text
       required
       readonly=readonly>
-  ${value ? prefilled() : paragraphs(notes)}
+  ${sendValue ? prefilled() : paragraphs(notes)}
 </section>`
   } else {
     if (name.endsWith('address')) {
@@ -279,21 +296,24 @@ function input (name, label, notes, value) {
 <section class=field>
   <label for='${name}'>${label}</label>
   ${asterisk()}
+  ${errors ? paragraphs(errors, 'error') : ''}
   <textarea
       rows=3
       name=${name}
       required
-  ></textarea>
+  >${postValue || ''}</textarea>
 </section>`
     } else {
       return `
 <section class=field>
   <label for='${name}'>${label}</label>
   ${asterisk()}
+  ${errors ? paragraphs(errors, 'error') : ''}
   <input
       name=${name}
       ${name === 'signatures-recipient-name' ? 'id=name' : ''}
       type=${name === 'email' ? 'email' : 'text'}
+      value=${postValue || ''}
       required>
   ${paragraphs(notes)}
 </section>`
@@ -317,11 +337,13 @@ function asterisk () {
   return '<span class=asterisk>*</span>'
 }
 
-function byline (recipient) {
+function byline (recipient, postData) {
+  var errors = errorsFor('signatures-recipient-signature', postData)
   return `
 <section class=field>
   <label for=signatures-recipient-signature>Signature</label>
   ${asterisk()}
+  ${errors ? paragraphs(errors, 'error') : ''}
   <input
     id=signature
     class=signature
@@ -344,10 +366,11 @@ function byline (recipient) {
 </section>`
 }
 
-function paragraphs (array) {
+function paragraphs (array, className) {
+  className = className || 'note'
   return array
     .map(function (element) {
-      return `<p class=note>${element}</p>`
+      return `<p class=${className}>${element}</p>`
     })
     .join('')
 }
@@ -360,7 +383,6 @@ function post (configuration, request, response, send) {
       .on('field', function (name, value) {
         if (value) {
           if (name.startsWith('signatures-recipient-')) {
-            request.log.info(name + '=' + value)
             var key = name.slice(21)
             if (signatureProperties.includes(key)) {
               countersign[key] = value
@@ -374,9 +396,10 @@ function post (configuration, request, response, send) {
       })
       .once('finish', function () {
         request.log.info({countersign: countersign})
-        if (!validSignPost(countersign, send.form)) {
-          response.statusCode = 400
-          response.end()
+        var errors = validCountersignPost(countersign, send.form)
+        if (errors.length !== 0) {
+          countersign.errors = errors
+          get(configuration, request, response, form, send, countersign)
         } else {
           countersign.date = new Date().toISOString()
           var data = {
@@ -574,4 +597,27 @@ function prefilledSignaturePage (configuration, page, data) {
       return object
     }, {})
   return returned
+}
+
+function errorsFor (name, postData) {
+  if (postData) {
+    return postData.errors
+      .filter(function (error) {
+        return error.name === name
+      })
+      .map(function (error) {
+        return error.message
+      })
+  } else {
+    return []
+  }
+}
+
+function errorsHeader (errors) {
+  return `
+<p class=error>
+  Look below for
+  ${errors.length === 1 ? 'another box' : 'more boxes'}
+  like this one.
+</p>`
 }

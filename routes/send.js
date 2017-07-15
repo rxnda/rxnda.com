@@ -190,7 +190,7 @@ function form (configuration, edition, postData) {
             name,
             'Your ' + suffix[0].toUpperCase() + suffix.slice(1),
             [],
-            undefined,
+            (postData ? postData.signatures.sender[suffix] : undefined),
             errorsFor(name, postData)
           )
         })
