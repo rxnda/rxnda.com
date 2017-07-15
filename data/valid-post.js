@@ -1,6 +1,6 @@
 var analyze = require('commonform-analyze')
 var sameArray = require('./same-array')
-var validEMail = require('./valid-email')
+var validEMail = require('w3-is-email')
 
 module.exports = function (data, form) {
   var formBlanks = analyze(form.commonform).blanks
