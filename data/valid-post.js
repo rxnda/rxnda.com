@@ -1,5 +1,6 @@
 var analyze = require('commonform-analyze')
 var sameArray = require('./same-array')
+var validEMail = require('./valid-email')
 
 module.exports = function (data, form) {
   var formBlanks = analyze(form.commonform).blanks
@@ -33,6 +34,12 @@ module.exports = function (data, form) {
     sender.email,
     'signatures-sender-email',
     'Your must provide your e-mail address.'
+  )
+
+  isEMail(
+    sender.email,
+    'signatures-sender-email',
+    'Your must provide a valid e-mail address.'
   )
 
   // Signature Page
@@ -81,6 +88,13 @@ module.exports = function (data, form) {
     'signatures-recipient-email',
     'You must provide the recipient\u2019s e-mail address.'
   )
+
+  isEMail(
+    recipient.email,
+    'signatures-recipient-email',
+    'Your must provide a valid e-mail address.'
+  )
+
 
   // Directions
 
@@ -137,6 +151,15 @@ module.exports = function (data, form) {
 
   function isString (value, name, message) {
     if (!value) {
+      errors.push({
+        name: name,
+        message: message
+      })
+    }
+  }
+
+  function isEMail (value, name, message) {
+    if (!validEMail(value)) {
       errors.push({
         name: name,
         message: message
