@@ -33,13 +33,13 @@ module.exports = function (data, form) {
   isString(
     sender.email,
     'signatures-sender-email',
-    'Your must provide your e-mail address.'
+    'You must provide your e-mail address.'
   )
 
   isEMail(
     sender.email,
     'signatures-sender-email',
-    'Your must provide a valid e-mail address.'
+    'You must provide a valid e-mail address.'
   )
 
   // Signature Page
@@ -92,7 +92,7 @@ module.exports = function (data, form) {
   isEMail(
     recipient.email,
     'signatures-recipient-email',
-    'Your must provide a valid e-mail address.'
+    'You must provide a valid e-mail address.'
   )
 
 
