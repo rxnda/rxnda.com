@@ -45,7 +45,7 @@
     "replacestream": "^4.0.2",
     "reviewers-edition-compare": "^1.0.5",
     "reviewers-edition-parse": "^2.0.6",
-    "reviewers-edition-spell": "^1.0.3",
+    "reviewers-edition-spell": "^1.1.1",
     "run-parallel": "^1.1.6",
     "run-parallel-limit": "^1.0.3",
     "run-series": "^1.1.4",
