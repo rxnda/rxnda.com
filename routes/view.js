@@ -38,12 +38,14 @@ function get (configuration, request, response, edition) {
 function content (configuration, data) {
   return `
 <article class=commonform>
-  <h1>${escape(data.form.title)}</h1>
-  <p class=edition>${escape(spell(data.form.edition))}</p>
   ${commonformHTML(
     data.form.commonform,
     data.directions,
-    {html5: true}
+    {
+      title: data.form.title,
+      edition: spell(data.form.edition),
+      html5: true
+    }
   )}
 </article>`
 }
