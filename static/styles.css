@@ -76,14 +76,6 @@ blockquote:before {
   top: -0.5rem;
 }
 
-/* /forms */
-
-.form {
-  border: 1px solid black;
-  margin: 1rem 0;
-  padding: 1rem;
-}
-
 /* /send/:title/:edition */
 
 .error {
@@ -180,4 +172,10 @@ dd {
   margin: 0;
   padding: 0;
   text-align: center;
+}
+
+/* /send */
+.form {
+  border: 1px solid black;
+  padding: 0 1rem 1rem 1rem;
 }

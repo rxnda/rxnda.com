@@ -1,0 +1,178 @@
+{
+  "questions": [
+    {
+      "name": "sender",
+      "content": [
+        "The NDA is for ",
+        {
+          "select": [
+            {
+              "text": "me, as an individual",
+              "value": "individual"
+            },
+            {
+              "text": "my company",
+              "value": "business"
+            }
+          ]
+        },
+        "."
+      ]
+    },
+    {
+      "name": "recipient",
+      "content": [
+        "The other side is ",
+        {
+          "select": [
+            {
+              "text": "an individual",
+              "value": "individual"
+            },
+            {
+              "text": "a company",
+              "value": "business"
+            }
+          ]
+        },
+        "."
+      ]
+    },
+    {
+      "name": "direction",
+      "content": [
+        "The NDA is to protect information from ",
+        {
+          "select": [
+            {
+              "text": "only my side",
+              "value": "one-way"
+            },
+            {
+              "text": "both sides",
+              "value": "two-way"
+            }
+          ]
+        },
+        "."
+      ]
+    },
+    {
+      "name": "scope",
+      "content": [
+        "The NDA will protect ",
+        {
+          "select": [
+            {
+              "text": "information identified as confidential",
+              "value": "narrow"
+            },
+            {
+              "text": "all confidential information disclosed",
+              "value": "broad"
+            }
+          ]
+        },
+        "."
+      ]
+    }
+  ],
+  "mapping": {
+    "RxNDA B-1W-B2B": {
+      "sender": "business",
+      "recipient": "business",
+      "direction": "one-way",
+      "scope": "broad"
+    },
+    "RxNDA B-1W-B2I": {
+      "sender": "business",
+      "recipient": "individual",
+      "direction": "one-way",
+      "scope": "broad"
+    },
+    "RxNDA B-1W-I2B": {
+      "sender": "individual",
+      "recipient": "business",
+      "direction": "one-way",
+      "scope": "broad"
+    },
+    "RxNDA B-1W-I2I": {
+      "sender": "individual",
+      "recipient": "individual",
+      "direction": "one-way",
+      "scope": "broad"
+    },
+    "RxNDA B-2W-B2B": {
+      "sender": "business",
+      "recipient": "business",
+      "direction": "two-way",
+      "scope": "broad"
+    },
+    "RxNDA B-2W-B2I": {
+      "sender": "business",
+      "recipient": "individual",
+      "direction": "two-way",
+      "scope": "broad"
+    },
+    "RxNDA B-2W-I2B": {
+      "sender": "individual",
+      "recipient": "business",
+      "direction": "two-way",
+      "scope": "broad"
+    },
+    "RxNDA B-2W-I2I": {
+      "sender": "individual",
+      "recipient": "individual",
+      "direction": "two-way",
+      "scope": "broad"
+    },
+    "RxNDA N-1W-B2B": {
+      "sender": "business",
+      "recipient": "business",
+      "direction": "one-way",
+      "scope": "narrow"
+    },
+    "RxNDA N-1W-B2I": {
+      "sender": "business",
+      "recipient": "individual",
+      "direction": "one-way",
+      "scope": "narrow"
+    },
+    "RxNDA N-1W-I2B": {
+      "sender": "individual",
+      "recipient": "business",
+      "direction": "one-way",
+      "scope": "narrow"
+    },
+    "RxNDA N-1W-I2I": {
+      "sender": "individual",
+      "recipient": "individual",
+      "direction": "one-way",
+      "scope": "narrow"
+    },
+    "RxNDA N-2W-B2B": {
+      "sender": "business",
+      "recipient": "business",
+      "direction": "two-way",
+      "scope": "narrow"
+    },
+    "RxNDA N-2W-B2I": {
+      "sender": "business",
+      "recipient": "individual",
+      "direction": "two-way",
+      "scope": "narrow"
+    },
+    "RxNDA N-2W-I2B": {
+      "sender": "individual",
+      "recipient": "business",
+      "direction": "two-way",
+      "scope": "narrow"
+    },
+    "RxNDA N-2W-I2I": {
+      "sender": "individual",
+      "recipient": "individual",
+      "direction": "two-way",
+      "scope": "narrow"
+    }
+  }
+}

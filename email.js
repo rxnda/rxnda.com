@@ -1,3 +1,5 @@
+var elide = require('./data/elide')
+
 // Shim the Mailgun send function and export an EventEmitter
 // tests can use to check invocations.
 /* istanbul ignore else */
@@ -69,19 +71,4 @@ if (process.env.NODE_ENV === 'test') {
       }
     }))
   }
-}
-
-function elide () {
-  var args = Array.prototype.slice.call(arguments)
-  var object = args[0]
-  var drop = args.slice(1)
-  var returned = {}
-  Object.keys(object).forEach(function (key) {
-    if (drop.includes(key)) {
-      returned[key] = 'ELIDED'
-    } else {
-      returned[key] = object[key]
-    }
-  })
-  return returned
 }

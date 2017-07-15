@@ -1,4 +1,6 @@
+var elide = require('../data/elide')
 var fs = require('fs')
+var hash = require('commonform-hash')
 var path = require('path')
 var pump = require('pump')
 var replacestream = require('replacestream')
@@ -11,12 +13,36 @@ staticTemplate('/lawyers', 'lawyers.html')
 staticTemplate('/businessfolk', 'businessfolk.html')
 staticTemplate('/plans', 'plans.html')
 
-routes.set('/forms', require('./forms'))
+routes.set('/send', require('./wizard'))
 routes.set('/prices', require('./prices'))
 routes.set('/send/:title/:edition', require('./send'))
 routes.set('/countersign/:capability', require('./countersign'))
 routes.set('/view/:capability', require('./view'))
 routes.set('/cancel/:capability', require('./cancel'))
+
+routes.set('/wizard-data.js', function (configuration, request, response) {
+  response.setHeader('Content-Type', 'application/javascript')
+  response.end(
+    'window.wizard = ' + JSON.stringify(configuration.wizard)
+  )
+})
+
+routes.set('/form-data.js', function (configuration, request, response) {
+  response.setHeader('Content-Type', 'application/javascript')
+  response.end(
+    'window.forms = ' + JSON.stringify(
+      Object.keys(configuration.forms).reduce(function (forms, key) {
+        forms[key] = configuration.forms[key].map(function (element) {
+          var elided = elide(element, 'commonform', 'directions', 'signatures')
+          elided.hash = hash(element.commonform)
+          return elided
+        })
+        return forms
+      }, {}),
+      null, 2
+    )
+  )
+})
 
 routes.set('/send.js', function (configuration, request, response) {
   response.setHeader('Content-Type', 'application/javascript')
@@ -31,6 +57,7 @@ routes.set('/send.js', function (configuration, request, response) {
   )
 })
 
+staticFile('wizard.js')
 staticFile('countersign.js')
 staticFile('cancel.js')
 staticFile('normalize.css')

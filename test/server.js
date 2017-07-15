@@ -22,7 +22,8 @@ module.exports = function (test) {
       prices: {
         use: 10
       },
-      forms: require('../example-directory/forms/'),
+      forms: require('../example-directory/forms'),
+      wizard: require('../example-directory/wizard'),
       domain: 'rxnda.com',
       stripe: {
         public: process.env.STRIPE_PUBLIC_KEY,

@@ -4,6 +4,7 @@ var http = require('http')
 var path = require('path')
 var pino = require('pino')
 var readForms = require('./data/read-forms')
+var readWizard = require('./data/read-wizard')
 var runSeries = require('run-series')
 var sweep = require('./sweep')
 var uuid = require('uuid')
@@ -41,6 +42,12 @@ runSeries([
   function readFormsToConfiguration (done) {
     readForms(configuration, ecb(done, function (forms) {
       configuration.forms = forms
+      done()
+    }))
+  },
+  function readWizardToConfiguration (done) {
+    readWizard(configuration, ecb(done, function (wizard) {
+      configuration.wizard = wizard
       done()
     }))
   },
