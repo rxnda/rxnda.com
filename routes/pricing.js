@@ -1,6 +1,7 @@
-var trumpet = require('trumpet')
-var readTemplate = require('./read-template')
+var escape = require('../util/escape')
 var pump = require('pump')
+var readTemplate = require('./read-template')
+var trumpet = require('trumpet')
 
 module.exports = function pricing (configuration, request, response) {
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
@@ -9,7 +10,7 @@ module.exports = function pricing (configuration, request, response) {
   body.selectAll('span.use-price', function (span) {
     span
       .createWriteStream()
-      .end('$' + configuration.prices.use)
+      .end(escape('$' + configuration.prices.use))
   })
   pump(body, response)
 }

@@ -81,7 +81,7 @@ function questions (configuration) {
               return escape(element)
             } else if (element.select) {
               return (
-                `<select name='${question.name}' required>` +
+                `<select name='${escape(question.name)}' required>` +
                 '<option value=""></option>' +
                 element.select
                   .map(option)
@@ -98,5 +98,5 @@ function questions (configuration) {
 }
 
 function option (data) {
-  return `<option value='${data.value}'>${escape(data.text)}</option>`
+  return `<option value='${escape(data.value)}'>${escape(data.text)}</option>`
 }

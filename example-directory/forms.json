@@ -1219,7 +1219,7 @@
           "label": "State",
           "notes": [
             "Name the state whose law will govern the NDA, and where the parties will commit to litigate.",
-            "For example, “California” or “New York” "
+            "For example, “California” or “New York”"
           ]
         }
       ],

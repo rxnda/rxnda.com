@@ -58,6 +58,9 @@ function form (configuration, edition, postData) {
     configuration.email.sender + '@' +
     configuration.email.domain
   )
+  var action = `/send/${encodeTitle(edition.title)}/${edition.edition}`
+  var read = `/forms/${encodeTitle(edition.title)}/${edition.edition}`
+  var docx = `/docx/${encodeTitle(edition.title)}/${edition.edition}`
   return `
 <noscript>
   <p>JavaScript has been disabled in your browser.</p>
@@ -66,22 +69,16 @@ function form (configuration, edition, postData) {
 <form
   id=sendForm
   method=post
-  action=/send/${encodeTitle(edition.title)}/${edition.edition}/>
-  <h2>
-    Send
-    <cite>${escape(edition.title)}</cite>
-  </h2>
-  <p class=edition>${spell(edition.edition)}</p>
+  action=${escape(action)}>
+  <h2>Send <cite>${escape(edition.title)}</cite></h2>
+  <p class=edition>${escape(spell(edition.edition))}</p>
   ${draftWarning(edition)}
   ${paragraphs(edition.description)}
   <p>
-    <a
-        href=/forms/${encodeTitle(edition.title)}/${edition.edition}
-        target=_blank
+    <a href=${escape(read)} target=_blank
       >Read this form online</a>
     or
-    <a
-        href=/docx/${encodeTitle(edition.title)}/${edition.edition}
+    <a href=${escape(docx)}
       >download a .docx copy</a>.
   </p>
   ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
@@ -106,14 +103,15 @@ function form (configuration, edition, postData) {
       </li>
       <li>
         ${escape(configuration.domain)} will authorize a charge of
-        $${configuration.prices.use} to your credit card now.
+        $${escape(configuration.prices.use)} to your credit card now.
       </li>
       <li>
         If the other side countersigns within seven days,
         ${escape(address)} will make the authorized charge of
-        $${configuration.prices.use} to your credit card.  If the
-        other side does not countersign in seven days, of you cancel
-        before they countersign, your credit card will not be charged.
+        $${escape(configuration.prices.use)} to your credit card.
+        If the other side does not countersign in seven days, of you
+        cancel before they countersign, your credit card will not
+        be charged.
       </li>
     </ol>
   </section>
@@ -307,21 +305,28 @@ function recipientBlock (signature) {
           'For example, “Delaware”.'
         ]
       ) +
-      input('signatures-recipient-name', 'Their Name', [
-        'Optionally enter the person who will sign for the other side.',
-        'If you leave this blank, the recipient can fill it out.'
-      ]) +
-      input('signatures-recipient-title', 'Their Title', [
-        'Optionally enter their title at the company.',
-        'For example, “Chief Executive Officer”.',
-        'If you leave this blank, the recipient can fill it out.'
-      ])
+      input(
+      'signatures-recipient-name', 'Their Name',
+        [
+          'Optionally name who will sign for the other side.',
+          'If you leave this blank, the recipient can fill it out.'
+        ]
+      ) +
+      input(
+        'signatures-recipient-title', 'Their Title',
+        [
+          'Optionally enter their title at the company.',
+          'For example, “Chief Executive Officer”.',
+          'If you leave this blank, the recipient can fill it out.'
+        ]
+      )
     )
   } else {
     // Individual Signatory
     return (
       input(
-        'signatures-recipient-name', 'Their Name', [
+        'signatures-recipient-name', 'Their Name',
+        [
           'Enter the other side&rsquo;s full legal name.',
           'For example, “Jane Doe”.',
           'If you leave this blank, the recipient can fill it out.'
@@ -344,7 +349,7 @@ function input (name, label, notes, value, errors) {
   ${errors ? paragraphs(errors, 'error') : ''}
   <textarea
       rows=3
-      name=${name}
+      name="${escape(name)}"
       ${required ? 'required' : ''}
   >${value ? escape(value) : ''}</textarea>
 </section>`
@@ -355,7 +360,7 @@ function input (name, label, notes, value, errors) {
   ${required ? asterisk() : ''}
   ${errors ? paragraphs(errors, 'error') : ''}
   <input
-      name='${name}'
+      name="${name}"
       ${name === 'signatures-sender-name' ? 'id=name' : ''}
       type=${name === 'email' ? 'email' : 'text'}
       ${required ? 'required' : ''}
@@ -633,18 +638,18 @@ function success (configuration, data) {
   var recipientName = (
     recipient.company || recipient.name || recipient.email
   )
-  var domain = configuration.domain
   return `
 <h2 class=sent>NDA Sent!</h2>
 <p>
   You have offered to enter a nondisclosure agreement
-  ${sender.company ? 'on behalf of ' + sender.company : ''}
-  with ${recipientName} on the terms of ${domain}&rsquo;s
-  ${data.form.title}  form agreement, ${spell(data.form.edition)}.
+  ${sender.company ? 'on behalf of ' + escape(sender.company) : ''}
+  with ${escape(recipientName)} on the terms of the
+  ${escape(data.form.title)}  form agreement,
+  ${escape(spell(data.form.edition))}.
 </p>
 <p>
   To cancel your request before the other side signs, visit
-  <a href=/cancel/${data.cancel}>this link</a>.
+  <a href=/cancel/${escape(data.cancel)}>this link</a>.
 </p>`
 }
 

@@ -167,7 +167,6 @@ function success (configuration, data) {
     data.signatures.recipient,
     data.countersign
   )
-  var domain = configuration.domain
   var form = data.form
   return `
 <h2 class=canceled>NDA Canceled!</h2>
@@ -179,8 +178,8 @@ function success (configuration, data) {
       ? 'on behalf of ' + escape(recipient.company)
       : ''
   }
-  with ${escape(senderName)} on the terms of ${domain}&rsquo;s
+  with ${escape(senderName)} on the terms of the
   ${escape(form.title)} form agreement,
-  ${spell(form.edition)}.
+  ${escape(spell(form.edition))}.
 </p>`
 }

@@ -1,9 +1,5 @@
-var html = require('escape-html')
+var htmlEntities = require('html-entities').XmlEntities
 
 module.exports = function escape (string) {
-  return html(string)
-    .replace(/“/g, '&ldquo;')
-    .replace(/”/g, '&rdquo;')
-    .replace(/‘/g, '&lsquo;')
-    .replace(/’/g, '&rsquo;')
+  return htmlEntities.encodeNonUTF(string)
 }

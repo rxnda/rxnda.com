@@ -46,15 +46,15 @@ function listForms (configuration, request, response) {
   <h3>${escape(key)}</h3>
   ${paragraphs(edition.description)}
   <p>
-    <a href=/docx/${encodeTitle(key)}/${edition.edition}
+    <a href=/docx/${escape(encodeTitle(key))}/${escape(edition.edition)}
       >Download the latest edition as .docx for Microsoft Word</a>
   </p>
   <p>
-    <a href=/forms/${encodeTitle(key)}/${edition.edition}
+    <a href=/forms/${escape(encodeTitle(key))}/${escape(edition.edition)}
       >Read the latest edition online</a>
   </p>
   <p>
-    <a href=/forms/${encodeTitle(key)}
+    <a href=/forms/${escape(encodeTitle(key))}
       >View all available editions</a>
   </p>
 </li>`
@@ -91,15 +91,15 @@ function listEditions (configuration, request, response) {
   ${draftWarning(edition)}
   ${paragraphs(edition.description)}
   <p>
-    <a href=/docx/${encodeTitle(title)}/${edition.edition}
+    <a href=/docx/${escape(encodeTitle(title))}/${escape(edition.edition)}
       >Download .docx for Microsoft Word</a>
   </p>
   <p>
-    <a href=/forms/${encodeTitle(title)}/${edition.edition}
+    <a href=/forms/${escape(encodeTitle(title))}/${escape(edition.edition)}
       >Read Online</a>
   </p>
   <p>
-    <a href=/send/${encodeTitle(title)}/${edition.edition}
+    <a href=/send/${escape(encodeTitle(title))}/${escape(edition.edition)}
       >Sign and Send</a>
   </p>
 </li>`

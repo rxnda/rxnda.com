@@ -84,7 +84,7 @@ function form (configuration, send, postData) {
     NDA with ${escape(recipient.company || 'you')}
     on the terms of an RxNDA standard form NDA.
     You can accept the offer by countersigning online, at this address,
-    until ${expires.toLocaleString()}.
+    until ${escape(expires.toLocaleString())}.
   </p>
   ${send.directions.length !== 0 ? blanks() : ''}
   ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
@@ -129,7 +129,7 @@ function form (configuration, send, postData) {
             .label
           return `
 <dt>${escape(label)}</dt>
-<dd>&ldquo;${escape(direction.value)}&rdquo;</dd>`
+<dd>“${escape(direction.value)}”</dd>`
         })
         .join('\n')
     }
@@ -158,7 +158,7 @@ function form (configuration, send, postData) {
           )
           : ' as an individual '
       }
-      ${new Date(send.timestamp).toLocaleString()}.
+      ${escape(new Date(send.timestamp).toLocaleString())}.
     </p>
   </section>
 
@@ -211,7 +211,7 @@ function recipientBlock (page, send, postData) {
         'signatures-recipient-company', 'Your Company Name',
         [
           'Enter the legal name of your company.',
-          'For example, &ldquo;SomeCo, LLC&rdquo;.',
+          'For example, “SomeCo, LLC”.',
           'If you leave this blank, the recipient can fill it out.'
         ],
         send.company
@@ -220,7 +220,7 @@ function recipientBlock (page, send, postData) {
         'signatures-recipient-form', 'Your Company&rsquo;s Legal Form',
         [
           'Enter the legal form of your company.',
-          'For example, &ldquo;limited liability company&rdquo;.'
+          'For example, “limited liability company”.'
         ],
         send.form
       ) +
@@ -230,7 +230,7 @@ function recipientBlock (page, send, postData) {
         [
           'Enter the legal jurisdiction under whose laws your ' +
           'company is formed.',
-          'For example, &ldquo;Delaware&rdquo;.'
+          'For example, “Delaware”.'
         ],
         send.jurisdiction
       ) +
@@ -243,7 +243,7 @@ function recipientBlock (page, send, postData) {
       inputWithPrior(
         'signatures-recipient-title', 'Your Title', [
           'Enter your title at the company.',
-          'For example, &ldquo;Chief Executive Officer&rdquo;.'
+          'For example, “Chief Executive Officer”.'
         ],
         send.title
       )
@@ -252,9 +252,10 @@ function recipientBlock (page, send, postData) {
     // Individual Signatory
     return (
       input(
-        'signatures-recipient-name', 'Your Name', [
+        'signatures-recipient-name', 'Your Name',
+        [
           'Enter your full legal name.',
-          'For example, &ldquo;Jane Doe&rdquo;.'
+          'For example, “Jane Doe”.'
         ],
         send.name
      )
@@ -283,7 +284,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
   if (sendValue) {
     return `
 <section class=field>
-  <label for=${name}>${label}</label>
+  <label for=${name}>${escape(label)}</label>
   <input
       name=${name}
       value='${escape(sendValue)}'
@@ -303,7 +304,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
       rows=3
       name=${name}
       required
-  >${postValue || ''}</textarea>
+  >${escape(postValue || '')}</textarea>
 </section>`
     } else {
       return `
@@ -315,7 +316,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
       name=${name}
       ${name === 'signatures-recipient-name' ? 'id=name' : ''}
       type=${name === 'email' ? 'email' : 'text'}
-      value=${postValue || ''}
+      value="${escape(postValue || '')}"
       required>
   ${paragraphs(notes)}
 </section>`
@@ -353,7 +354,7 @@ function byline (recipient, postData) {
     type=text
     ${
       recipient.name
-        ? `pattern="${escapeStringRegexp(recipient.name)}"`
+        ? `pattern="${escape(escapeStringRegexp(recipient.name))}"`
         : ''
     }
     required>
@@ -372,7 +373,7 @@ function paragraphs (array, className) {
   className = className || 'note'
   return array
     .map(function (element) {
-      return `<p class=${className}>${element}</p>`
+      return `<p class=${className}>${escape(element)}</p>`
     })
     .join('')
 }
@@ -517,7 +518,6 @@ function success (configuration, data) {
     data.send.signatures.recipient,
     data.countersign
   )
-  var domain = configuration.domain
   var form = data.send.form
   return `
 <h2 class=agreed>NDA Agreed!</h2>
@@ -528,7 +528,7 @@ function success (configuration, data) {
       ? 'on behalf of ' + escape(recipient.company)
       : ''
   }
-  with ${escape(senderName)} on the terms of ${domain}&rsquo;s
+  with ${escape(senderName)} on the terms of the
   ${escape(form.title)} form agreement,
   ${spell(form.edition)}.
 </p>
