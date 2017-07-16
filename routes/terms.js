@@ -15,8 +15,9 @@ module.exports = function terms (configuration, request, response) {
 
 function content (configuration) {
   var terms = configuration.terms
+  var privacy = configuration.privacy
   return `
-<article class=commonform>
+<article id=terms class=commonform>
   ${commonformHTML(
     terms.commonform,
     terms.directions,
@@ -27,5 +28,18 @@ function content (configuration) {
       html5: true
     }
   )}
-</article>`
+</article>
+<article id=privacy class=commonform>
+  ${commonformHTML(
+    privacy.commonform,
+    privacy.directions,
+    {
+      title: 'RxNDA Privacy Policy',
+      edition: new Date(privacy.updated)
+        .toLocaleDateString(),
+      html5: true
+    }
+  )}
+</article>
+`
 }

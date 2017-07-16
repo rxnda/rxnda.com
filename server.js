@@ -6,6 +6,7 @@ var pino = require('pino')
 var readForms = require('./data/read-forms')
 var readTerms = require('./data/read-terms')
 var readWizard = require('./data/read-wizard')
+var readPrivacyPolicy = require('./data/read-privacy-policy')
 var runSeries = require('run-series')
 var sweep = require('./sweep')
 var uuid = require('uuid')
@@ -55,6 +56,12 @@ runSeries([
   function readTermsToConfiguration (done) {
     readTerms(configuration, ecb(done, function (terms) {
       configuration.terms = terms
+      done()
+    }))
+  },
+  function readPrivacyPolicyToConfiguration (done) {
+    readPrivacyPolicy(configuration, ecb(done, function (privacy) {
+      configuration.privacy = privacy
       done()
     }))
   },

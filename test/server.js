@@ -24,6 +24,7 @@ module.exports = function (test) {
       forms: require('../example-directory/forms'),
       wizard: require('../example-directory/wizard'),
       terms: require('../example-directory/terms'),
+      privacy: require('../example-directory/privacy'),
       domain: 'rxnda.com',
       stripe: {
         public: process.env.STRIPE_PUBLIC_KEY,
