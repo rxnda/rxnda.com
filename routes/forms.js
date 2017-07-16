@@ -76,7 +76,7 @@ function listEditions (configuration, request, response) {
   body.select('#list')
     .createWriteStream()
     .end(list())
-  pump(readTemplate('forms.html'), body)
+  pump(readTemplate('editions.html'), body)
 
   function list () {
     return form
