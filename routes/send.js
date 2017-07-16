@@ -23,6 +23,7 @@ var sameArray = require('../data/same-array')
 var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
+var termsCheckbox = require('../util/terms-checkbox')
 var trumpet = require('trumpet')
 var validPost = require('../data/valid-post')
 
@@ -84,6 +85,7 @@ function form (configuration, edition, postData) {
   ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
   ${inputs(postData)}
   ${signatures(edition.signatures, postData)}
+  ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
   <section id=payment>
     <h3>Credit Card Payment</h3>
     <div id=card></div>
@@ -445,6 +447,8 @@ function post (configuration, request, response, form) {
             })
           } else if (name === 'token') {
             data.token = value
+          } else if (name === 'terms') {
+            data.terms = value
           }
         }
       })

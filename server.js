@@ -4,6 +4,7 @@ var http = require('http')
 var path = require('path')
 var pino = require('pino')
 var readForms = require('./data/read-forms')
+var readTerms = require('./data/read-terms')
 var readWizard = require('./data/read-wizard')
 var runSeries = require('run-series')
 var sweep = require('./sweep')
@@ -48,6 +49,12 @@ runSeries([
   function readWizardToConfiguration (done) {
     readWizard(configuration, ecb(done, function (wizard) {
       configuration.wizard = wizard
+      done()
+    }))
+  },
+  function readTermsToConfiguration (done) {
+    readTerms(configuration, ecb(done, function (terms) {
+      configuration.terms = terms
       done()
     }))
   },

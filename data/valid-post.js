@@ -9,6 +9,13 @@ module.exports = function validPost (data, form) {
   var page = form.signatures[0]
   var errors = []
 
+  if (data.terms !== 'accepted') {
+    errors.push({
+      name: 'terms',
+      message: 'You must accept the terms to use this service.'
+    })
+  }
+
   // Sender
   isString(
     sender.name,

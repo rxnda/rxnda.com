@@ -25,6 +25,7 @@ module.exports = function (webdriver, port) {
       'input[name="signatures-recipient-email"]',
       'recipient@example.com'
     )
+    .click('input[name="terms"]')
     .waitForExist('iframe')
     .element('iframe')
     .then(function (response) {

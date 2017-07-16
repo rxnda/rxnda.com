@@ -109,7 +109,9 @@ form .note {
   font-style: italic;
 }
 
-form input,
+form input[type=text],
+form input[type=submit],
+form input[type=email],
 form textarea {
   box-sizing: border-box;
   display: block;

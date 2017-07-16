@@ -3,6 +3,7 @@ var clone = require('../data/clone')
 var docx = require('commonform-docx')
 var ecb = require('ecb')
 var ed25519 = require('ed25519')
+var email = require('../email')
 var escape = require('../util/escape')
 var escapeStringRegexp = require('escape-string-regexp')
 var expirationDate = require('../data/expiration-date')
@@ -10,7 +11,6 @@ var expired = require('../data/expired')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
-var email = require('../email')
 var notFound = require('./not-found')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
@@ -25,6 +25,7 @@ var signatureProperties = require('../data/signature-properties')
 var spell = require('reviewers-edition-spell')
 var stringify = require('json-stable-stringify')
 var stripe = require('stripe')
+var termsCheckbox = require('../util/terms-checkbox')
 var trumpet = require('trumpet')
 var validCountersignPost = require('../data/valid-countersign-post')
 var xtend = require('xtend')
@@ -110,6 +111,7 @@ function form (configuration, send, postData) {
     </a>
   </p>
   ${signatures()}
+  ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
   <input id=submitButton type=submit value='Countersign' >
 </form>`
 
@@ -392,6 +394,8 @@ function post (configuration, request, response, send) {
                 .trim()
                 .replace(/\r?\n/, '\n')
             }
+          } else if (name === 'terms') {
+            countersign.terms = value
           }
         } else {
           request.log.info(name)

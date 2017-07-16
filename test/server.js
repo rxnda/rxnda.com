@@ -23,6 +23,7 @@ module.exports = function (test) {
       },
       forms: require('../example-directory/forms'),
       wizard: require('../example-directory/wizard'),
+      terms: require('../example-directory/terms'),
       domain: 'rxnda.com',
       stripe: {
         public: process.env.STRIPE_PUBLIC_KEY,

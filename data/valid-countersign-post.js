@@ -2,6 +2,13 @@ module.exports = function validCountersignPost (data, form) {
   var page = form.signatures[1]
   var errors = []
 
+  if (data.terms !== 'accepted') {
+    errors.push({
+      name: 'terms',
+      message: 'You must accept the terms to use this service.'
+    })
+  }
+
   isString(
     data.name,
     'signatures-recipient-name',
