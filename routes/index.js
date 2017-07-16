@@ -7,7 +7,7 @@ var send = require('send')
 var routes = module.exports = require('http-hash')()
 
 staticTemplate('/', 'homepage.html')
-staticTemplate('/faq', 'faq.html')
+staticTemplate('/questions', 'questions.html')
 staticTemplate('/future', 'future.html')
 
 routes.set('/send', require('./wizard'))
