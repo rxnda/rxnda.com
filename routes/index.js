@@ -25,30 +25,6 @@ routes.set('/forms/:title', require('./forms'))
 routes.set('/forms/:title/:edition', require('./forms'))
 routes.set('/docx/:title/:edition', require('./docx'))
 
-routes.set('/wizard-data.js', function (configuration, request, response) {
-  response.setHeader('Content-Type', 'application/javascript')
-  response.end(
-    'window.wizard = ' + JSON.stringify(configuration.wizard)
-  )
-})
-
-routes.set('/form-data.js', function (configuration, request, response) {
-  response.setHeader('Content-Type', 'application/javascript')
-  response.end(
-    'window.forms = ' + JSON.stringify(
-      Object.keys(configuration.forms).reduce(function (forms, key) {
-        forms[key] = configuration.forms[key].map(function (element) {
-          var elided = elide(element, 'commonform', 'directions', 'signatures')
-          elided.hash = hash(element.commonform)
-          return elided
-        })
-        return forms
-      }, {}),
-      null, 2
-    )
-  )
-})
-
 routes.set('/send.js', function (configuration, request, response) {
   response.setHeader('Content-Type', 'application/javascript')
   var filePath = path.join(__dirname, '..', 'static', 'send.js')
@@ -62,7 +38,6 @@ routes.set('/send.js', function (configuration, request, response) {
   )
 })
 
-staticFile('wizard.js')
 staticFile('countersign.js')
 staticFile('cancel.js')
 staticFile('normalize.css')
