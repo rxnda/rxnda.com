@@ -9,8 +9,7 @@ var send = require('send')
 var routes = module.exports = require('http-hash')()
 
 staticTemplate('/', 'homepage.html')
-staticTemplate('/lawyers', 'lawyers.html')
-staticTemplate('/businessfolk', 'businessfolk.html')
+staticTemplate('/faq', 'faq.html')
 staticTemplate('/plans', 'plans.html')
 
 routes.set('/send', require('./wizard'))
