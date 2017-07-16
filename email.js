@@ -17,6 +17,7 @@ if (process.env.NODE_ENV === 'test') {
   var FormData = require('form-data')
   var https = require('https')
   var pump = require('pump')
+  var DOCX = require('docx-content-type')
   module.exports = function (configuration, message, callback) {
     var domain = configuration.email.domain
     var key = configuration.email.key
@@ -31,10 +32,7 @@ if (process.env.NODE_ENV === 'test') {
     if (message.docx) {
       form.append('attachment', message.docx.data, {
         filename: message.docx.name,
-        contentType: (
-          'application/' +
-          'vnd.openxmlformats-officedocument.wordprocessingml.document'
-        ),
+        contentType: DOCX,
         knownLength: message.docx.data.length
       })
     }

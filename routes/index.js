@@ -20,6 +20,11 @@ routes.set('/countersign/:capability', require('./countersign'))
 routes.set('/view/:capability', require('./view'))
 routes.set('/cancel/:capability', require('./cancel'))
 
+routes.set('/forms', require('./forms'))
+routes.set('/forms/:title', require('./forms'))
+routes.set('/forms/:title/:edition', require('./forms'))
+routes.set('/docx/:title/:edition', require('./docx'))
+
 routes.set('/wizard-data.js', function (configuration, request, response) {
   response.setHeader('Content-Type', 'application/javascript')
   response.end(

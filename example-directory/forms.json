@@ -129,15 +129,15 @@
   "Testing": [
     {
       "title": "Testing",
-      "edition": "1e1d",
-      "released": "2017-07-03T03:13Z",
+      "edition": "1e",
+      "released": "2017-07-07T20:35Z",
       "description": [
         "for testing"
       ],
       "repository": "https://github.com/rxnda/example",
       "commonform": {
         "content": [
-          "This is not a very good NDA."
+          "This is still not a very good NDA."
         ]
       },
       "directions": [],
@@ -158,15 +158,15 @@
     },
     {
       "title": "Testing",
-      "edition": "1e",
-      "released": "2017-07-07T20:35Z",
+      "edition": "1e1d",
+      "released": "2017-07-03T03:13Z",
       "description": [
         "for testing"
       ],
       "repository": "https://github.com/rxnda/example",
       "commonform": {
         "content": [
-          "This is still not a very good NDA."
+          "This is not a very good NDA."
         ]
       },
       "directions": [],

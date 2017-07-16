@@ -179,3 +179,38 @@ dd {
   border: 1px solid black;
   padding: 0 1rem 1rem 1rem;
 }
+
+/* /forms */
+
+.listOfForms {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.listOfForms li {
+  border: 1px solid black;
+  margin: 1rem 0;
+  padding: 1rem;
+}
+
+/* commonform */
+
+.commonform section section {
+  margin-left: 1rem;
+}
+
+.commonform section p {
+  margin-left: 1rem;
+}
+
+.commonform ol ol { list-style-type: lower-alpha; }
+.commonform ol ol ol { list-style-type: lower-roman; }
+.commonform ol ol ol { list-style-type: upper-alpha; }
+.commonform ol ol ol { list-style-type: upper-roman; }
+
+.commonform dfn { font-weight: bold; font-style: normal; }
+.commonform dfn:before { content: '\201C'; font-weight: normal; }
+.commonform dfn:after { content: '\201D'; font-weight: normal; }
+.commonform .use { font-style: italic; }
+.commonform .reference { font-style: italic; }

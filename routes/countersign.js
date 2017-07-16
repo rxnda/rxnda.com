@@ -546,12 +546,13 @@ function makeDOCX (configuration, data) {
     form.commonform,
     send.directions,
     {
-      title: 'RxNDA ' + form.title,
+      title: form.title,
       edition: spell(form.edition),
       hash: true,
       numbering: outlineNumbering,
-      indentMargins: false,
+      indentMargins: true,
       centerTitle: true,
+      markFilled: true,
       after: ooxmlSignaturePages([
         // Sender Page
         prefilledSignaturePage(

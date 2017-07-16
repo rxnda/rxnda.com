@@ -3,6 +3,7 @@ var cancelPath = require('../data/cancel-path')
 var chargePath = require('../data/charge-path')
 var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
+var draftWarning = require('../util/draft-warning')
 var ecb = require('ecb')
 var ed25519 = require('ed25519')
 var email = require('../email')
@@ -12,6 +13,7 @@ var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
+var paragraphs = require('../util/paragraphs')
 var path = require('path')
 var pump = require('pump')
 var readTemplate = require('./read-template')
@@ -75,7 +77,7 @@ function form (configuration, edition, postData) {
         target=_blank
       >Review the text of the form on commonform.org.</a>
   </p>
-  ${draftWarning()}
+  ${draftWarning(edition)}
   ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
   ${inputs(postData)}
   ${signatures(edition.signatures, postData)}
@@ -111,19 +113,6 @@ function form (configuration, edition, postData) {
   </section>
   <input id=submitButton type=submit value='Sign &amp; Send' >
 </form>`
-
-  function draftWarning () {
-    if (edition.edition.endsWith('d')) {
-      return `
-<p class=warning>
-  This is a draft form, not a final, published edition.  Unless you
-  have a specific reason to prefer this particular draft, you should
-  probably use a published edition of the form, instead.
-</p>`
-    } else {
-      return ''
-    }
-  }
 
   function inputs (postData) {
     if (edition.directions.length !== 0) {
@@ -396,15 +385,6 @@ function byline (postData) {
     with the other side.
   </p>
 </section>`
-}
-
-function paragraphs (array, className) {
-  className = className || 'note'
-  return array
-    .map(function (element) {
-      return `<p class=${className}>${element}</p>`
-    })
-    .join('')
 }
 
 var VERIFICATION_CODE_EXPLANATION = (
