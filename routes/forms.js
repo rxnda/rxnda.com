@@ -3,6 +3,7 @@ var decodeTitle = require('../util/decode-title')
 var draftWarning = require('../util/draft-warning')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
+var formattingNote = require('../util/formatting-note')
 var notFound = require('./not-found')
 var paragraphs = require('../util/paragraphs')
 var pump = require('pump')
@@ -131,6 +132,7 @@ function showEdition (configuration, request, response) {
 
   function content () {
     return `
+${formattingNote}
 <article class=commonform>
   ${commonformHTML(
     edition.commonform,

@@ -214,3 +214,14 @@ dd {
 .commonform dfn:after { content: '\201D'; font-weight: normal; }
 .commonform .use { font-style: italic; }
 .commonform .reference { font-style: italic; }
+
+.note {
+  border: 1px solid blue;
+  color: blue;
+  padding: 1rem;
+}
+
+.note:before {
+  content: 'Note:';
+  font-weight: bold;
+}
