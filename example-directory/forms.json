@@ -191,7 +191,7 @@
       "title": "RxNDA B-1W-B2B",
       "edition": "1e3d",
       "description": [
-        "A broad, one-way, business-to-business NDA for general commercial use."
+        "a broad, one-way, business-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -1256,7 +1256,7 @@
       "title": "RxNDA B-1W-B2I",
       "edition": "1e3d",
       "description": [
-        "A broad, one-way, business-to-individual NDA for general commercial use."
+        "a broad, one-way, business-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -2175,7 +2175,7 @@
       "title": "RxNDA B-1W-I2B",
       "edition": "1e3d",
       "description": [
-        "A broad, one-way, individual-to-business NDA for general commercial use."
+        "a broad, one-way, individual-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -3237,7 +3237,7 @@
       "title": "RxNDA B-1W-I2I",
       "edition": "1e3d",
       "description": [
-        "A broad, one-way, individual-to-individual NDA for general commercial use."
+        "a broad, one-way, individual-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -4153,7 +4153,7 @@
       "title": "RxNDA B-2W-B2B",
       "edition": "1e3d",
       "description": [
-        "A broad, two-way, business-to-business NDA for general commercial use."
+        "a broad, two-way, business-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -5220,7 +5220,7 @@
       "title": "RxNDA B-2W-B2I",
       "edition": "1e3d",
       "description": [
-        "A broad, two-way, business-to-individual NDA for general commercial use."
+        "a broad, two-way, business-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -6284,7 +6284,7 @@
       "title": "RxNDA B-2W-I2B",
       "edition": "1e3d",
       "description": [
-        "A broad, two-way, individual-to-business NDA for general commercial use."
+        "a broad, two-way, individual-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -7348,7 +7348,7 @@
       "title": "RxNDA B-2W-I2I",
       "edition": "1e3d",
       "description": [
-        "A broad, two-way, individual-to-individual NDA for general commercial use."
+        "a broad, two-way, individual-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -8266,7 +8266,7 @@
       "title": "RxNDA N-1W-B2B",
       "edition": "1e3d",
       "description": [
-        "A narrow, one-way, business-to-business NDA for general commercial use."
+        "a narrow, one-way, business-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -9338,7 +9338,7 @@
       "title": "RxNDA N-1W-B2I",
       "edition": "1e3d",
       "description": [
-        "A narrow, one-way, business-to-individual NDA for general commercial use."
+        "a narrow, one-way, business-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -10264,7 +10264,7 @@
       "title": "RxNDA N-1W-I2B",
       "edition": "1e3d",
       "description": [
-        "A narrow, one-way, individual-to-business NDA for general commercial use."
+        "a narrow, one-way, individual-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -11333,7 +11333,7 @@
       "title": "RxNDA N-1W-I2I",
       "edition": "1e3d",
       "description": [
-        "A narrow, one-way, individual-to-individual NDA for general commercial use."
+        "a narrow, one-way, individual-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -12256,7 +12256,7 @@
       "title": "RxNDA N-2W-B2B",
       "edition": "1e3d",
       "description": [
-        "A narrow, two-way, business-to-business NDA for general commercial use."
+        "a narrow, two-way, business-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -13330,7 +13330,7 @@
       "title": "RxNDA N-2W-B2I",
       "edition": "1e3d",
       "description": [
-        "A narrow, two-way, business-to-individual NDA for general commercial use."
+        "a narrow, two-way, business-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -14401,7 +14401,7 @@
       "title": "RxNDA N-2W-I2B",
       "edition": "1e3d",
       "description": [
-        "A narrow, two-way, individual-to-business NDA for general commercial use."
+        "a narrow, two-way, individual-to-business nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
@@ -15472,7 +15472,7 @@
       "title": "RxNDA N-2W-I2I",
       "edition": "1e3d",
       "description": [
-        "A narrow, two-way, individual-to-individual NDA for general commercial use."
+        "a narrow, two-way, individual-to-individual nondisclosure agreement for general commercial use"
       ],
       "repository": "https://github.com/rxnda/rxnda-forms",
       "commonform": {
