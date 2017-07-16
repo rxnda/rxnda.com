@@ -69,15 +69,20 @@ function form (configuration, edition, postData) {
   action=/send/${encodeTitle(edition.title)}/${edition.edition}/>
   <h2>
     Send
-    <cite>${escape(edition.title)}, ${spell(edition.edition)}</cite>
+    <cite>${escape(edition.title)}</cite>
   </h2>
+  <p class=edition>${spell(edition.edition)}</p>
+  ${draftWarning(edition)}
   <p>
     <a
-        href=https://commonform.org/forms/${edition.hash}
+        href=/forms/${encodeTitle(edition.title)}/${edition.edition}
         target=_blank
-      >Review the text of the form on commonform.org.</a>
+      >Read this form online</a>
+    or
+    <a
+        href=/docx/${encodeTitle(edition.title)}/${edition.edition}
+      >download a .docx copy</a>.
   </p>
-  ${draftWarning(edition)}
   ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
   ${inputs(postData)}
   ${signatures(edition.signatures, postData)}
