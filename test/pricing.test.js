@@ -2,11 +2,11 @@ var http = require('http')
 var server = require('./server')
 var tape = require('tape')
 
-tape.test('GET /prices', function (test) {
+tape.test('GET /pricing', function (test) {
   server(function (port, closeServer) {
     http.request({
       port: port,
-      path: '/prices'
+      path: '/pricing'
     })
       .once('response', function (response) {
         test.equal(

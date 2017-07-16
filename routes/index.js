@@ -13,7 +13,7 @@ staticTemplate('/faq', 'faq.html')
 staticTemplate('/future', 'future.html')
 
 routes.set('/send', require('./wizard'))
-routes.set('/prices', require('./prices'))
+routes.set('/pricing', require('./pricing'))
 routes.set('/send/:title/:edition', require('./send'))
 routes.set('/countersign/:capability', require('./countersign'))
 routes.set('/view/:capability', require('./view'))
