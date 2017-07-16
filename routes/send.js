@@ -90,6 +90,16 @@ function form (configuration, edition, postData) {
     <h3>Credit Card Payment</h3>
     <div id=card></div>
     <div id=card-errors></div>
+    <p>
+      ${escape(configuration.domain)} will authorize
+      a charge of $${configuration.prices.use} to your
+      credit card now.  If the other side countersigns
+      within seven days, ${escape(configuration.domain)}
+      will collect the charge.
+      If the other side does not countersign in seven days,
+      of you cancel before they countersign, your credit
+      card will not be charged.
+    </p>
   </section>
   <section class=information>
     <h3>Next Steps</h3>
@@ -97,23 +107,11 @@ function form (configuration, edition, postData) {
     <ol>
       <li>
         ${escape(address)} will send the other side a secret link
-        that they can use to countersign online.
+        that they can use to countersign or cancel online.
       </li>
       <li>
         ${escape(address)} will send you an e-mail with a secret link
         that you can use to cancel before the other side countersigns.
-      </li>
-      <li>
-        ${escape(configuration.domain)} will authorize a charge of
-        $${escape(configuration.prices.use)} to your credit card now.
-      </li>
-      <li>
-        If the other side countersigns within seven days,
-        ${escape(address)} will make the authorized charge of
-        $${escape(configuration.prices.use)} to your credit card.
-        If the other side does not countersign in seven days, of you
-        cancel before they countersign, your credit card will not
-        be charged.
       </li>
     </ol>
   </section>
