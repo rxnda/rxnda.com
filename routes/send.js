@@ -8,7 +8,7 @@ var ecb = require('ecb')
 var ed25519 = require('ed25519')
 var email = require('../email')
 var encodeTitle = require('../util/encode-title')
-var escape = require('escape-html')
+var escape = require('../util/escape')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var mkdirp = require('mkdirp')
@@ -216,14 +216,14 @@ function senderBlock (signature, postData) {
         'signatures-sender-company', 'Your Company&rsquo;s Name',
         [
           'Enter the legal name of your company.',
-          'For example, &ldquo;YourCo, Inc.&rdquo;.'
+          'For example, “YourCo, Inc.”.'
         ]
       ) +
       inputWithPrior(
         'signatures-sender-form', 'Your Company&rsquo;s Legal Form',
         [
           'Enter the legal form of your company.',
-          'For example, &ldquo;corporation&rdquo;.'
+          'For example, “corporation”.'
         ]
       ) +
       inputWithPrior(
@@ -232,7 +232,7 @@ function senderBlock (signature, postData) {
         [
           'Enter the legal jurisdiction under whose laws ' +
           'your company is formed.',
-          'For example, &ldquo;Delaware&rdquo;.'
+          'For example, “Delaware”.'
         ]
       ) +
       inputWithPrior(
@@ -243,7 +243,7 @@ function senderBlock (signature, postData) {
         'signatures-sender-title', 'Your Title',
         [
           'Enter your title at your company.',
-          'For example, &ldquo;Chief Executive Officer&rdquo;.'
+          'For example, “Chief Executive Officer”.'
         ]
       ) +
       byline()
@@ -281,7 +281,7 @@ function recipientBlock (signature) {
         [
           'Optionally enter the legal name of the other ' +
           'side&rsquo;s company.',
-          'For example, &ldquo;TheirCo, LLC&rdquo;.',
+          'For example, “TheirCo, LLC”.',
           'If you leave this blank, the recipient can fill it out.'
         ]
       ) +
@@ -289,7 +289,7 @@ function recipientBlock (signature) {
         'signatures-recipient-form', 'Their Company&rsquo;s Legal Form',
         [
           'Enter the legal form of their company.',
-          'For example, &ldquo;limited liability company&rdquo;.'
+          'For example, “limited liability company”.'
         ]
       ) +
       input(
@@ -298,7 +298,7 @@ function recipientBlock (signature) {
         [
           'Enter the legal jurisdiction under whose laws their ' +
           'company is formed.',
-          'For example, &ldquo;Delaware&rdquo;.'
+          'For example, “Delaware”.'
         ]
       ) +
       input('signatures-recipient-name', 'Their Name', [
@@ -307,7 +307,7 @@ function recipientBlock (signature) {
       ]) +
       input('signatures-recipient-title', 'Their Title', [
         'Optionally enter their title at the company.',
-        'For example, &ldquo;Chief Executive Officer&rdquo;.',
+        'For example, “Chief Executive Officer”.',
         'If you leave this blank, the recipient can fill it out.'
       ])
     )
@@ -317,7 +317,7 @@ function recipientBlock (signature) {
       input(
         'signatures-recipient-name', 'Their Name', [
           'Enter the other side&rsquo;s full legal name.',
-          'For example, &ldquo;Jane Doe&rdquo;.',
+          'For example, “Jane Doe”.',
           'If you leave this blank, the recipient can fill it out.'
         ]
      )

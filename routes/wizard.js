@@ -1,5 +1,5 @@
 var encodeTitle = require('../util/encode-title')
-var escape = require('escape-html')
+var escape = require('../util/escape')
 var pump = require('pump')
 var readTemplate = require('./read-template')
 var trumpet = require('trumpet')

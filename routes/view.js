@@ -1,5 +1,5 @@
 var commonformHTML = require('commonform-html')
-var escape = require('escape-html')
+var escape = require('../util/escape')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')
 var pump = require('pump')
