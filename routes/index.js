@@ -10,7 +10,7 @@ var routes = module.exports = require('http-hash')()
 
 staticTemplate('/', 'homepage.html')
 staticTemplate('/faq', 'faq.html')
-staticTemplate('/plans', 'plans.html')
+staticTemplate('/future', 'future.html')
 
 routes.set('/send', require('./wizard'))
 routes.set('/prices', require('./prices'))
