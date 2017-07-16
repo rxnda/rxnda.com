@@ -46,16 +46,20 @@ function listForms (configuration, request, response) {
   <h3>${escape(key)}</h3>
   ${paragraphs(edition.description)}
   <p>
+    <a href=/send/${escape(encodeTitle(key))}/${escape(edition.edition)}
+      >Sign &amp; send the latest edition online.</a>
+  </p>
+  <p>
     <a href=/docx/${escape(encodeTitle(key))}/${escape(edition.edition)}
-      >Download the latest edition as .docx for Microsoft Word</a>
+      >Download the latest edition as .docx for Microsoft Word.</a>
   </p>
   <p>
     <a href=/forms/${escape(encodeTitle(key))}/${escape(edition.edition)}
-      >Read the latest edition online</a>
+      >Read the latest edition online.</a>
   </p>
   <p>
     <a href=/forms/${escape(encodeTitle(key))}
-      >View all available editions</a>
+      >View all available editions.</a>
   </p>
 </li>`
       })
