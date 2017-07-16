@@ -16,15 +16,30 @@ nav[role=navigation] {
   padding: 0.5rem 0;
 }
 
-nav[role=navigation] ul {
+nav[role=navigation] ul,
+footer[role=contentinfo] ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
 
-nav[role=navigation] ul li {
+nav[role=navigation] ul li,
+footer[role=contentinfo] ul li {
   display: inline;
+  padding: 0;
+}
+
+nav[role=navigation] ul li:before,
+footer[role=contentinfo] ul li:before {
+  color: #777;
+  content: '\00B7';
   padding: 0 0.5rem;
+}
+
+nav[role=navigation] ul li:first-of-type:before,
+footer[role=contentinfo] ul li:first-of-type:before {
+  content: '';
+  padding: 0;
 }
 
 main {
@@ -38,8 +53,11 @@ blockquote footer {
 
 footer[role=contentinfo] {
   font-size: 80%;
-  padding: 3rem 0;
+  margin-top: 3rem;
+  padding-bottom: 3rem;
+  padding-top: 0.5rem;
   text-align: right;
+  border-top: 1px solid #777;
 }
 
 /* Inline Elements */
