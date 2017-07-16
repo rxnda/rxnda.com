@@ -1,5 +1,4 @@
 var commonformHTML = require('commonform-html')
-var escape = require('../util/escape')
 var formattingNote = require('../util/formatting-note')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')

@@ -1,7 +1,6 @@
 var crypto = require('crypto')
 var ed25519 = require('ed25519')
 var fs = require('fs')
-var glob = require('glob')
 var handler = require('../')
 var http = require('http')
 var os = require('os')

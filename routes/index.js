@@ -1,6 +1,4 @@
-var elide = require('../data/elide')
 var fs = require('fs')
-var hash = require('commonform-hash')
 var path = require('path')
 var pump = require('pump')
 var replacestream = require('replacestream')
