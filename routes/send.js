@@ -73,6 +73,7 @@ function form (configuration, edition, postData) {
   </h2>
   <p class=edition>${spell(edition.edition)}</p>
   ${draftWarning(edition)}
+  ${paragraphs(edition.description)}
   <p>
     <a
         href=/forms/${encodeTitle(edition.title)}/${edition.edition}
