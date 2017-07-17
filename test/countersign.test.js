@@ -49,6 +49,7 @@ tape.test('Countersign', function (test) {
         'textarea[name="signatures-recipient-address"]',
         'Neverland'
       )
+      .click('input[name=terms]')
       .click('input[type=submit]')
       .waitForExist('.agreed')
       .getText('h2')

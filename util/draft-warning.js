@@ -1,5 +1,5 @@
 module.exports = function draftWarning (edition) {
-  if (edition.edition.endsWith('d')) {
+  if (edition.endsWith('d')) {
     return `
 <p class=warning>
   This is a draft form, not a final edition.  You should

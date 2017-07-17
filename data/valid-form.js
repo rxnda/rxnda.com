@@ -10,8 +10,6 @@ module.exports = function validForm (argument) {
   var ajv = new AJV()
   ajv.addMetaSchema(draft4Schema)
   return (
-    // Title
-    isString(argument.title) &&
     // Edition
     isString(argument.edition) &&
     revedParse(argument.edition) !== false &&

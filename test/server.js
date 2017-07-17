@@ -3,15 +3,36 @@ var ed25519 = require('ed25519')
 var fs = require('fs')
 var handler = require('../')
 var http = require('http')
+var ncp = require('ncp')
 var os = require('os')
 var path = require('path')
 var pino = require('pino')
 var rimraf = require('rimraf')
+var runSeries = require('run-series')
 
 module.exports = function (test) {
   var prefix = path.join(os.tmpdir(), 'rxnda')
   var keypair = ed25519.MakeKeypair(crypto.randomBytes(32))
-  fs.mkdtemp(prefix, function (error, directory) {
+  var directory
+  runSeries([
+    function (done) {
+      fs.mkdtemp(prefix, function (error, created) {
+        if (error) {
+          done(error)
+        } else {
+          directory = created
+          done()
+        }
+      })
+    },
+    function (done) {
+      ncp(
+        path.join(__dirname, '..', 'example-directory'),
+        directory,
+        done
+      )
+    }
+  ], function (error) {
     if (error) {
       throw error
     }
@@ -21,10 +42,6 @@ module.exports = function (test) {
       prices: {
         use: 10
       },
-      forms: require('../example-directory/forms'),
-      wizard: require('../example-directory/wizard'),
-      terms: require('../example-directory/terms'),
-      privacy: require('../example-directory/privacy'),
       domain: 'rxnda.com',
       stripe: {
         public: process.env.STRIPE_PUBLIC_KEY,

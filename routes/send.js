@@ -11,15 +11,18 @@ var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
+var internalError = require('./internal-error')
 var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
 var paragraphs = require('../util/paragraphs')
 var path = require('path')
 var pump = require('pump')
+var readEdition = require('../data/read-edition')
 var readTemplate = require('./read-template')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
+var sanitize = require('../util/sanitize-path-component')
 var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
@@ -29,18 +32,25 @@ var validPost = require('../data/valid-post')
 
 module.exports = function send (configuration, request, response) {
   var title = decodeTitle(request.params.title)
-  if (!configuration.forms.hasOwnProperty(title)) {
-    return notFound.apply(null, arguments)
-  }
-  var edition = configuration.forms[title].find(function (edition) {
-    return edition.edition === request.params.edition
-  })
-
-  if (request.method === 'POST') {
-    post(configuration, request, response, edition)
-  } else {
-    get(configuration, request, response, edition)
-  }
+  var edition = request.params.edition
+  readEdition(
+    configuration, sanitize(title), sanitize(edition),
+    function (error, data) {
+      if (error) {
+        internalError(configuration, request, response, error)
+      } else if (data === false) {
+        notFound(configuration, request, response)
+      } else {
+        data.title = title
+        data.edition = edition
+        if (request.method === 'POST') {
+          post(configuration, request, response, data)
+        } else {
+          get(configuration, request, response, data)
+        }
+      }
+    }
+  )
 }
 
 function get (configuration, request, response, edition, postData) {
@@ -73,7 +83,7 @@ function form (configuration, edition, postData) {
   action=${escape(action)}>
   <h2>Send <cite>${escape(edition.title)}</cite></h2>
   <p class=edition>${escape(spell(edition.edition))}</p>
-  ${draftWarning(edition)}
+  ${draftWarning(edition.edition)}
   ${paragraphs(edition.description)}
   <p>
     <a href=${escape(read)} target=_blank

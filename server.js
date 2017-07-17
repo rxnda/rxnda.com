@@ -3,10 +3,6 @@ var handler = require('./')
 var http = require('http')
 var path = require('path')
 var pino = require('pino')
-var readForms = require('./data/read-forms')
-var readTerms = require('./data/read-terms')
-var readWizard = require('./data/read-wizard')
-var readPrivacyPolicy = require('./data/read-privacy-policy')
 var runSeries = require('run-series')
 var sweep = require('./sweep')
 var uuid = require('uuid')
@@ -41,30 +37,6 @@ var configuration = {
 }
 
 runSeries([
-  function readFormsToConfiguration (done) {
-    readForms(configuration, ecb(done, function (forms) {
-      configuration.forms = forms
-      done()
-    }))
-  },
-  function readWizardToConfiguration (done) {
-    readWizard(configuration, ecb(done, function (wizard) {
-      configuration.wizard = wizard
-      done()
-    }))
-  },
-  function readTermsToConfiguration (done) {
-    readTerms(configuration, ecb(done, function (terms) {
-      configuration.terms = terms
-      done()
-    }))
-  },
-  function readPrivacyPolicyToConfiguration (done) {
-    readPrivacyPolicy(configuration, ecb(done, function (privacy) {
-      configuration.privacy = privacy
-      done()
-    }))
-  },
   function launchServer (done) {
     var server = http.createServer(function (request, response) {
       handler(configuration, request, response)
