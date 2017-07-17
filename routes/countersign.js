@@ -360,10 +360,10 @@ function byline (recipient, postData) {
         : ''
     }
     required>
-  <p class=note>
+  <p class=description>
     To sign the form, enter your name, exactly as above.
   </p>
-  <p class=note>
+  <p class=warning>
     By signing here and clicking Countersign below, you
     enter into a legally binding contract, on the terms they
     proposed, with the other side.

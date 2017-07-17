@@ -397,10 +397,10 @@ function byline (postData) {
     name=signatures-sender-signature
     type=text
     required>
-  <p class=note>
+  <p class=description>
     To sign the form, enter your name again, exactly as you did before.
   </p>
-  <p class=note>
+  <p class=warning>
     By signing here and clicking Sign &amp; Send below, you offer to
     enter into a legally binding contract, on the terms of the form,
     with the other side.
