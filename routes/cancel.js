@@ -16,9 +16,9 @@ var spell = require('reviewers-edition-spell')
 var xtend = require('xtend')
 
 var banner = require('..//banner')
+var preamble = require('..//preamble')
 var footer = require('../partials/footer')
 var nav = require('../partials/nav')
-var stylesheets = require('../partials/stylesheets')
 
 module.exports = function cancel (configuration, request, response) {
   var signCapability
@@ -66,48 +66,37 @@ function get (configuration, request, response, data) {
   var expires = expirationDate(data)
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.end(`
-<!doctype html>
-<html lang=en>
-  <head>
-    <meta charset=ASCII>
-    <title>RxNDA</title>
-  ${stylesheets}
-  </head>
-  <body>
-    ${banner}
-    <!-- no nav -->
-    <main>
-      <form
-        method=post
-        action=/cancel/${data.cancel}
-        <p>
-          ${escape(sender.name)}
-          (<a href="mailto:${encodeURIComponent(sender.email)}"
-            >${escape(sender.email)}</a>)
-          offered to enter into an NDA with
-          ${escape(
-            recipient.company || recipient.name || recipient.email
-          )}
-          on the terms of an RxNDA standard form NDA.
-          The offer expires ${escape(expires.toLocaleString())}.
-        </p>
-        <p>
-          <a
-              href=/view/${data.sign}
-              target=_blank>
-            Click here to view the full text of the NDA.
-          </a>
-        </p>
-        <input
-            id=submitButton
-            type=submit
-            value='Cancel or Reject this Offer'>
-      </form>
-    </main>
-    ${footer}
-    <script src=/cancel.js></script>
-  </body>
-</html>`)
+${preamble}
+${banner}
+<main>
+  <form
+    method=post
+    action=/cancel/${data.cancel}
+    <p>
+      ${escape(sender.name)}
+      (<a href="mailto:${encodeURIComponent(sender.email)}"
+        >${escape(sender.email)}</a>)
+      offered to enter into an NDA with
+      ${escape(
+        recipient.company || recipient.name || recipient.email
+      )}
+      on the terms of an RxNDA standard form NDA.
+      The offer expires ${escape(expires.toLocaleString())}.
+    </p>
+    <p>
+      <a
+          href=/view/${data.sign}
+          target=_blank>
+        Click here to view the full text of the NDA.
+      </a>
+    </p>
+    <input
+        id=submitButton
+        type=submit
+        value='Cancel or Reject this Offer'>
+  </form>
+</main>
+${footer('cancel')}`)
 }
 
 function post (configuration, request, response, data) {
@@ -158,34 +147,25 @@ function post (configuration, request, response, data) {
       var form = data.form
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
       response.end(`
-<!doctype html>
-<html lang=en>
-  <head>
-    <meta charset=ASCII>
-    <title>RxNDA</title>
-    ${stylesheets}
-  </head>
-  <body>
-    ${banner}
-    ${nav}
-    <main>
-      <h2 class=canceled>NDA Canceled!</h2>
-      <p>
-        You have canceled a nondisclosure agreement offered
-        by ${escape(recipient.name)}
-        ${
-          recipient.company
-            ? 'on behalf of ' + escape(recipient.company)
-            : ''
-        }
-        with ${escape(senderName)} on the terms of the
-        ${escape(form.title)} form agreement,
-        ${escape(spell(form.edition))}.
-      </p>
-    </main>
-    ${footer}
-  </body>
-</html>`)
+${preamble()}
+${banner}
+${nav}
+<main>
+  <h2 class=canceled>NDA Canceled!</h2>
+  <p>
+    You have canceled a nondisclosure agreement offered
+    by ${escape(recipient.name)}
+    ${
+      recipient.company
+        ? 'on behalf of ' + escape(recipient.company)
+        : ''
+    }
+    with ${escape(senderName)} on the terms of the
+    ${escape(form.title)} form agreement,
+    ${escape(spell(form.edition))}.
+  </p>
+</main>
+${footer()}`)
     }
   })
 
