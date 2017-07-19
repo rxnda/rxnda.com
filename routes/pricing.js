@@ -5,7 +5,10 @@ var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = etagged('text/html; charset=ASCII', html`
+var handler
+module.exports = function (configuration, request, response) {
+  if (!handler) {
+    handler = etagged('text/html; charset=ASCII', html`
 ${preamble()}
 ${banner()}
 ${nav()}
@@ -25,3 +28,6 @@ ${nav()}
   </p>
 </main>
 ${footer()}`)
+  }
+  handler(configuration, request, response)
+}
