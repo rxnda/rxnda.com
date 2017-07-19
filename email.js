@@ -49,23 +49,19 @@ if (process.env.NODE_ENV === 'test') {
         log.info({event: 'sent'})
         callback()
       } else {
-        var buffers = []
         response
-          .on('data', function (buffer) {
-            buffers.push(buffer)
-          })
           .once('error', function (error) {
+            log.error(error)
             callback(error)
           })
-          .once('end', function () {
-            var body = Buffer.concat(buffers).toString()
+          .pipe(require('concat-stream')(function (body) {
             var error = {
               status: response.statusCode,
               body: body
             }
             log.error(error)
             callback(error)
-          })
+          }))
       }
     }))
   }

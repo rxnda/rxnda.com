@@ -25,6 +25,7 @@
     "commonform-hash": "^0.4.3",
     "commonform-html": "^2.0.0",
     "commonform-validate": "^0.6.5",
+    "concat-stream": "^1.6.0",
     "docx-content-type": "^1.0.0",
     "ecb": "^1.0.0",
     "ed25519": "0.0.4",
