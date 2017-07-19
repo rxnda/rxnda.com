@@ -1,22 +1,24 @@
 var cancelPath = require('../data/cancel-path')
 var chargePath = require('../data/charge-path')
 var ecb = require('ecb')
+var email = require('../email')
 var escape = require('../util/escape')
 var expirationDate = require('../data/expiration-date')
 var expired = require('../data/expired')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
-var email = require('../email')
 var notFound = require('./not-found')
-var pump = require('pump')
 var readJSONFile = require('../data/read-json-file')
-var readTemplate = require('./read-template')
 var runSeries = require('run-series')
 var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
-var trumpet = require('trumpet')
 var xtend = require('xtend')
+
+var banner = require('..//banner')
+var footer = require('../partials/footer')
+var nav = require('../partials/nav')
+var stylesheets = require('../partials/stylesheets')
 
 module.exports = function cancel (configuration, request, response) {
   var signCapability
@@ -59,44 +61,53 @@ module.exports = function cancel (configuration, request, response) {
 }
 
 function get (configuration, request, response, data) {
-  var body = trumpet()
-  response.setHeader('Content-Type', 'text/html; charset=ASCII')
-  pump(body, response)
-  body.select('main')
-    .createWriteStream()
-    .end(form(configuration, data))
-  pump(readTemplate('cancel.html'), body)
-}
-
-function form (configuration, data) {
   var recipient = data.signatures.recipient
   var sender = data.signatures.sender
   var expires = expirationDate(data)
-  return `
-<form
-  method=post
-  action=/cancel/${data.cancel}
-  <p>
-    ${escape(sender.name)}
-    (<a href="mailto:${encodeURIComponent(sender.email)}"
-      >${escape(sender.email)}</a>)
-    offered to enter into an NDA with
-    ${escape(recipient.company || recipient.name || recipient.email)}
-    on the terms of an RxNDA standard form NDA.
-    The offer expires ${escape(expires.toLocaleString())}.
-  </p>
-  <p>
-    <a
-        href=/view/${data.sign}
-        target=_blank>
-      Click here to view the full text of the NDA.
-    </a>
-  </p>
-  <input
-      id=submitButton
-      type=submit
-      value='Cancel or Reject this Offer'>
-</form>`
+  response.setHeader('Content-Type', 'text/html; charset=ASCII')
+  response.end(`
+<!doctype html>
+<html lang=en>
+  <head>
+    <meta charset=ASCII>
+    <title>RxNDA</title>
+  ${stylesheets}
+  </head>
+  <body>
+    ${banner}
+    <!-- no nav -->
+    <main>
+      <form
+        method=post
+        action=/cancel/${data.cancel}
+        <p>
+          ${escape(sender.name)}
+          (<a href="mailto:${encodeURIComponent(sender.email)}"
+            >${escape(sender.email)}</a>)
+          offered to enter into an NDA with
+          ${escape(
+            recipient.company || recipient.name || recipient.email
+          )}
+          on the terms of an RxNDA standard form NDA.
+          The offer expires ${escape(expires.toLocaleString())}.
+        </p>
+        <p>
+          <a
+              href=/view/${data.sign}
+              target=_blank>
+            Click here to view the full text of the NDA.
+          </a>
+        </p>
+        <input
+            id=submitButton
+            type=submit
+            value='Cancel or Reject this Offer'>
+      </form>
+    </main>
+    ${footer}
+    <script src=/cancel.js></script>
+  </body>
+</html>`)
 }
 
 function post (configuration, request, response, data) {
@@ -138,13 +149,43 @@ function post (configuration, request, response, data) {
       response.statusCode = 500
       response.end()
     } else {
-      var body = trumpet()
+      var sender = data.signatures.sender
+      var senderName = sender.company || sender.name
+      var recipient = xtend(
+        data.signatures.recipient,
+        data.countersign
+      )
+      var form = data.form
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      pump(body, response)
-      body.select('main')
-        .createWriteStream()
-        .end(success(configuration, data))
-      pump(readTemplate('agreed.html'), body)
+      response.end(`
+<!doctype html>
+<html lang=en>
+  <head>
+    <meta charset=ASCII>
+    <title>RxNDA</title>
+    ${stylesheets}
+  </head>
+  <body>
+    ${banner}
+    ${nav}
+    <main>
+      <h2 class=canceled>NDA Canceled!</h2>
+      <p>
+        You have canceled a nondisclosure agreement offered
+        by ${escape(recipient.name)}
+        ${
+          recipient.company
+            ? 'on behalf of ' + escape(recipient.company)
+            : ''
+        }
+        with ${escape(senderName)} on the terms of the
+        ${escape(form.title)} form agreement,
+        ${escape(spell(form.edition))}.
+      </p>
+    </main>
+    ${footer}
+  </body>
+</html>`)
     }
   })
 
@@ -158,28 +199,4 @@ function post (configuration, request, response, data) {
       })
     }
   }
-}
-
-function success (configuration, data) {
-  var sender = data.signatures.sender
-  var senderName = sender.company || sender.name
-  var recipient = xtend(
-    data.signatures.recipient,
-    data.countersign
-  )
-  var form = data.form
-  return `
-<h2 class=canceled>NDA Canceled!</h2>
-<p>
-  You have canceled a nondisclosure agreement offered
-  by ${escape(recipient.name)}
-  ${
-    recipient.company
-      ? 'on behalf of ' + escape(recipient.company)
-      : ''
-  }
-  with ${escape(senderName)} on the terms of the
-  ${escape(form.title)} form agreement,
-  ${escape(spell(form.edition))}.
-</p>`
 }
