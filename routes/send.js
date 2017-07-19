@@ -3,7 +3,6 @@ var cancelPath = require('../data/cancel-path')
 var chargePath = require('../data/charge-path')
 var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
-var draftWarning = require('../util/draft-warning')
 var ecb = require('ecb')
 var ed25519 = require('ed25519')
 var email = require('../email')
@@ -14,11 +13,9 @@ var fs = require('fs')
 var internalError = require('./internal-error')
 var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
-var paragraphs = require('../util/paragraphs')
 var path = require('path')
 var pump = require('pump')
 var readEdition = require('../data/read-edition')
-var readTemplate = require('./read-template')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
@@ -26,9 +23,16 @@ var sanitize = require('../util/sanitize-path-component')
 var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
-var termsCheckbox = require('../util/terms-checkbox')
-var trumpet = require('trumpet')
 var validPost = require('../data/valid-post')
+
+var banner = require('../partials/banner')
+var draftWarning = require('../partials/draft-warning')
+var footer = require('../partials/footer')
+var html = require('./html')
+var nav = require('../partials/nav')
+var paragraphs = require('../partials/paragraphs')
+var preamble = require('../partials/preamble')
+var termsCheckbox = require('../partials/terms-checkbox')
 
 module.exports = function send (configuration, request, response) {
   var title = decodeTitle(request.params.title)
@@ -56,15 +60,6 @@ module.exports = function send (configuration, request, response) {
 function get (configuration, request, response, edition, postData) {
   response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
-  var body = trumpet()
-  pump(body, response)
-  body.select('main')
-    .createWriteStream()
-    .end(form(configuration, edition, postData))
-  pump(readTemplate('send.html'), body)
-}
-
-function form (configuration, edition, postData) {
   var address = (
     configuration.email.sender + '@' +
     configuration.email.domain
@@ -72,96 +67,156 @@ function form (configuration, edition, postData) {
   var action = `/send/${encodeTitle(edition.title)}/${edition.edition}`
   var read = `/forms/${encodeTitle(edition.title)}/${edition.edition}`
   var docx = `/docx/${encodeTitle(edition.title)}/${edition.edition}`
-  return `
-<noscript>
-  <p>JavaScript has been disabled in your browser.</p>
-  <p>You must enabled JavaScript to send.</p>
-</noscript>
-<form
-  id=sendForm
-  method=post
-  action=${escape(action)}>
-  <h2>Send <cite>${escape(edition.title)}</cite></h2>
-  <p class=edition>${escape(spell(edition.edition))}</p>
-  ${draftWarning(edition.edition)}
-  ${paragraphs(edition.description)}
-  <p>
-    <a href=${escape(read)} target=_blank
-      >Read this form online</a>
-    or
-    <a href=${escape(docx)}
-      >download a .docx copy</a>.
-  </p>
-  ${(postData && postData.errors) ? errorsHeader(postData.errors) : ''}
-  ${inputs(postData)}
-  ${signatures(edition.signatures, postData)}
-  ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
-  <section id=payment>
-    <h3>Credit Card Payment</h3>
-    <div id=card></div>
-    <div id=card-errors></div>
-    <p>
-      ${escape(configuration.domain)} will authorize
-      a charge of $${configuration.prices.use} to your
-      credit card now.  If the other side countersigns
-      within seven days, ${escape(configuration.domain)}
-      will collect the charge.
-      If the other side does not countersign in seven days,
-      of you cancel before they countersign, your credit
-      card will not be charged.
-    </p>
-  </section>
-  <section class=information>
-    <h3>Next Steps</h3>
-    <p>Once you press Sign &amp; Send:</p>
-    <ol>
-      <li>
-        ${escape(address)} will send the other side a secret link
-        that they can use to countersign or cancel online.
-      </li>
-      <li>
-        ${escape(address)} will send you an e-mail with a secret link
-        that you can use to cancel before the other side countersigns.
-      </li>
-    </ol>
-  </section>
-  <input id=submitButton type=submit value='Sign &amp; Send' >
-</form>`
+  var senderPage = edition.signatures[0]
+  var recipientPage = edition.signatures[1]
+  response.end(html`
+${preamble()}
+${banner()}
+${nav()}
+<main>
+  <noscript>
+    <p>JavaScript has been disabled in your browser.</p>
+    <p>You must enabled JavaScript to send.</p>
+  </noscript>
 
-  function inputs (postData) {
-    if (edition.directions.length !== 0) {
-      var list = edition
-        .directions
-        .map(function (direction) {
-          var name = (
-            'directions-' +
-            direction
-              .blank
-              .map(function (element) {
-                return element.toString()
-              })
-              .join(',')
-          )
-          return input(
-            name,
-            direction.label,
-            direction.notes,
-            postData
-              ? priorValue(direction.blank, postData)
-              : undefined,
-            errorsFor(name, postData)
-          )
-        })
-        .join('')
-      return `
-<section class=blanks>
-  <h3>Fill in the Blanks</h3>
-  ${list}
-</section>`
-    } else {
-      return ''
-    }
-  }
+  <form
+    id=sendForm
+    method=post
+    action=${escape(action)}>
+
+    <h2>Send <cite>${escape(edition.title)}</cite></h2>
+
+    <p class=edition>${escape(spell(edition.edition))}</p>
+
+    ${draftWarning(edition.edition)}
+
+    ${paragraphs(edition.description)}
+
+    <p>
+      <a href=${escape(read)} target=_blank
+        >Read this form online</a>
+      or
+      <a href=${escape(docx)}
+        >download a .docx copy</a>.
+    </p>
+
+    ${(postData && postData.errors) && html`
+      <p class=error>
+        Look below for
+        ${postData.errors.length === 1 ? 'another box' : 'more boxes'}
+        like this one.
+      </p>
+    `}
+
+    ${(edition.directions.length !== 0) && html`
+      <section class=blanks>
+        <h3>Fill in the Blanks</h3>
+        ${edition
+          .directions
+          .map(function (direction) {
+            var name = (
+              'directions-' +
+              direction
+                .blank
+                .map(function (element) {
+                  return element.toString()
+                })
+                .join(',')
+            )
+            return input(
+              name,
+              direction.label,
+              direction.notes,
+              postData
+                ? priorValue(direction.blank, postData)
+                : undefined,
+              errorsFor(name, postData)
+            )
+          })}
+      </section>
+    `}
+
+    <section class=signatures>
+      <h3>Signatures</h3>
+
+      <section class=ownSignature>
+        <h4>Your Side&rsquo;s Signature</h4>
+        ${senderBlock(senderPage, postData)}
+        ${
+          senderPage.information
+            .filter(function (name) {
+              return name !== 'date'
+            })
+            .map(function (suffix) {
+              var name = 'signatures-sender-' + suffix
+              return input(
+                name,
+                'Your ' + suffix[0].toUpperCase() + suffix.slice(1),
+                [],
+                (
+                  postData
+                    ? postData.signatures.sender[suffix]
+                    : undefined
+                ),
+                errorsFor(name, postData)
+              )
+            })
+        }
+      </section>
+
+      <section class=theirSignature>
+        <h4>The Other Side&rsquo;s Signature</h4>
+        <section class=field>
+          <label for=signatures-recipient-email>Their Email</label>
+          ${asterisk()}
+          <input
+              name=signatures-recipient-email
+              type=email
+              required
+              value=${
+                postData
+                  ? escape(postData.signatures.recipient.email)
+                  : '""'
+              }>
+        </section>
+        ${recipientBlock(recipientPage)}
+      </section>
+    </section>
+
+    ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
+
+    <section id=payment>
+      <h3>Credit Card Payment</h3>
+      <div id=card></div>
+      <div id=card-errors></div>
+      <p>
+        ${escape(configuration.domain)} will authorize a charge of
+        $${escape(configuration.prices.use.toString())} to your credit
+        card now.  If the other side countersigns within seven days,
+        ${escape(configuration.domain)} will collect the charge.
+        If the other side does not countersign in seven days,
+        of you cancel before they countersign, your credit
+        card will not be charged.
+      </p>
+    </section>
+    <section class=information>
+      <h3>Next Steps</h3>
+      <p>Once you press Sign &amp; Send:</p>
+      <ol>
+        <li>
+          ${escape(address)} will send the other side a secret link
+          that they can use to countersign or cancel online.
+        </li>
+        <li>
+          ${escape(address)} will send you an e-mail with a secret link
+          that you can use to cancel before the other side countersigns.
+        </li>
+      </ol>
+    </section>
+    <input id=submitButton type=submit value='Sign &amp; Send' >
+  </form>
+</main>
+${footer('send', 'stripe')}`)
 
   function priorValue (blank, prior) {
     var match = prior.directions.find(function (direction) {
@@ -170,55 +225,6 @@ function form (configuration, edition, postData) {
     if (match) {
       return match.value
     }
-  }
-
-  function signatures (data, postData) {
-    var sender = data[0]
-    var recipient = data[1]
-    return `
-<section class=signatures>
-  <h3>Signatures</h3>
-
-  <section class=ownSignature>
-    <h4>Your Side&rsquo;s Signature</h4>
-    ${senderBlock(sender, postData)}
-    ${
-      sender.information
-        .filter(function (name) {
-          return name !== 'date'
-        })
-        .map(function (suffix) {
-          var name = 'signatures-sender-' + suffix
-          return input(
-            name,
-            'Your ' + suffix[0].toUpperCase() + suffix.slice(1),
-            [],
-            (postData ? postData.signatures.sender[suffix] : undefined),
-            errorsFor(name, postData)
-          )
-        })
-        .join('')
-    }
-  </section>
-
-  <section class=theirSignature>
-    <h4>The Other Side&rsquo;s Signature</h4>
-    <section class=field>
-      <label for=signatures-recipient-email>Their Email</label>
-      ${asterisk()}
-      <input
-          name=signatures-recipient-email
-          type=email
-          required
-          value=${
-            postData
-              ? escape(postData.signatures.recipient.email)
-              : ''
-          }>
-    </section>
-    ${recipientBlock(recipient)}
-  </section>
-</section>`
   }
 }
 
@@ -352,29 +358,29 @@ function input (name, label, notes, value, errors) {
     name.startsWith('directions-')
   )
   if (name.endsWith('address')) {
-    return `
+    return html`
 <section class=field>
   <label for='${name}'>${label}</label>
-  ${required ? asterisk() : ''}
-  ${errors ? paragraphs(errors, 'error') : ''}
+  ${required && asterisk()}
+  ${errors && paragraphs(errors, 'error')}
   <textarea
       rows=3
       name="${escape(name)}"
-      ${required ? 'required' : ''}
-  >${value ? escape(value) : ''}</textarea>
+      ${required && 'required'}
+  >${value && escape(value)}</textarea>
 </section>`
   } else {
-    return `
+    return html`
 <section class=field>
   <label for='${name}'>${label}</label>
-  ${required ? asterisk() : ''}
-  ${errors ? paragraphs(errors, 'error') : ''}
+  ${required && asterisk()}
+  ${errors && paragraphs(errors, 'error')}
   <input
       name="${name}"
-      ${name === 'signatures-sender-name' ? 'id=name' : ''}
+      ${(name === 'signatures-sender-name') && 'id=name'}
       type=${name === 'email' ? 'email' : 'text'}
-      ${required ? 'required' : ''}
-      value='${value ? escape(value) : ''}'>
+      ${required && 'required'}
+      value='${value && escape(value)}'>
   ${paragraphs(notes)}
 </section>`
   }
@@ -386,11 +392,11 @@ function asterisk () {
 
 function byline (postData) {
   var errors = errorsFor('signatures-sender-signature', postData)
-  return `
+  return html`
 <section class=field>
   <label for=signatures-sender-signature>Signature</label>
   ${asterisk()}
-  ${errors ? paragraphs(errors, 'error') : ''}
+  ${errors && paragraphs(errors, 'error')}
   <input
     id=signature
     class=signature
@@ -607,13 +613,31 @@ function write (configuration, request, response, data, form) {
       response.statusCode = 500
       response.end()
     } else {
-      var body = trumpet()
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      pump(body, response)
-      body.select('main')
-        .createWriteStream()
-        .end(success(configuration, data))
-      pump(readTemplate('sent.html'), body)
+      var sender = data.signatures.sender
+      var recipient = data.signatures.recipient
+      var recipientName = (
+        recipient.company || recipient.name || recipient.email
+      )
+      response.end(html`
+${preamble()}
+${banner()}
+${nav()}
+<main>
+  <h2 class=sent>NDA Sent!</h2>
+  <p>
+    You have offered to enter a nondisclosure agreement
+    ${sender.company && ('on behalf of ' + escape(sender.company))}
+    with ${escape(recipientName)} on the terms of the
+    ${escape(data.form.title)}  form agreement,
+    ${escape(spell(data.form.edition))}.
+  </p>
+  <p>
+    To cancel your request before the other side signs, visit
+    <a href=/cancel/${escape(data.cancel)}>this link</a>.
+  </p>
+</main>
+${footer()}`)
     }
   })
 
@@ -642,27 +666,6 @@ function write (configuration, request, response, data, form) {
       }
     ], callback)
   }
-}
-
-function success (configuration, data) {
-  var sender = data.signatures.sender
-  var recipient = data.signatures.recipient
-  var recipientName = (
-    recipient.company || recipient.name || recipient.email
-  )
-  return `
-<h2 class=sent>NDA Sent!</h2>
-<p>
-  You have offered to enter a nondisclosure agreement
-  ${sender.company ? 'on behalf of ' + escape(sender.company) : ''}
-  with ${escape(recipientName)} on the terms of the
-  ${escape(data.form.title)}  form agreement,
-  ${escape(spell(data.form.edition))}.
-</p>
-<p>
-  To cancel your request before the other side signs, visit
-  <a href=/cancel/${escape(data.cancel)}>this link</a>.
-</p>`
 }
 
 function randomCapability (callback) {
@@ -696,13 +699,4 @@ function errorsFor (name, postData) {
   } else {
     return []
   }
-}
-
-function errorsHeader (errors) {
-  return `
-<p class=error>
-  Look below for
-  ${errors.length === 1 ? 'another box' : 'more boxes'}
-  like this one.
-</p>`
 }

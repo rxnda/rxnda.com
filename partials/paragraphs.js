@@ -1,4 +1,4 @@
-var escape = require('./escape')
+var escape = require('../util/escape')
 
 module.exports = function paragraphs (array, className) {
   className = className || 'description'

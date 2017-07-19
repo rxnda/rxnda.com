@@ -1,23 +1,27 @@
 var commonformHTML = require('commonform-html')
 var decodeTitle = require('../util/decode-title')
-var draftWarning = require('../util/draft-warning')
 var ecb = require('ecb')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
-var formattingNote = require('../util/formatting-note')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')
-var paragraphs = require('../util/paragraphs')
-var pump = require('pump')
 var readEdition = require('../data/read-edition')
 var readEditions = require('../data/read-editions')
-var readTemplate = require('./read-template')
 var readTitles = require('../data/read-titles')
 var revedCompare = require('reviewers-edition-compare')
 var runParallel = require('run-parallel')
 var sanitize = require('../util/sanitize-path-component')
 var spell = require('reviewers-edition-spell')
-var trumpet = require('trumpet')
+
+var banner = require('../partials/banner')
+var draftWarning = require('../partials/draft-warning')
+var footer = require('../partials/footer')
+var formattingNote = require('../partials/formatting-note')
+var formsOverview = require('../partials/forms-overview')
+var html = require('./html')
+var nav = require('../partials/nav')
+var paragraphs = require('../partials/paragraphs')
+var preamble = require('../partials/preamble')
 
 module.exports = function forms (configuration, request, response) {
   if (request.method === 'GET') {
@@ -91,12 +95,16 @@ function listForms (configuration, request, response) {
             response.setHeader(
               'Content-Type', 'text/html; charset=ASCII'
             )
-            var body = trumpet()
-            pump(body, response)
-            body.select('#list')
-              .createWriteStream()
-              .end(list)
-            pump(readTemplate('forms.html'), body)
+            response.end(html`
+${preamble()}
+${banner()}
+${nav()}
+<main>
+  <h2>Forms</h2>
+  ${formsOverview()}
+  <ul id=list class=listOfForms>${list}</ul>
+</main>
+${footer()}`)
           }
         }
       )
@@ -150,15 +158,16 @@ function listEditions (configuration, request, response) {
             response.setHeader(
               'Content-Type', 'text/html; charset=ASCII'
             )
-            var body = trumpet()
-            pump(body, response)
-            body.select('h2')
-              .createWriteStream()
-              .end(title)
-            body.select('#list')
-              .createWriteStream()
-              .end(list)
-            pump(readTemplate('editions.html'), body)
+            response.end(html`
+${preamble()}
+${banner()}
+${nav()}
+<main>
+  <h2>${escape(title)}</h2>
+  <ul id=list class=listOfForms>${list}</ul>
+  ${formsOverview()}
+</main>
+${footer()}`)
           })
         )
       }
@@ -188,33 +197,22 @@ function showEdition (configuration, request, response) {
         notFound(configuration, request, response)
       } else {
         response.setHeader('Content-Type', 'text/html; charset=ASCII')
-        var body = trumpet()
-        pump(body, response)
-        body.select('title')
-          .createWriteStream()
-          .end(
-            escape(data.title) + ', ' +
-            escape(data.edition)
-          )
-        body.select('main')
-          .createWriteStream()
-          .end(
-            formattingNote +
-            '<article class=commonform>' +
-            asciifyBlanks(commonformHTML(data.commonform, [], {
-              title: data.title,
-              edition: spell(data.edition),
-              html5: true,
-              lists: true
-            })) +
-            '</article>'
-          )
-        pump(readTemplate('empty.html'), body)
+        response.end(html`
+${preamble()}
+<main>
+  <h1>${escape(data.title)}, ${escape(data.edition)}</h1>
+  ${formattingNote()}
+  <article class=commonform>
+  ${commonformHTML(data.commonform, [], {
+    title: data.title,
+    edition: spell(data.edition),
+    html5: true,
+    lists: true
+  }).replace(/[•]/g, '__________')}
+  </article>
+</main>
+${footer()}`)
       }
     }
   )
-}
-
-function asciifyBlanks (string) {
-  return string.replace(/[•]/g, '__________')
 }

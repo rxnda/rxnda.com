@@ -1,3 +1,5 @@
+module.exports = function () {
+return `
 <nav role=navigation>
   <ul>
     <li><a href=/>Welcome</a></li>
@@ -7,4 +9,5 @@
     <li><a href=/questions>Q&amp;A</a></li>
     <li><a href=/future>Future</a></li>
   </ul>
-</nav>
+</nav>`
+}

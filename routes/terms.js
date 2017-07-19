@@ -1,12 +1,15 @@
 var commonformHTML = require('commonform-html')
 var ecb = require('ecb')
 var internalError = require('./internal-error')
-var pump = require('pump')
 var readPrivacyPolicy = require('../data/read-privacy-policy')
-var readTemplate = require('./read-template')
 var readTerms = require('../data/read-terms')
 var runParallel = require('run-parallel')
-var trumpet = require('trumpet')
+
+var banner = require('../partials/banner')
+var footer = require('../partials/footer')
+var html = require('./html')
+var nav = require('../partials/nav')
+var preamble = require('../partials/preamble')
 
 module.exports = function terms (configuration, request, response) {
   var terms
@@ -28,37 +31,38 @@ module.exports = function terms (configuration, request, response) {
     if (error) {
       internalError(configuration, request, response, error)
     } else {
-      var body = trumpet()
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      pump(body, response)
-      body.select('main')
-        .createWriteStream()
-        .end(`
-<article id=terms class=commonform>
-  ${commonformHTML(
-    terms.commonform,
-    terms.directions,
-    {
-      title: 'RxNDA Terms of Service',
-      edition: new Date(terms.updated)
-        .toLocaleDateString(),
-      html5: true
-    }
-  )}
-</article>
-<article id=privacy class=commonform>
-  ${commonformHTML(
-    privacy.commonform,
-    privacy.directions,
-    {
-      title: 'RxNDA Privacy Policy',
-      edition: new Date(privacy.updated)
-        .toLocaleDateString(),
-      html5: true
-    }
-  )}
-</article>`)
-      pump(readTemplate('terms.html'), body)
+      response.end(html`
+${preamble()}
+${banner()}
+${nav()}
+<main>
+  <article id=terms class=commonform>
+    ${commonformHTML(
+      terms.commonform,
+      terms.directions,
+      {
+        title: 'RxNDA Terms of Service',
+        edition: new Date(terms.updated)
+          .toLocaleDateString(),
+        html5: true
+      }
+    )}
+  </article>
+  <article id=privacy class=commonform>
+    ${commonformHTML(
+      privacy.commonform,
+      privacy.directions,
+      {
+        title: 'RxNDA Privacy Policy',
+        edition: new Date(privacy.updated)
+          .toLocaleDateString(),
+        html5: true
+      }
+    )}
+  </article>
+</main>
+${footer()}`)
     }
   })
 }

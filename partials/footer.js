@@ -7,9 +7,14 @@ module.exports = function (scripts) {
   </ul>
 </footer>
 ${
-  (scripts || [])
+  Array.prototype.slice.call(arguments)
     .map(function (script) {
-      return `<script src=/${script}></script>`
+      return script === 'stripe'
+        ? 'https://js.stripe.com/v3/'
+        : '/' + script + '.js'
+    })
+    .map(function (script) {
+      return `<script src=${script}></script>`
     })
     .join('')
 }

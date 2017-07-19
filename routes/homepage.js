@@ -1,13 +1,15 @@
-<!doctype html>
-<html lang=en>
-<head>
-  <meta charset=ASCII>
-  <title>RxNDA</title>
-{{>stylesheets}}
-</head>
-<body>
-{{>banner}}
-{{>nav}}
+var banner = require('../partials/banner')
+var footer = require('../partials/footer')
+var html = require('./html')
+var nav = require('../partials/nav')
+var preamble = require('../partials/preamble')
+
+module.exports = function (configuration, request, response) {
+  response.setHeader('Content-Type', 'text/html; charset=ASCII')
+  response.end(html`
+${preamble()}
+${banner()}
+${nav()}
 <main>
   <p>
     RxNDA is a simple Internet service for proposing
@@ -48,6 +50,5 @@
     <a href=/questions>questions &amp; answers page</a>.
   </p>
 </main>
-{{>footer}}
-</body>
-</html>
+${footer()}`)
+}

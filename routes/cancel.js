@@ -15,10 +15,11 @@ var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var xtend = require('xtend')
 
-var banner = require('..//banner')
-var preamble = require('..//preamble')
+var banner = require('../partials/banner')
 var footer = require('../partials/footer')
+var html = require('./html')
 var nav = require('../partials/nav')
+var preamble = require('../partials/preamble')
 
 module.exports = function cancel (configuration, request, response) {
   var signCapability
@@ -65,9 +66,9 @@ function get (configuration, request, response, data) {
   var sender = data.signatures.sender
   var expires = expirationDate(data)
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
-  response.end(`
-${preamble}
-${banner}
+  response.end(html`
+${preamble()}
+${banner()}
 <main>
   <form
     method=post
@@ -146,10 +147,10 @@ function post (configuration, request, response, data) {
       )
       var form = data.form
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      response.end(`
+      response.end(html`
 ${preamble()}
-${banner}
-${nav}
+${banner()}
+${nav()}
 <main>
   <h2 class=canceled>NDA Canceled!</h2>
   <p>

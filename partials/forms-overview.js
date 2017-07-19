@@ -1,3 +1,5 @@
+module.exports = function () {
+  return `
 <section>
 <h3>About RxNDA Forms</h3>
 <p class=warning>
@@ -21,4 +23,5 @@
   terms, or those who may disclose highly regulated
   information, like health data or classified information.
 </p>
-</section>
+</section>`
+}
