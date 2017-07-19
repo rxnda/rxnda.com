@@ -1,6 +1,7 @@
 var fs = require('fs')
 var path = require('path')
 var pump = require('pump')
+var etagged = require('./etagged')
 var replacestream = require('replacestream')
 var send = require('send')
 
@@ -39,7 +40,7 @@ staticFile('countersign.js')
 staticFile('cancel.js')
 staticFile('normalize.css')
 staticFile('styles.css')
-staticFile('robots.txt')
+routes.set('/robots.txt', etagged('text/plain', 'User-Agent: *\nDisallow: /'))
 
 function staticFile (file) {
   var filePath = path.join(__dirname, '..', 'static', file)
