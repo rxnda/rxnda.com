@@ -41,13 +41,6 @@ staticFile('normalize.css')
 staticFile('styles.css')
 staticFile('robots.txt')
 
-function staticTemplate (pathname, file) {
-  var filePath = path.join(__dirname, '..', 'templates', file)
-  routes.set(pathname, function (configuration, request, response) {
-    pump(send(request, filePath), response)
-  })
-}
-
 function staticFile (file) {
   var filePath = path.join(__dirname, '..', 'static', file)
   routes.set('/' + file, function (configuration, request, response) {

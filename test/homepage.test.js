@@ -13,13 +13,17 @@ tape.test('GET /', function (test) {
           response.statusCode, 200,
           'responds 200'
         )
-        var contentType = 'text/html; charset=UTF-8'
+        var contentType = 'text/html; charset=ASCII'
         test.equal(
           response.headers['content-type'], contentType,
           contentType
         )
+        test.assert(
+          response.headers.etag.length > 0,
+          'sets ETag'
+        )
         concat(response, function (error, body) {
-          test.ifError(error)
+          test.ifError(error, 'no error')
           var name = 'RxNDA'
           test.assert(
             body.indexOf(name) !== -1,

@@ -1,12 +1,11 @@
 var banner = require('../partials/banner')
+var etagged = require('./etagged')
 var footer = require('../partials/footer')
 var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = function (configuration, request, response) {
-  response.setHeader('Content-Type', 'text/html; charset=ASCII')
-  response.end(html`
+module.exports = etagged('text/html; charset=ASCII', html`
 ${preamble()}
 ${banner()}
 ${nav()}
@@ -181,4 +180,3 @@ ${nav()}
   </p>
 </main>
 ${footer()}`)
-}
