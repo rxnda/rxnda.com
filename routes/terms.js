@@ -28,6 +28,7 @@ module.exports = function terms (configuration, request, response) {
       }))
     }
   ], function (error) {
+    /* istanbul ignore if */
     if (error) {
       internalError(configuration, request, response, error)
     } else {

@@ -12,6 +12,7 @@ module.exports = function (/*strings, values... */) {
 }
 
 function toString (value) {
+  /* istanbul ignore else */
   if (value === false || value === undefined) {
     return ''
   } else if (Array.isArray(value)) {

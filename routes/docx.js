@@ -20,6 +20,8 @@ module.exports = function docx (configuration, request, response) {
     function (error, data) {
       if (error) {
         notFound(configuration, request, response)
+      } else if (data === false) {
+        notFound(configuration, request, response)
       } else {
         var zip = render(data.commonform, [], {
           title: title,

@@ -468,6 +468,7 @@ function write (configuration, request, response, data) {
       ], done)
     }
   ], function (error) {
+    /* istanbul ignore if */
     if (error) {
       request.log.error(error)
       response.statusCode = 500

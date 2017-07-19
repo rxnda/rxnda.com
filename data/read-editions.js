@@ -5,6 +5,7 @@ module.exports = function (configuration, title, callback) {
   var directory = path.join(configuration.directory, 'forms', title)
   fs.readdir(directory, function (error, files) {
     if (error) {
+      /* istanbul ignore else */
       if (error.code === 'ENOENT') {
         callback(null, false)
       } else {

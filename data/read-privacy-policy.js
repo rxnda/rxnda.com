@@ -8,6 +8,7 @@ module.exports = function readPrivacyPolicy (configuration, callback) {
     var forms = require(index)
     callback(null, forms)
   } catch (error) {
+    // istanbul ignore next
     callback(error)
   }
 }

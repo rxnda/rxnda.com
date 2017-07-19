@@ -14,6 +14,7 @@ var preamble = require('../partials/preamble')
 
 module.exports = function forms (configuration, request, response) {
   readWizard(configuration, function (error, wizard) {
+    /* istanbul ignore if */
     if (error) {
       internalError(configuration, request, response, error)
     } else {
@@ -111,6 +112,7 @@ function redirect (configuration, request, response, wizard) {
       readEditions(
         configuration, title,
         function (error, editions) {
+          /* istanbul ignore if */
           if (error) {
             internalError(configuration, request, response, error)
           } else if (editions === false) {

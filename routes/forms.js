@@ -42,6 +42,7 @@ module.exports = function forms (configuration, request, response) {
 
 function listForms (configuration, request, response) {
   readTitles(configuration, function (error, titles) {
+    /* istanbul ignore if */
     if (error) {
       internalError(configuration, request, response, error)
     } else {

@@ -134,6 +134,7 @@ function post (configuration, request, response, data) {
       }, done)
     }
   ], function (error) {
+    /* istanbul ignore if */
     if (error) {
       request.log.error(error)
       response.statusCode = 500
@@ -173,6 +174,7 @@ ${footer()}`)
   function continueOnError (task) {
     return function (done) {
       task(function (error) {
+        /* istanbul ignore if */
         if (error) {
           request.log.error(error, 'continuing')
         }

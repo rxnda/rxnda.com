@@ -6,6 +6,7 @@ module.exports = function readWizard (configuration, callback) {
     var wizard = require(index)
     callback(null, wizard)
   } catch (error) {
+    // istanbul ignore next
     callback(error)
   }
 }
