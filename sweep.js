@@ -14,6 +14,7 @@ module.exports = function sweep (configuration, callback) {
   var log = configuration.log.child({subsystem: 'filesweeper'})
   log.info('running')
   fs.readdir(signs, function (error, files) {
+    /* istanbul ignore if */
     if (error) {
       log.error(error)
       callback()
@@ -26,6 +27,7 @@ module.exports = function sweep (configuration, callback) {
             var fileLog = log.child({file: file})
             fileLog.info('reading')
             readJSONFile(file, function (error, parsed) {
+              /* istanbul ignore if */
               if (error) {
                 fileLog.error(error)
                 done()
@@ -40,6 +42,7 @@ module.exports = function sweep (configuration, callback) {
                     ].map(function (file) {
                       return function (done) {
                         fs.unlink(file, function (error) {
+                          /* istanbul ignore if */
                           if (error) {
                             log.error(error)
                           }
