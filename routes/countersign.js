@@ -39,11 +39,6 @@ var termsCheckbox = require('../partials/terms-checkbox')
 module.exports = function counterisgn (
   configuration, request, response
 ) {
-  var method = request.method
-  if (method !== 'GET' && method !== 'POST') {
-    methodNotAllowed.apply(null, arguments)
-    return
-  }
   var signFile = signPath(configuration, request.params.capability)
   readJSONFile(signFile, function (error, data) {
     if (error) {

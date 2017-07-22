@@ -1,3 +1,4 @@
+var methodNotAllowed = require('./routes/method-not-allowed')
 var notFound = require('./routes/not-found')
 var routes = require('./routes')
 var url = require('url')
@@ -15,6 +16,11 @@ module.exports = function onRequest (configuration, request, response) {
   })
 
   // Routing
+  var method = request.method
+  if (method !== 'GET' && method !== 'POST') {
+    methodNotAllowed(configuration, request, response)
+    return
+  }
   var parsed = url.parse(request.url, true)
   request.query = parsed.query
   var route = routes.get(parsed.pathname)

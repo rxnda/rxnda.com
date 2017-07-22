@@ -36,11 +36,6 @@ var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
 module.exports = function send (configuration, request, response) {
-  var method = request.method
-  if (method !== 'GET' && method !== 'POST') {
-    methodNotAllowed.apply(null, arguments)
-    return
-  }
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   readEdition(
@@ -56,7 +51,7 @@ module.exports = function send (configuration, request, response) {
       } else {
         data.title = title
         data.edition = edition
-        if (method === 'POST') {
+        if (request.method === 'POST') {
           post(configuration, request, response, data)
         } else {
           get(configuration, request, response, data)

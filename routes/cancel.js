@@ -22,12 +22,6 @@ var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
 module.exports = function cancel (configuration, request, response) {
-  var method = request.method
-  if (method !== 'GET' && method !== 'POST') {
-    response.statusCode = 405
-    response.end()
-    return
-  }
   var signCapability
   var data
   runSeries([
@@ -58,7 +52,7 @@ module.exports = function cancel (configuration, request, response) {
     } else {
       if (expired(data)) {
         respond404()
-      } else if (method === 'POST') {
+      } else if (request.method === 'POST') {
         post(configuration, request, response, data)
       } else {
         get(configuration, request, response, data)
