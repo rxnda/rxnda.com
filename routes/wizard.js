@@ -31,7 +31,7 @@ module.exports = function forms (configuration, request, response) {
 function showForm (configuration, request, response, wizard) {
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.end(html`
-${preamble()}
+${preamble('Send')}
 ${banner()}
 ${nav()}
 <main>

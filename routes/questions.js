@@ -6,7 +6,7 @@ var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
 module.exports = etagged('text/html; charset=ASCII', html`
-${preamble()}
+${preamble('Q&A')}
 ${banner()}
 ${nav()}
 <main>

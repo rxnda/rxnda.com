@@ -12,7 +12,7 @@ module.exports = function notFound (
   response.statusCode = 404
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.end(html`
-${preamble()}
+${preamble('Not Found')}
 ${banner()}
 ${nav()}
 <main>

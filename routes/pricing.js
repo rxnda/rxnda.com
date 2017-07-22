@@ -9,7 +9,7 @@ var handler
 module.exports = function (configuration, request, response) {
   if (!handler) {
     handler = etagged('text/html; charset=ASCII', html`
-${preamble()}
+${preamble('Pricing')}
 ${banner()}
 ${nav()}
 <main>

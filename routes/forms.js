@@ -97,7 +97,7 @@ function listForms (configuration, request, response) {
               'Content-Type', 'text/html; charset=ASCII'
             )
             response.end(html`
-${preamble()}
+${preamble('Forms')}
 ${banner()}
 ${nav()}
 <main>
@@ -162,7 +162,7 @@ function listEditions (configuration, request, response) {
               'Content-Type', 'text/html; charset=ASCII'
             )
             response.end(html`
-${preamble()}
+${preamble(title)}
 ${banner()}
 ${nav()}
 <main>
@@ -203,7 +203,7 @@ function showEdition (configuration, request, response) {
       } else {
         response.setHeader('Content-Type', 'text/html; charset=ASCII')
         response.end(html`
-${preamble()}
+${preamble(data.title + ' ' + data.edition)}
 <main>
   <h1>${escape(data.title)}, ${escape(data.edition)}</h1>
   ${formattingNote()}

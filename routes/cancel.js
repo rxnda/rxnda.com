@@ -76,7 +76,7 @@ function get (configuration, request, response, data) {
   var expires = expirationDate(data)
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.end(html`
-${preamble()}
+${preamble('Cancel')}
 ${banner()}
 <main>
   <form
@@ -158,7 +158,7 @@ function post (configuration, request, response, data) {
       var form = data.form
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
       response.end(html`
-${preamble()}
+${preamble('Cancelled')}
 ${banner()}
 ${nav()}
 <main>

@@ -29,7 +29,7 @@ module.exports = function view (configuration, request, response) {
     } else {
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
       response.end(html`
-${preamble()}
+${preamble('View')}
 ${banner()}
 <main>
   ${formattingNote()}

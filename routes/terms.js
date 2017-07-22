@@ -34,7 +34,7 @@ module.exports = function terms (configuration, request, response) {
     } else {
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
       response.end(html`
-${preamble()}
+${preamble('Terms')}
 ${banner()}
 ${nav()}
 <main>

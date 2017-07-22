@@ -73,7 +73,7 @@ function get (configuration, request, response, edition, postData) {
   var senderPage = edition.signatures[0]
   var recipientPage = edition.signatures[1]
   response.end(html`
-${preamble()}
+${preamble('Send ' + edition.title + ' ' + edition.edition)}
 ${banner()}
 ${nav()}
 <main>

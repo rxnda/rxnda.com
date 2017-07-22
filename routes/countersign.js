@@ -75,7 +75,7 @@ function get (configuration, request, response, send, postData) {
   var sender = send.signatures.sender
   var expires = expirationDate(send)
   response.end(html`
-${preamble()}
+${preamble('Countersign')}
 ${banner()}
 <!-- no nav -->
 <main>
@@ -492,7 +492,7 @@ function write (configuration, request, response, data) {
       )
       var form = data.send.form
       response.end(html`
-${preamble()}
+${preamble('Agreed')}
 ${banner()}
 ${nav()}
 <main>
