@@ -44,6 +44,24 @@ tape.test('GET /docx/{title}/{nonexistent}', function (test) {
   })
 })
 
+tape.test('GET /docx/{title}/{malformed}', function (test) {
+  server(function (port, closeServer) {
+    http.request({
+      port: port,
+      path: '/docx/Testing/Happy'
+    })
+      .once('response', function (response) {
+        test.equal(
+          response.statusCode, 404,
+          'responds 404'
+        )
+        test.end()
+        closeServer()
+      })
+      .end()
+  })
+})
+
 tape.test('GET /docx/{nonexistent}', function (test) {
   server(function (port, closeServer) {
     http.request({
