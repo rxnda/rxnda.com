@@ -25,12 +25,34 @@ tape.test('invalid send', function (test) {
   server(function (port, closeServer) {
     var form = new FormData()
     form.append('name', 'K')
-    form.append('signature', 'K')
     http
       .request({
         port: port,
         method: 'POST',
         path: '/send/Testing/1e',
+        headers: form.getHeaders()
+      })
+      .once('response', function (response) {
+        test.equal(
+          response.statusCode, 400,
+          'responds 400'
+        )
+        test.end()
+        closeServer()
+      })
+      .end()
+  })
+})
+
+tape.test('send without entity info', function (test) {
+  server(function (port, closeServer) {
+    var form = new FormData()
+    form.append('name', 'K')
+    http
+      .request({
+        port: port,
+        method: 'POST',
+        path: '/send/RxNDA_N-2W-B2B/1e3d',
         headers: form.getHeaders()
       })
       .once('response', function (response) {
