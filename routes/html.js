@@ -1,3 +1,12 @@
+// Tag function for tag templates literals constructing HTML.
+// Adds a few semantic niceties:
+//
+// 1.  Falsey values in expressions don't produce output.
+//
+// 2.  Array values in expressions get stringified and concatenated.
+//
+// These make it much more convenient do achieve conditional markup
+// using boolean expressions, without control structures.
 module.exports = function html (/* strings, values... */) {
   var strings = arguments[0]
   var values = Array.prototype.slice.call(arguments, 1)
@@ -8,6 +17,9 @@ module.exports = function html (/* strings, values... */) {
       result += toString(values[index])
     }
   })
+  // Trim so that the newline after the opening backtick and first
+  // expression loading the header with <!doctype html> ends up on the
+  // first line.
   return result.trim()
 }
 
