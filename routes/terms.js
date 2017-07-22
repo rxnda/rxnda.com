@@ -1,10 +1,9 @@
 var commonformHTML = require('commonform-html')
-var ecb = require('ecb')
 var internalError = require('./internal-error')
+var load = require('../util/load')
 var methodNotAllowed = require('./method-not-allowed')
 var readPrivacyPolicy = require('../data/read-privacy-policy')
 var readTerms = require('../data/read-terms')
-var runParallel = require('run-parallel')
 
 var banner = require('../partials/banner')
 var footer = require('../partials/footer')
@@ -17,26 +16,16 @@ module.exports = function terms (configuration, request, response) {
     methodNotAllowed.apply(null, arguments)
     return
   }
-  var terms
-  var privacy
-  runParallel([
-    function (done) {
-      readTerms(configuration, ecb(done, function (data) {
-        terms = data
-        done()
-      }))
-    },
-    function (done) {
-      readPrivacyPolicy(configuration, ecb(done, function (data) {
-        privacy = data
-        done()
-      }))
-    }
-  ], function (error) {
+  load({
+    terms: readTerms.bind(null, configuration),
+    privacy: readPrivacyPolicy.bind(null, configuration)
+  }, function (error, loaded) {
     /* istanbul ignore if */
     if (error) {
       internalError(configuration, request, response, error)
     } else {
+      var terms = loaded.terms
+      var privacy = loaded.privacy
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
       response.end(html`
 ${preamble('Terms')}
