@@ -11,6 +11,7 @@ var escape = require('../util/escape')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
+var methodNotAllowed = require('./method-not-allowed')
 var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
 var path = require('path')
@@ -35,6 +36,11 @@ var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
 module.exports = function send (configuration, request, response) {
+  var method = request.method
+  if (method !== 'GET' && method !== 'POST') {
+    methodNotAllowed.apply(null, arguments)
+    return
+  }
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   readEdition(
@@ -50,7 +56,7 @@ module.exports = function send (configuration, request, response) {
       } else {
         data.title = title
         data.edition = edition
-        if (request.method === 'POST') {
+        if (method === 'POST') {
           post(configuration, request, response, data)
         } else {
           get(configuration, request, response, data)

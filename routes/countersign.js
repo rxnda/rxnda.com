@@ -11,6 +11,7 @@ var expired = require('../data/expired')
 var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
+var methodNotAllowed = require('./method-not-allowed')
 var notFound = require('./not-found')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
@@ -38,6 +39,11 @@ var termsCheckbox = require('../partials/terms-checkbox')
 module.exports = function counterisgn (
   configuration, request, response
 ) {
+  var method = request.method
+  if (method !== 'GET' && method !== 'POST') {
+    methodNotAllowed.apply(null, arguments)
+    return
+  }
   var signFile = signPath(configuration, request.params.capability)
   readJSONFile(signFile, function (error, data) {
     if (error) {

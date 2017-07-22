@@ -4,6 +4,7 @@ var ecb = require('ecb')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
 var internalError = require('./internal-error')
+var methodNotAllowed = require('./method-not-allowed')
 var notFound = require('./not-found')
 var readEdition = require('../data/read-edition')
 var readEditions = require('../data/read-editions')
@@ -35,8 +36,7 @@ module.exports = function forms (configuration, request, response) {
       }
     }
   } else {
-    response.statusCode = 405
-    response.end()
+    methodNotAllowed.apply(null, arguments)
   }
 }
 

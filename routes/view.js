@@ -1,5 +1,6 @@
 var commonformHTML = require('commonform-html')
 var internalError = require('./internal-error')
+var methodNotAllowed = require('./method-not-allowed')
 var notFound = require('./not-found')
 var readJSONFile = require('../data/read-json-file')
 var signPath = require('../data/sign-path')
@@ -12,6 +13,9 @@ var footer = require('../partials/footer')
 var banner = require('../partials/banner')
 
 module.exports = function view (configuration, request, response) {
+  if (request.method !== 'GET') {
+    methodNotAllowed.apply(null, arguments)
+  }
   var signFile = signPath(configuration, request.params.capability)
   readJSONFile(signFile, function (error, sign) {
     if (error) {

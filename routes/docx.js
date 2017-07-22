@@ -1,6 +1,7 @@
 var decodeTitle = require('../util/decode-title')
 var docxContentType = require('docx-content-type')
 var internalError = require('./internal-error')
+var methodNotAllowed = require('./method-not-allowed')
 var notFound = require('./not-found')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
@@ -11,6 +12,10 @@ var sanitize = require('../util/sanitize-path-component')
 var spell = require('reviewers-edition-spell')
 
 module.exports = function docx (configuration, request, response) {
+  if (request.method !== 'GET') {
+    methodNotAllowed.apply(null, arguments)
+    return
+  }
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   if (!revedParse(edition)) {

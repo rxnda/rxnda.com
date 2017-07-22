@@ -1,6 +1,7 @@
 var commonformHTML = require('commonform-html')
 var ecb = require('ecb')
 var internalError = require('./internal-error')
+var methodNotAllowed = require('./method-not-allowed')
 var readPrivacyPolicy = require('../data/read-privacy-policy')
 var readTerms = require('../data/read-terms')
 var runParallel = require('run-parallel')
@@ -12,6 +13,10 @@ var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
 module.exports = function terms (configuration, request, response) {
+  if (request.method !== 'GET') {
+    methodNotAllowed.apply(null, arguments)
+    return
+  }
   var terms
   var privacy
   runParallel([

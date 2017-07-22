@@ -1,4 +1,5 @@
 var encodeTitle = require('../util/encode-title')
+var methodNotAllowed = require('./method-not-allowed')
 var escape = require('../util/escape')
 var internalError = require('./internal-error')
 var readEditions = require('../data/read-editions')
@@ -13,6 +14,9 @@ var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
 module.exports = function forms (configuration, request, response) {
+  if (request.method !== 'GET') {
+    methodNotAllowed.apply(null, arguments)
+  }
   readWizard(configuration, function (error, wizard) {
     /* istanbul ignore if */
     if (error) {
