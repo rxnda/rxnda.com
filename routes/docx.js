@@ -14,7 +14,7 @@ module.exports = function docx (configuration, request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   if (!revedParse(edition)) {
-    respond404()
+    return respond404()
   }
   readEdition(
     configuration, sanitize(title), sanitize(edition),
