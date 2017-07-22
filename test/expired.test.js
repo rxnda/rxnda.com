@@ -1,11 +1,7 @@
-var ecb = require('ecb')
 var email = require('../email')
-var fs = require('fs')
 var http = require('http')
-var path = require('path')
 var runSeries = require('run-series')
 var server = require('./server')
-var sweep = require('../sweep')
 var tape = require('tape')
 var webdriver = require('./webdriver')
 
