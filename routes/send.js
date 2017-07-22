@@ -497,6 +497,7 @@ function write (configuration, request, response, data, form) {
   // purposes.  Backdating allows test code to run the sweep
   // procedure immediately, and verify that it has swept the
   // backdated offer.
+  /* istanbul ignore else */
   if (process.env.NODE_ENV === 'test') {
     if (sender.email === 'backdate@example.com') {
       now.setDate(now.getDate() - 10)

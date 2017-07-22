@@ -7,6 +7,7 @@ var preamble = require('../partials/preamble')
 
 var handler
 module.exports = function (configuration, request, response) {
+  /* istanbul ignore else */
   if (!handler) {
     handler = etagged('text/html; charset=ASCII', html`
 ${preamble('Pricing')}
