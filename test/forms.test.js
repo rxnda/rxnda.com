@@ -62,3 +62,22 @@ tape.test('GET /forms/{nonexistent}/{nonexistent}', function (test) {
       .end()
   })
 })
+
+tape.test('DELETE /forms', function (test) {
+  server(function (port, closeServer) {
+    http.request({
+      port: port,
+      method: 'DELETE',
+      path: '/forms'
+    })
+      .once('response', function (response) {
+        test.equal(
+          response.statusCode, 405,
+          'responds 405'
+        )
+        test.end()
+        closeServer()
+      })
+      .end()
+  })
+})
