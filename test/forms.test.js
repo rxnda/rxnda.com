@@ -1,6 +1,4 @@
-var FormData = require('form-data')
 var http = require('http')
-var sendSimple = require('./send-simple')
 var server = require('./server')
 var tape = require('tape')
 var webdriver = require('./webdriver')

@@ -1,4 +1,3 @@
-var ecb = require('ecb')
 var handler = require('./')
 var http = require('http')
 var path = require('path')

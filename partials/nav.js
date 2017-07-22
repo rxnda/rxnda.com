@@ -1,5 +1,5 @@
 module.exports = function () {
-return `
+  return `
 <nav role=navigation>
   <ul>
     <li><a href=/>Welcome</a></li>

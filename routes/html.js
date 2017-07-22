@@ -1,4 +1,4 @@
-module.exports = function (/*strings, values... */) {
+module.exports = function (/* strings, values... */) {
   var strings = arguments[0]
   var values = Array.prototype.slice.call(arguments, 1)
   var result = ''
@@ -20,6 +20,8 @@ function toString (value) {
   } else if (typeof value === 'string') {
     return value
   } else {
-    throw 'Invalid template value ' + typeof value + JSON.stringify(value)
+    throw new Error(
+      'Invalid template value ' + typeof value + JSON.stringify(value)
+    )
   }
 }

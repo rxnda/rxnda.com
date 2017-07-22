@@ -60,7 +60,7 @@ module.exports = function counterisgn (
 
   function respond404 () {
     notFound(configuration, request, response, [
-      'If you followed a link to this page to countersign an NDA '
+      'If you followed a link to this page to countersign an NDA ' +
       'offer the offer may have expired, the other side may have ' +
       'cancelled, or it may have been deleted from our system ' +
       'after countersigning.'
