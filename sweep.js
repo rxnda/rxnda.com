@@ -37,10 +37,12 @@ module.exports = function sweep (configuration, callback) {
                       signPath(configuration, parsed.sign),
                       chargePath(configuration, parsed.sign),
                       cancelPath(configuration, parsed.cancel)
-                    ].map(function (fix) {
+                    ].map(function (file) {
                       return function (done) {
                         fs.unlink(file, function (error) {
-                          log.error(error)
+                          if (error) {
+                            log.error(error)
+                          }
                           done()
                         })
                       }

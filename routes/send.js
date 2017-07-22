@@ -488,13 +488,22 @@ function validSignatureProperty (name) {
 
 function write (configuration, request, response, data, form) {
   var domain = configuration.domain
-  var timestamp = new Date().toISOString()
-  data.timestamp = timestamp
+  var now = new Date()
+  var sender = data.signatures.sender
+  var recipient = data.signatures.recipient
+  // Backdate offers from a specific e-mail address for test
+  // purposes.  Backdating allows test code to run the sweep
+  // procedure immediately, and verify that it has swept the
+  // backdated offer.
+  if (process.env.NODE_ENV === 'test') {
+    if (sender.email === 'backdate@example.com') {
+      now.setDate(now.getDate() - 10)
+    }
+  }
+  data.timestamp = now.toISOString()
   data.form = form
   data.price = configuration.prices.use
-  var sender = data.signatures.sender
   var senderName = sender.company || sender.name
-  var recipient = data.signatures.recipient
   var recipientName = (
     recipient.company || recipient.name || recipient.email
   )
