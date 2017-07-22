@@ -43,3 +43,21 @@ tape.test('GET /docx/{title}/{nonexistent}', function (test) {
       .end()
   })
 })
+
+tape.test('GET /docx/{nonexistent}', function (test) {
+  server(function (port, closeServer) {
+    http.request({
+      port: port,
+      path: '/docx/Nonexistent'
+    })
+      .once('response', function (response) {
+        test.equal(
+          response.statusCode, 404,
+          'responds 404'
+        )
+        test.end()
+        closeServer()
+      })
+      .end()
+  })
+})
