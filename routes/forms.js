@@ -90,6 +90,7 @@ function listForms (configuration, request, response) {
           }
         }),
         function (error) {
+          /* istanbul ignore if */
           if (error) {
             internalError(configuration, request, response, error)
           } else {
@@ -179,6 +180,7 @@ ${footer()}`)
 
   function fail (callback) {
     return function (error, value) {
+      /* istanbul ignore if */
       if (error) {
         internalError(configuration, request, response, error)
       } else {
@@ -194,6 +196,7 @@ function showEdition (configuration, request, response) {
   readEdition(
     configuration, sanitize(title), sanitize(edition),
     function (error, data) {
+      /* istanbul ignore if */
       if (error) {
         internalError(configuration, request, response, error)
       } else if (data === false) {

@@ -19,6 +19,7 @@ module.exports = function docx (configuration, request, response) {
   readEdition(
     configuration, sanitize(title), sanitize(edition),
     function (error, data) {
+      /* istanbul ignore if */
       if (error) {
         internalError(configuration, request, response, error)
       } else if (data === false) {
