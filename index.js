@@ -6,8 +6,10 @@ var uuid = require('uuid')
 module.exports = function onRequest (configuration, request, response) {
   // Logging
   var log = configuration.log
-  request.log = log.child({request: uuid.v4()})
+  var id = uuid.v4()
+  request.log = log.child({request: id})
   request.log.info(request)
+  request.id = id
   response.once('finish', function () {
     request.log.info(response)
   })
