@@ -1,4 +1,4 @@
-module.exports = function (/* strings, values... */) {
+module.exports = function html (/* strings, values... */) {
   var strings = arguments[0]
   var values = Array.prototype.slice.call(arguments, 1)
   var result = ''
