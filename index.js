@@ -20,6 +20,9 @@ module.exports = function onRequest (configuration, request, response) {
   if (route.handler) {
     route.handler(configuration, request, response)
   } else {
-    notFound(configuration, request, response)
+    notFound(configuration, request, response, [
+      'The link you followed here is broken.',
+      'Visit the pages linked above to learn more about RxNDA.'
+    ])
   }
 }

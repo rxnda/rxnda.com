@@ -45,13 +45,13 @@ module.exports = function cancel (configuration, request, response) {
     if (error) {
       /* istanbul ignore else */
       if (error.code === 'ENOENT') {
-        notFound(configuration, request, response)
+        respond404()
       } else {
         internalError(configuration, request, response, error)
       }
     } else {
       if (expired(data)) {
-        notFound(configuration, request, response)
+        respond404()
       } else if (request.method === 'POST') {
         post(configuration, request, response, data)
       } else {
@@ -59,6 +59,15 @@ module.exports = function cancel (configuration, request, response) {
       }
     }
   })
+
+  function respond404 () {
+    notFound(configuration, request, response, [
+      'If you followed a link to this page to cancel an NDA offer ' +
+      'the offer may have expired, the other side may have ' +
+      'cancelled, or it may have been deleted from our system after ' +
+      'countersigning.'
+    ])
+  }
 }
 
 function get (configuration, request, response, data) {

@@ -17,7 +17,12 @@ module.exports = function view (configuration, request, response) {
     if (error) {
       /* istanbul ignore else */
       if (error.code === 'ENOENT') {
-        notFound(configuration, request, response)
+        notFound(configuration, request, response, [
+          'If you followed a link to this page to cancel an NDA ' +
+          'offer the offer may have expired, the other side may have ' +
+          'cancelled, or it may have been deleted from our system ' +
+          'after countersigning.'
+        ])
       } else {
         internalError(configuration, request, response, error)
       }

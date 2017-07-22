@@ -1,5 +1,6 @@
 var decodeTitle = require('../util/decode-title')
 var docxContentType = require('docx-content-type')
+var internalError = require('./internal-error')
 var notFound = require('./not-found')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
@@ -13,15 +14,15 @@ module.exports = function docx (configuration, request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   if (!revedParse(edition)) {
-    return notFound.apply(null, arguments)
+    respond404()
   }
   readEdition(
     configuration, sanitize(title), sanitize(edition),
     function (error, data) {
       if (error) {
-        notFound(configuration, request, response)
+        internalError(configuration, request, response, error)
       } else if (data === false) {
-        notFound(configuration, request, response)
+        respond404()
       } else {
         var zip = render(data.commonform, [], {
           title: title,
@@ -42,4 +43,10 @@ module.exports = function docx (configuration, request, response) {
       }
     }
   )
+
+  function respond404 () {
+    notFound(configuration, request, response, [
+      'There isn’t any form by that title and edition.'
+    ])
+  }
 }

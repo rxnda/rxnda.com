@@ -44,7 +44,9 @@ module.exports = function send (configuration, request, response) {
       if (error) {
         internalError(configuration, request, response, error)
       } else if (data === false) {
-        notFound(configuration, request, response)
+        notFound(configuration, request, response, [
+          'There isn’t any form by that title and edition.'
+        ])
       } else {
         data.title = title
         data.edition = edition

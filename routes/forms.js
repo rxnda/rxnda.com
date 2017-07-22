@@ -119,7 +119,9 @@ function listEditions (configuration, request, response) {
     configuration, sanitize(title),
     fail(function (editions) {
       if (editions === false) {
-        notFound(configuration, request, response)
+        notFound(configuration, request, response, [
+          'There isn’t any form by that title.'
+        ])
       } else {
         var list = ''
         runParallel(
@@ -195,7 +197,9 @@ function showEdition (configuration, request, response) {
       if (error) {
         internalError(configuration, request, response, error)
       } else if (data === false) {
-        notFound(configuration, request, response)
+        notFound(configuration, request, response, [
+          'There isn’t any such edition of the form.'
+        ])
       } else {
         response.setHeader('Content-Type', 'text/html; charset=ASCII')
         response.end(html`
