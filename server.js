@@ -3,6 +3,7 @@ var http = require('http')
 var path = require('path')
 var pino = require('pino')
 var runSeries = require('run-series')
+var schedule = require('node-schedule')
 var sweep = require('./sweep')
 var uuid = require('uuid')
 
@@ -70,22 +71,15 @@ runSeries([
   },
   function filesweeper (done) {
     var log = configuration.log.child({subsystem: 'filesweeper'})
-    function schedule () {
-      var now = new Date()
-      var toMidnight = (
-        ((24 - now.getHours()) * 60 * 60 * 1000) +
-        ((60 - now.getMinutes()) * 60 * 1000)
-      )
-      log.info({delay: toMidnight}, 'setTimeout')
-      setTimeout(
-        function () {
-          sweep(configuration, schedule)
-        },
-        toMidnight
-      )
-    }
-    sweep(configuration, schedule)
+    schedule.scheduleJob({hour: [0, 12], minute: 0}, function () {
+      sweep(configuration, afterSweep)
+    })
+    sweep(configuration, afterSweep)
     done()
+
+    function afterSweep () {
+      log.info('done')
+    }
   }
 ], function (error) {
   if (error) {

@@ -59,7 +59,6 @@ module.exports = function sweep (configuration, callback) {
         }),
         3,
         function () {
-          log.info('done')
           callback()
         }
       )
