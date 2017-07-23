@@ -1,7 +1,8 @@
 var encodeTitle = require('../util/encode-title')
-var methodNotAllowed = require('./method-not-allowed')
 var escape = require('../util/escape')
 var internalError = require('./internal-error')
+var methodNotAllowed = require('./method-not-allowed')
+var novalidate = require('../util/novalidate')
 var readEditions = require('../data/read-editions')
 var readWizard = require('../data/read-wizard')
 var revedCompare = require('reviewers-edition-compare')
@@ -51,7 +52,7 @@ ${nav()}
   ${formsOverview()}
   <section>
     <h3>Find Your Form</h3>
-    <form id=wizard action=/send method=GET>
+    <form id=wizard action=/send method=GET ${novalidate(request)}>
       ${wizard.questions.map(function (question) {
         return html`
           <p>

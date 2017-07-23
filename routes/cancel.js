@@ -9,6 +9,7 @@ var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')
+var novalidate = require('../util/novalidate')
 var readJSONFile = require('../data/read-json-file')
 var runSeries = require('run-series')
 var signPath = require('../data/sign-path')
@@ -81,7 +82,8 @@ ${banner()}
 <main>
   <form
     method=post
-    action=/cancel/${data.cancel}>
+    action=/cancel/${data.cancel}
+    ${novalidate(request)}>
     <p>
       ${escape(sender.name)}
       (<a href="mailto:${encodeURIComponent(sender.email)}"

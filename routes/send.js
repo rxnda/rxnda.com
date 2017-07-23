@@ -12,6 +12,7 @@ var fs = require('fs')
 var internalError = require('./internal-error')
 var mkdirp = require('mkdirp')
 var notFound = require('./not-found')
+var novalidate = require('../util/novalidate')
 var path = require('path')
 var pump = require('pump')
 var readEdition = require('../data/read-edition')
@@ -85,7 +86,8 @@ ${nav()}
   <form
     id=sendForm
     method=post
-    action=${escape(action)}>
+    action=${escape(action)}
+    ${novalidate(request)}>
 
     <h2>Send <cite>${escape(edition.title)}</cite></h2>
 
@@ -168,7 +170,7 @@ ${nav()}
       </section>
 
       <section class=theirSignature>
-        <h4>The Other Side&rsquo;s Signature</h4>
+        <h4>The Other Side</h4>
         <section class=field>
           <label for=signatures-recipient-email>Their Email</label>
           ${asterisk()}
@@ -236,14 +238,14 @@ function senderBlock (signature, postData) {
     // Entity Signatory
     return (
       inputWithPrior(
-        'signatures-sender-company', 'Your Company&rsquo;s Name',
+        'signatures-sender-company', 'Your Company’s Name',
         [
           'Enter the legal name of your company.',
           'For example, “YourCo, Inc.”.'
         ]
       ) +
       inputWithPrior(
-        'signatures-sender-form', 'Your Company&rsquo;s Legal Form',
+        'signatures-sender-form', 'Your Company’s Legal Form',
         [
           'Enter the legal form of your company.',
           'For example, “corporation”.'
@@ -251,7 +253,7 @@ function senderBlock (signature, postData) {
       ) +
       inputWithPrior(
         'signatures-sender-jurisdiction',
-        'Your Company&rsquo;s Legal Jurisdiction',
+        'Your Company’s Legal Jurisdiction',
         [
           'Enter the legal jurisdiction under whose laws ' +
           'your company is formed.',
@@ -269,7 +271,7 @@ function senderBlock (signature, postData) {
           'For example, “Chief Executive Officer”.'
         ]
       ) +
-      byline()
+      byline(postData)
     )
   } else {
     // Individual Signatory
@@ -278,7 +280,7 @@ function senderBlock (signature, postData) {
         'signatures-sender-name', 'Your Name',
         ['Enter your full legal name.']
       ) +
-      byline()
+      byline(postData)
     )
   }
 
@@ -303,13 +305,13 @@ function recipientBlock (signature) {
         'signatures-recipient-company', 'Their Company Name',
         [
           'Optionally enter the legal name of the other ' +
-          'side&rsquo;s company.',
+          'side’s company.',
           'For example, “TheirCo, LLC”.',
           'If you leave this blank, the recipient can fill it out.'
         ]
       ) +
       input(
-        'signatures-recipient-form', 'Their Company&rsquo;s Legal Form',
+        'signatures-recipient-form', 'Their Company’s Legal Form',
         [
           'Enter the legal form of their company.',
           'For example, “limited liability company”.'
@@ -317,7 +319,7 @@ function recipientBlock (signature) {
       ) +
       input(
         'signatures-recipient-jurisdiction',
-        'Their Company&rsquo;s Legal jurisdiction',
+        'Their Company’s Legal jurisdiction',
         [
           'Enter the legal jurisdiction under whose laws their ' +
           'company is formed.',
@@ -346,7 +348,7 @@ function recipientBlock (signature) {
       input(
         'signatures-recipient-name', 'Their Name',
         [
-          'Enter the other side&rsquo;s full legal name.',
+          'Enter the other side’s full legal name.',
           'For example, “Jane Doe”.',
           'If you leave this blank, the recipient can fill it out.'
         ]

@@ -36,12 +36,6 @@ module.exports = function validPost (data, form) {
     })
   }
 
-  isString(
-    sender.email,
-    'signatures-sender-email',
-    'You must provide your e-mail address.'
-  )
-
   isEMail(
     sender.email,
     'signatures-sender-email',
@@ -77,7 +71,7 @@ module.exports = function validPost (data, form) {
 
   (page.information || [])
     .filter(function (element) {
-      return element !== 'date'
+      return element !== 'date' && element !== 'email'
     })
     .forEach(function (element) {
       isString(
@@ -163,7 +157,7 @@ module.exports = function validPost (data, form) {
   }
 
   function isEMail (value, name, message) {
-    if (!validEMail(value)) {
+    if (!value || !validEMail(value)) {
       errors.push({
         name: name,
         message: message

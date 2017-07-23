@@ -12,6 +12,7 @@ var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')
+var novalidate = require('../util/novalidate')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
 var path = require('path')
@@ -86,6 +87,7 @@ ${banner()}
   <form
     method=post
     action=/countersign/${send.sign}
+    ${novalidate(request)}>
     <p>
       ${escape(sender.name)}
       (<a href="mailto:${encodeURIComponent(sender.email)}"
