@@ -81,7 +81,7 @@ ${banner()}
 <main>
   <form
     method=post
-    action=/cancel/${data.cancel}
+    action=/cancel/${data.cancel}>
     <p>
       ${escape(sender.name)}
       (<a href="mailto:${encodeURIComponent(sender.email)}"
