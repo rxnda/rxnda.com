@@ -1,7 +1,6 @@
 var Busboy = require('busboy')
 var cancelPath = require('../data/cancel-path')
 var chargePath = require('../data/charge-path')
-var crypto = require('crypto')
 var decodeTitle = require('../util/decode-title')
 var ecb = require('ecb')
 var ed25519 = require('ed25519')
@@ -16,6 +15,7 @@ var notFound = require('./not-found')
 var path = require('path')
 var pump = require('pump')
 var readEdition = require('../data/read-edition')
+var readRandom = require('read-random')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
@@ -682,7 +682,7 @@ ${footer()}`)
 }
 
 function randomCapability (callback) {
-  crypto.randomBytes(32, ecb(callback, function (bytes) {
+  readRandom(32, ecb(callback, function (bytes) {
     callback(null, bytes.toString('hex'))
   }))
 }

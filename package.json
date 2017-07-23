@@ -40,6 +40,7 @@
     "outline-numbering": "^1.0.2",
     "pino": "^4.7.0",
     "pump": "^1.0.2",
+    "read-random": "^1.0.0",
     "replacestream": "^4.0.2",
     "reviewers-edition-compare": "^1.0.5",
     "reviewers-edition-parse": "^2.0.6",
