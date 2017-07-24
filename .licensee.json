@@ -1,0 +1,16 @@
+{
+  "license": "(MIT OR BSD-2-Clause OR BSD-3-Clause OR ISC OR Apache-2.0)",
+  "whitelist": {
+    "busboy": "0.2.14",
+    "wordwrap": "0.0.2",
+    "source-map": "0.2.0",
+    "docopt": "0.6.2",
+    "doctrine": "1.5.0",
+    "for-each": "0.3.2",
+    "function-bind": "1.1.0",
+    "http-hash": "2.0.0",
+    "window-size": "0.1.0",
+    "tweetnacl": "0.14.5",
+    "xml-escape": "1.1.0"
+  }
+}
