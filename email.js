@@ -36,14 +36,13 @@ if (process.env.NODE_ENV === 'test') {
         knownLength: message.docx.data.length
       })
     }
-    var options = {
+    pump(form, https.request({
       method: 'POST',
       host: 'api.mailgun.net',
       path: '/v3/' + domain + '/messages',
       auth: 'api:' + key,
       headers: form.getHeaders()
-    }
-    pump(form, https.request(options, function (response) {
+    }, function (response) {
       var status = response.statusCode
       if (status === 200) {
         log.info({event: 'sent'})
