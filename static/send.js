@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (result.error) {
         var errorElement = document.getElementById('card-errors')
         errorElement.textContent = result.error.message
+        button.value = 'Sign & Send'
+        button.setAttribute('disabled', false)
       } else {
         var input = document.createElement('input')
         input.setAttribute('type', 'hidden')
