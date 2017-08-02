@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         )
       }
     })
-  var card = document.getElementById('id')
+  var card = document.getElementById('card')
   var form = document.forms[0]
   if (card) {
     var stripe = window.Stripe(STRIPE_PUBLIC_KEY)
