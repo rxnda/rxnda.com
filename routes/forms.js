@@ -4,6 +4,7 @@ var ecb = require('ecb')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
 var internalError = require('./internal-error')
+var longDate = require('../util/long-date')
 var methodNotAllowed = require('./method-not-allowed')
 var notFound = require('./not-found')
 var readEdition = require('../data/read-edition')
@@ -136,7 +137,7 @@ function listEditions (configuration, request, response) {
   <h3>${escape(title)}</h3>
   <p class=edition>${escape(spell(edition))}</p>
   <p class=published>
-    Published ${escape(new Date(data.published).toLocaleDateString())}
+    Published ${escape(longDate(new Date(data.published)))}
   </p>
   ${draftWarning(edition)}
   ${paragraphs(data.description)}

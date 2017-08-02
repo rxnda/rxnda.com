@@ -1,6 +1,7 @@
 var commonformHTML = require('commonform-html')
 var internalError = require('./internal-error')
 var load = require('../util/load')
+var longDate = require('../util/long-date')
 var methodNotAllowed = require('./method-not-allowed')
 var readPrivacyPolicy = require('../data/read-privacy-policy')
 var readTerms = require('../data/read-terms')
@@ -70,13 +71,5 @@ ${nav()}
 </main>
 ${footer()}`)
     }
-  })
-}
-
-function longDate (date) {
-  return date.toLocaleDateString('en-US', {
-    day: 'numeric',
-    year: 'numeric',
-    month: 'long'
   })
 }
