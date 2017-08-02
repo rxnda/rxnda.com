@@ -105,7 +105,7 @@ ${banner()}
     <input
         id=submitButton
         type=submit
-        value='Cancel or Reject this Offer'>
+        value='Cancel or Decline this Offer'>
   </form>
 </main>
 ${footer('cancel')}`)
