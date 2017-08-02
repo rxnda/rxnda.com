@@ -772,7 +772,7 @@ function paymentSection (configuration) {
         card now.  If the other side countersigns within seven days,
         ${escape(configuration.domain)} will collect the charge.
         If the other side does not countersign in seven days,
-        of you cancel before they countersign, your credit
+        or if you cancel before they countersign, your credit
         card will not be charged.
       </p>
     </section>`
