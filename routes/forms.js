@@ -136,7 +136,7 @@ function listEditions (configuration, request, response) {
   <h3>${escape(title)}</h3>
   <p class=edition>${escape(spell(edition))}</p>
   <p class=published>
-    Published ${escape(new Date(data.released).toLocaleDateString())}
+    Published ${escape(new Date(data.published).toLocaleDateString())}
   </p>
   ${draftWarning(edition)}
   ${paragraphs(data.description)}
