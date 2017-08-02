@@ -108,7 +108,7 @@ ${banner()}
           }).label
           return `
             <dt>${escape(label)}</dt>
-            <dd>“${escape(direction.value)}”</dd>
+            <dd>&ldquo;${escape(direction.value)}&rdquo;</dd>
           `
         })}
       </dl>
