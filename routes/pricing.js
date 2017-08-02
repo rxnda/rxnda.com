@@ -17,8 +17,9 @@ ${nav()}
   <p class=bigPrice><span class=use-price></span></p>
   <p>
     Successfully cosigning an NDA costs
-    $${configuration.prices.use.toString()} charged when the
-    other side countersigns.  You must use a credit card to pay.
+    ${configuration.prices.use.toString()} United States Dollars,
+    charged when the other side countersigns.
+    You must use a credit card to pay.
   </p>
   <p>
     Sending an NDA that the other side does not countersign costs
