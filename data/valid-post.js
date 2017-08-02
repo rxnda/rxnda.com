@@ -139,9 +139,9 @@ module.exports = function validPost (data, form) {
   }
 
   // Payment
-  if (!data.token) {
+  if (!data.token && !data.coupon) {
     errors.push({
-      message: 'Provide a payment token.'
+      message: 'Provide payment.'
     })
   }
 

@@ -466,12 +466,17 @@ function write (configuration, request, response, data) {
           }))
         },
         function captureCharge (done) {
-          stripe(configuration.stripe.private)
-            .charges
-            .capture(chargeID, ecb(done, function (charge) {
-              request.log.info({charge: charge})
-              done()
-            }))
+          if (chargeID === 'coupon') {
+            request.log.info('applied coupon')
+            done()
+          } else {
+            stripe(configuration.stripe.private)
+              .charges
+              .capture(chargeID, ecb(done, function (charge) {
+                request.log.info({charge: charge})
+                done()
+              }))
+          }
         },
         continueOnError(function rmChargeFile (done) {
           fs.unlink(chargeFile, done)

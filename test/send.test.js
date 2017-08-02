@@ -78,6 +78,46 @@ tape.test('invalid send w/o form validation', function (test) {
   })
 })
 
+tape.test('send w/ coupon', function (test) {
+  server(function (port, closeServer) {
+    webdriver
+      .url('http://localhost:' + port + '/send/Testing/1e?coupon=testcoupon')
+      .setValue(
+        'input[name="signatures-sender-name"]',
+        'Test User'
+      )
+      .setValue(
+        'input[name="signatures-sender-signature"]',
+        'Test User'
+      )
+      .setValue(
+        'input[name="signatures-sender-email"]',
+        'sender@example.com'
+      )
+      .setValue(
+        'input[name="signatures-recipient-email"]',
+        'recipient@example.com'
+      )
+      .click('input[name="terms"]')
+      .click('input[type="submit"]')
+      .waitForExist('.sent', 20000)
+      .getText('h2')
+      .catch(function (error) {
+        test.ifError(error)
+        test.end()
+        closeServer()
+      })
+      .then(function (h1Text) {
+        test.assert(
+          h1Text.includes('Sent!'),
+          '<h2> says "Sent!"'
+        )
+        test.end()
+        closeServer()
+      })
+  })
+})
+
 tape.test('invalid send', function (test) {
   server(function (port, closeServer) {
     var form = new FormData()

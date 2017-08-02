@@ -19,7 +19,7 @@ ${nav()}
 <main>
   <h2>Software Error</h2>
   <p>
-    There’s been a problem with the server. It could be that services
+    There&rsquo;s been a problem with the server. It could be that services
     for sending e-mail or processing payment are down, or a bug in RxNDA
     itself.
   </p>

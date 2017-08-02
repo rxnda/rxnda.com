@@ -2,6 +2,7 @@ var Busboy = require('busboy')
 var cancelPath = require('../data/cancel-path')
 var chargePath = require('../data/charge-path')
 var decodeTitle = require('../util/decode-title')
+var deleteCoupon = require('../data/delete-coupon')
 var ecb = require('ecb')
 var ed25519 = require('ed25519')
 var email = require('../email')
@@ -15,6 +16,7 @@ var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
 var path = require('path')
 var pump = require('pump')
+var readCoupon = require('../data/read-coupon')
 var readEdition = require('../data/read-edition')
 var readRandom = require('read-random')
 var runParallel = require('run-parallel')
@@ -62,6 +64,30 @@ module.exports = function send (configuration, request, response) {
 }
 
 function get (configuration, request, response, edition, postData) {
+  if (request.query.coupon) {
+    var coupon = request.query.coupon
+    readCoupon(configuration, coupon, function (error, valid) {
+      if (error) {
+        internalError(configuration, request, response, error)
+      } else {
+        if (valid) {
+          showGet(
+            configuration, request, response, edition, postData, coupon
+          )
+        } else {
+          render()
+        }
+      }
+    })
+  } else {
+    render()
+  }
+  function render () {
+    showGet(configuration, request, response, edition, postData)
+  }
+}
+
+function showGet (configuration, request, response, edition, postData, coupon) {
   response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   var address = (
@@ -190,20 +216,8 @@ ${nav()}
 
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
-    <section id=payment>
-      <h3>Credit Card Payment</h3>
-      <div id=card></div>
-      <div id=card-errors></div>
-      <p>
-        ${escape(configuration.domain)} will authorize a charge of
-        $${escape(configuration.prices.use.toString())} to your credit
-        card now.  If the other side countersigns within seven days,
-        ${escape(configuration.domain)} will collect the charge.
-        If the other side does not countersign in seven days,
-        of you cancel before they countersign, your credit
-        card will not be charged.
-      </p>
-    </section>
+    ${coupon ? couponSection(coupon) : paymentSection(configuration)}
+
     <section class=information>
       <h3>Next Steps</h3>
       <p>Once you press Sign &amp; Send:</p>
@@ -466,6 +480,8 @@ function post (configuration, request, response, form) {
             })
           } else if (name === 'token') {
             data.token = value
+          } else if (name === 'coupon') {
+            data.coupon = value
           } else if (name === 'terms') {
             data.terms = value
           }
@@ -495,6 +511,9 @@ function write (configuration, request, response, data, form) {
   var now = new Date()
   var sender = data.signatures.sender
   var recipient = data.signatures.recipient
+  if (data.coupon) {
+    data.coupon = sanitize(data.coupon)
+  }
   // Backdate offers from a specific e-mail address for test
   // purposes.  Backdating allows test code to run the sweep
   // procedure immediately, and verify that it has swept the
@@ -586,18 +605,33 @@ function write (configuration, request, response, data, form) {
       var chargeID = null
       runSeries([
         function createCharge (done) {
-          stripe(configuration.stripe.private).charges.create({
-            amount: data.price * 100, // dollars to cents
-            currency: 'usd',
-            description: domain,
-            // Important: Authorize, but don't capture/charge yet.
-            capture: false,
-            source: data.token
-          }, ecb(done, function (charge) {
-            chargeID = charge.id
-            request.log.info({charge: chargeID})
-            done()
-          }))
+          if (data.coupon) {
+            var coupon = data.coupon
+            readCoupon(
+              configuration, coupon,
+              ecb(done, function (valid) {
+                if (valid) {
+                  chargeID = 'coupon'
+                  deleteCoupon(configuration, coupon, done)
+                } else {
+                  done(new Error('invalid coupon'))
+                }
+              })
+            )
+          } else {
+            stripe(configuration.stripe.private).charges.create({
+              amount: data.price * 100, // dollars to cents
+              currency: 'usd',
+              description: domain,
+              // Important: Authorize, but don't capture/charge yet.
+              capture: false,
+              source: data.token
+            }, ecb(done, function (charge) {
+              chargeID = charge.id
+              request.log.info({charge: chargeID})
+              done()
+            }))
+          }
         },
         function writeChargeFile (done) {
           mkdirpThenWriteFile(
@@ -614,7 +648,7 @@ function write (configuration, request, response, data, form) {
               'Edition: ' + form.edition,
               // TODO: Detailed text summary in receipt e-mail.
               domain + ' will authorize a payment of ' +
-              data.price + ' United States Dollars now, '+
+              data.price + ' United States Dollars now, ' +
               'but your card will not be ' +
               'charged unless and until the other side countersigns.'
             ].join('\n\n'))
@@ -715,4 +749,31 @@ function errorsFor (name, postData) {
   } else {
     return []
   }
+}
+
+function couponSection (coupon) {
+  return `
+    <section id=payment>
+      <h3>Coupon</h3>
+      <input name=coupon type=hidden value="${escape(coupon)}">
+      <p>Your coupon code entitles you to send for free.</p>
+    </section>`
+}
+
+function paymentSection (configuration) {
+  return `
+    <section id=payment>
+      <h3>Credit Card Payment</h3>
+      <div id=card></div>
+      <div id=card-errors></div>
+      <p>
+        ${escape(configuration.domain)} will authorize a charge of
+        $${escape(configuration.prices.use.toString())} to your credit
+        card now.  If the other side countersigns within seven days,
+        ${escape(configuration.domain)} will collect the charge.
+        If the other side does not countersign in seven days,
+        of you cancel before they countersign, your credit
+        card will not be charged.
+      </p>
+    </section>`
 }
