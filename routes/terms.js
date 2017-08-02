@@ -32,14 +32,22 @@ ${preamble('Terms')}
 ${banner()}
 ${nav()}
 <main>
+  <p>
+    Jump to:
+    <a href=#terms>Terms of Service</a> or
+    <a href=#privacy>Privacy Policy</a>
+  </p>
   <article id=terms class=commonform>
     ${commonformHTML(
       terms.commonform,
       terms.directions,
       {
         title: 'RxNDA Terms of Service',
-        edition: new Date(terms.updated)
-          .toLocaleDateString(),
+        edition: (
+          'Last Updated: ' +
+          longDate(new Date(terms.updated))
+        ),
+        lists: true,
         html5: true
       }
     )}
@@ -50,8 +58,11 @@ ${nav()}
       privacy.directions,
       {
         title: 'RxNDA Privacy Policy',
-        edition: new Date(privacy.updated)
-          .toLocaleDateString(),
+        edition: (
+          'Last Updated: ' +
+          longDate(new Date(privacy.updated))
+        ),
+        lists: true,
         html5: true
       }
     )}
@@ -59,5 +70,13 @@ ${nav()}
 </main>
 ${footer()}`)
     }
+  })
+}
+
+function longDate (date) {
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    year: 'numeric',
+    month: 'long'
   })
 }

@@ -240,6 +240,11 @@ dd {
 .commonform .use { font-style: italic; }
 .commonform .reference { font-style: italic; }
 
+.commonform .conspicuous > p {
+  font-style: italic;
+  font-weight: bold;
+}
+
 .note {
   border: 1px solid blue;
   color: blue;
