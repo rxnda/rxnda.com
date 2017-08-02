@@ -2,8 +2,157 @@
   "updated": "2017-07-16T22:25Z",
   "commonform": {
     "content": [
-      "Placeholder Privacy Policy"
+      "This privacy policy describes the policies of ",
+      {
+        "blank": ""
+      },
+      ", a website operated by ",
+      {
+        "blank": ""
+      },
+      ", a ",
+      {
+        "blank": ""
+      },
+      ", concerning personally identifiable information about you and other visitors.",
+      {
+        "form": {
+          "content": [
+            "You can find the latest version of this policy at ",
+            {
+              "blank": ""
+            },
+            ", and compare previous versions of these policy at ",
+            {
+              "blank": ""
+            },
+            ". ",
+            {
+              "blank": ""
+            },
+            " may change this policy at any time. You should check this policy terms for changes each time you use ",
+            {
+              "blank": ""
+            },
+            "."
+          ]
+        },
+        "heading": "Changes to this Policy"
+      },
+      {
+        "form": {
+          "content": [
+            "It is the general policy of this site not to collect or share information about you, beyond what you fill in and submit via HTML forms on the site. There are two exceptions:",
+            {
+              "form": {
+                "content": [
+                  "This site may log and reference Internet Protocol Address and other information about the computer and World Wide Web browser that you use to access the site, for the purpose of monitoring traffic, detecting software errors, and preventing denial-of-service and other technical attacks."
+                ]
+              }
+            },
+            {
+              "form": {
+                "content": [
+                  "This site stores and sends information with providers of services used to run the site:",
+                  {
+                    "form": {
+                      "content": [
+                        "DigitalOcean, Inc. operates the computers that host this site."
+                      ]
+                    }
+                  },
+                  {
+                    "form": {
+                      "content": [
+                        "Mailgun Technologies, Inc.'s Mailgun service sends e-mails dispatched from this site."
+                      ]
+                    }
+                  },
+                  {
+                    "form": {
+                      "content": [
+                        "Stripe, Inc. processes payments to this site. Your payment details are never sent to our servers, but instead sent to direct to Stripe's server, which provide our servers with anonymous tokens with which to reference and use your payment information."
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "heading": "Collecting and Sharing"
+      },
+      {
+        "form": {
+          "content": [
+            "Regardless of whether you use Do Not Track HTTP headers, this site does not utilize cookies or other tracking mechanisms, and it does not direct your computer to make requests to others' services for tracking purposes."
+          ]
+        },
+        "heading": "Tracking"
+      }
     ]
   },
-  "directions": []
+  "directions": [
+    {
+      "value": "rxnda.com",
+      "blank": [
+        "content",
+        1
+      ]
+    },
+    {
+      "value": "RxNDA LLC",
+      "blank": [
+        "content",
+        3
+      ]
+    },
+    {
+      "value": "California limited liability company",
+      "blank": [
+        "content",
+        5
+      ]
+    },
+    {
+      "value": "URL",
+      "blank": [
+        "content",
+        7,
+        "form",
+        "content",
+        1
+      ]
+    },
+    {
+      "value": "Repository",
+      "blank": [
+        "content",
+        7,
+        "form",
+        "content",
+        3
+      ]
+    },
+    {
+      "value": "RxNDA LLC",
+      "blank": [
+        "content",
+        7,
+        "form",
+        "content",
+        5
+      ]
+    },
+    {
+      "value": "rxnda.com",
+      "blank": [
+        "content",
+        7,
+        "form",
+        "content",
+        7
+      ]
+    }
+  ]
 }
