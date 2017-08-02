@@ -22,7 +22,7 @@ ${nav()}
     Feel free to send questions not addressed on this page to
 <script>
   var address = function () {
-    return ['rxnda.com', 'questions'].reverse().join('@')
+    return ['rxnda.com', 'support'].reverse().join('@')
   }
   document.write(
     '<a href="mailto:' + address() + '">' + address() + '</a>'
