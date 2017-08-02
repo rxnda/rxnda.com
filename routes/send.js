@@ -365,7 +365,7 @@ function input (name, label, notes, value, errors) {
   if (name.endsWith('address')) {
     return html`
 <section class=field>
-  <label for='${name}'>${label}</label>
+  <label for='${name}'>${escape(label)}</label>
   ${required && asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <textarea
@@ -377,7 +377,7 @@ function input (name, label, notes, value, errors) {
   } else {
     return html`
 <section class=field>
-  <label for='${name}'>${label}</label>
+  <label for='${name}'>${escape(label)}</label>
   ${required && asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <input
