@@ -614,7 +614,8 @@ function write (configuration, request, response, data, form) {
               'Edition: ' + form.edition,
               // TODO: Detailed text summary in receipt e-mail.
               domain + ' will authorize a payment of ' +
-              '$' + data.price + ' now, but your card will not be ' +
+              data.price + ' United States Dollars now, '+
+              'but your card will not be ' +
               'charged unless and until the other side countersigns.'
             ].join('\n\n'))
           }, done)
