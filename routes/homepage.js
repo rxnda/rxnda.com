@@ -18,7 +18,7 @@ ${nav()}
   </p>
   <ol>
     <li>
-      Visit <a href=/send>the form picker</a>.  Answer a
+      Visit <a href=/send>the form picker</a>.  Ans a
       few questions about your needs and click the big button
       to find your form.  Have your lawyer review it to
       make sure it meets your needs.
@@ -33,8 +33,8 @@ ${nav()}
     <li>
       The site will e-mail the other side a link
       to countersign or decline, and you a link to
-      cancel. If they countersign within seven days, we
-      charge your card and e-mail everybody a complete
+      cancel. If they countersign within seven days, RxNDA
+      charges your card and e-mails everybody a complete
       Word <code>.docx</code> copy of the agreement.
       RxNDA deletes its record of the offer.
     </li>
