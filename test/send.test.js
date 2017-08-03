@@ -10,6 +10,11 @@ tape.test('Send', function (test) {
     sendSimple(webdriver, port)
       .waitForExist('.sent', 20000)
       .getText('h2')
+      .catch(function (error) {
+        test.ifError(error)
+        test.end()
+        closeServer()
+      })
       .then(function (h1Text) {
         test.assert(
           h1Text.includes('Sent!'),

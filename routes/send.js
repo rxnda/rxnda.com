@@ -1,14 +1,14 @@
 var Busboy = require('busboy')
+var cancelMessage = require('../messages/cancel')
 var cancelPath = require('../data/cancel-path')
 var chargePath = require('../data/charge-path')
+var countersignMessage = require('../messages/countersign')
 var decodeTitle = require('../util/decode-title')
 var deleteCoupon = require('../data/delete-coupon')
 var ecb = require('ecb')
-var ed25519 = require('ed25519')
 var email = require('../email')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
-var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var mkdirp = require('mkdirp')
@@ -19,6 +19,7 @@ var pump = require('pump')
 var readCoupon = require('../data/read-coupon')
 var readEdition = require('../data/read-edition')
 var readRandom = require('read-random')
+var receiptMessage = require('../messages/receipt')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
@@ -87,7 +88,9 @@ function get (configuration, request, response, edition, postData) {
   }
 }
 
-function showGet (configuration, request, response, edition, postData, coupon) {
+function showGet (
+  configuration, request, response, edition, postData, coupon
+) {
   response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   var address = (
@@ -433,11 +436,6 @@ function byline (postData) {
 </section>`
 }
 
-var VERIFICATION_CODE_EXPLANATION = (
-  'Customer service may ask you to share this verification ' +
-  'code if you request assistance:'
-)
-
 function post (configuration, request, response, form) {
   var data = {
     signatures: {
@@ -510,7 +508,6 @@ function write (configuration, request, response, data, form) {
   var domain = configuration.domain
   var now = new Date()
   var sender = data.signatures.sender
-  var recipient = data.signatures.recipient
   if (data.coupon) {
     data.coupon = sanitize(data.coupon)
   }
@@ -527,10 +524,6 @@ function write (configuration, request, response, data, form) {
   data.timestamp = now.toISOString()
   data.form = form
   data.price = configuration.prices.use
-  var senderName = sender.company || sender.name
-  var recipientName = (
-    recipient.company || recipient.name || recipient.email
-  )
   runSeries([
     function generateCapabilities (done) {
       runParallel([
@@ -555,49 +548,18 @@ function write (configuration, request, response, data, form) {
     function sendEmails (done) {
       runSeries([
         function emailCancelLink (done) {
-          email(configuration, {
-            to: sender.email,
-            subject: 'Your ' + domain + ' Cancellation Link',
-            text: formatEmail(configuration, [
-              'You have offered to sign a nondisclosure agreement ' +
-              (sender.company ? 'on behalf of ' + sender.company : '') +
-              ' with ' + recipientName + ' ' +
-              'on the terms of ' + domain + '\'s ' +
-              form.title + ' form agreement, ' +
-              spell(form.edition) + '.',
-              'To cancel your request before the other side signs, ' +
-              'visit this link:',
-              'https://' + domain + '/cancel/' + data.cancel,
-              'Keep this link safe and secure.  The special code ' +
-              'within it is your digital key to cancel ' +
-              'the request.',
-              VERIFICATION_CODE_EXPLANATION,
-              verificationCode(
-                configuration, data.cancel, sender.email
-              )
-            ].join('\n\n'))
-          }, done)
+          email(
+            configuration,
+            cancelMessage(configuration, data),
+            done
+          )
         },
         function emailSignLink (done) {
-          email(configuration, {
-            to: recipient.email,
-            subject: 'NDA Offer from ' + senderName,
-            text: formatEmail(configuration, [
-              senderName + ' offers to sign a nondisclosure ' +
-              'agreement with ' +
-              (recipient.company ? recipient.company : 'you') + ' ' +
-              'via ' + domain + '.',
-              'To review the offer and sign or decline online visit: ' +
-              'https://' + domain + '/countersign/' + data.sign,
-              'Keep this link safe and secure.  The special code ' +
-              'within it is your digital key to see and sign ' +
-              'the NDA.',
-              VERIFICATION_CODE_EXPLANATION,
-              verificationCode(
-                configuration, data.sign, recipient.email
-              )
-            ].join('\n\n'))
-          }, done)
+          email(
+            configuration,
+            countersignMessage(configuration, data),
+            done
+          )
         }
       ], done)
     },
@@ -639,20 +601,11 @@ function write (configuration, request, response, data, form) {
           )
         },
         function emailReceipt (done) {
-          email(configuration, {
-            to: data.signatures.sender.email,
-            subject: 'Your ' + domain + ' Order',
-            text: formatEmail(configuration, [
-              'Thank you for sending an NDA with ' + domain + '!',
-              'Form: ' + form.title,
-              'Edition: ' + form.edition,
-              // TODO: Detailed text summary in receipt e-mail.
-              domain + ' will authorize a payment of ' +
-              data.price + ' United States Dollars now, ' +
-              'but your card will not be ' +
-              'charged unless and until the other side countersigns.'
-            ].join('\n\n'))
-          }, done)
+          email(
+            configuration,
+            receiptMessage(configuration, data),
+            done
+          )
         }
       ], done)
     }
@@ -722,19 +675,6 @@ function randomCapability (callback) {
   readRandom(32, ecb(callback, function (bytes) {
     callback(null, bytes.toString('hex'))
   }))
-}
-
-function verificationCode (configuration, capability, recipient) {
-  var signature = ed25519.Sign(
-    Buffer.from(capability + ' ' + recipient, 'utf8'),
-    configuration.keys.private
-  ).toString('hex')
-  return (
-    signature.slice(0, 32) + '\n' +
-    signature.slice(32, 64) + '\n' +
-    signature.slice(64, 96) + '\n' +
-    signature.slice(96)
-  )
 }
 
 function errorsFor (name, postData) {

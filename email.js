@@ -56,7 +56,7 @@ if (process.env.NODE_ENV === 'test') {
           .pipe(require('concat-stream')(function (body) {
             var error = {
               status: response.statusCode,
-              body: body
+              body: body.toString()
             }
             log.error(error)
             callback(error)

@@ -14,10 +14,10 @@ tape.test('Sweep Backdated', function (test) {
   var signEMail
   var cancelEMail
   email.events.on('message', function (data) {
-    if (data.subject.includes('NDA Offer')) {
+    if (data.subject.startsWith('NDA')) {
       signEMail = data
     }
-    if (data.subject.includes('Cancellation Link')) {
+    if (data.subject.endsWith('Cancellation Link')) {
       cancelEMail = data
     }
   })
@@ -109,10 +109,10 @@ tape.test('Sweep Unexpired', function (test) {
   var signEMail
   var cancelEMail
   email.events.on('message', function (data) {
-    if (data.subject.includes('NDA Offer')) {
+    if (data.subject.startsWith('NDA')) {
       signEMail = data
     }
-    if (data.subject.includes('Cancellation Link')) {
+    if (data.subject.endsWith('Cancellation Link')) {
       cancelEMail = data
     }
   })

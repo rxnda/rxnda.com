@@ -10,7 +10,7 @@ var webdriver = require('./webdriver')
 tape.test('Countersign', function (test) {
   var signEMail
   email.events.on('message', function (data) {
-    if (data.subject && data.subject.indexOf('NDA Offer') === 0) {
+    if (data.subject && data.subject.indexOf('NDA') === 0) {
       signEMail = data
     }
   })
@@ -70,7 +70,7 @@ tape.test('Countersign', function (test) {
 tape.test('Countersign w/ coupon', function (test) {
   var signEMail
   email.events.on('message', function (data) {
-    if (data.subject && data.subject.indexOf('NDA Offer') === 0) {
+    if (data.subject && data.subject.indexOf('NDA') === 0) {
       signEMail = data
     }
   })

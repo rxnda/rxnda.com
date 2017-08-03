@@ -7,7 +7,7 @@ var webdriver = require('./webdriver')
 tape.test('View', function (test) {
   var signEMail
   email.events.on('message', function (data) {
-    if (data.subject && data.subject.indexOf('NDA Offer') === 0) {
+    if (data.subject && data.subject.startsWith('NDA')) {
       signEMail = data
     }
   })
