@@ -2,6 +2,7 @@ module.exports = function (scripts) {
   return `
 <footer role=contentinfo>
   <ul>
+    <li><a href=https://github.com/rxnda target=_blank>GitHub</a></li>
     <li><a href=/terms#terms>Terms</a></li>
     <li><a href=/terms#privacy>Privacy</a></li>
   </ul>
