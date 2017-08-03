@@ -162,7 +162,10 @@ ${nav()}
   <h3 id=businessfolk>For Businessfolk</h3>
 
   <h4 class=question>Are you my lawyer?</h4>
-  <p>No.</p>
+  <p>
+    No.
+    <a href=/terms#terms>Read the terms of service.</a>
+  </p>
   <p>
     This website is not your lawyer.  The company behind it
     &hellip; not a law firm, not your law firm.  The people
