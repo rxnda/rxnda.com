@@ -2,13 +2,6 @@ module.exports = function () {
   return `
 <section>
 <h3>About RxNDA Forms</h3>
-<p class=warning>
-  Only a lawyer engaged to provide you or your company
-  legal advice can tell you whether an RxNDA form, signed
-  via this website, will work for you.  RxNDA forms are
-  written to be quick and easy for lawyers to assess.
-  Ask your lawyer first!
-</p>
 <p>
   RxNDA forms are nondisclosure agreements, or
   &ldquo;NDAs&rdquo;, designed for United States companies
