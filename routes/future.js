@@ -14,8 +14,7 @@ ${nav()}
 
   <blockquote>
     <p>
-      <abbr title='nondisclosure agreements'>NDAs</abbr>
-      are everywhere.  Everyone gets used to throwing
+      NDAs are everywhere.  Everyone gets used to throwing
       them around.  So it&rsquo;s hard to convince clients
       how hard is to write a good one, and how much a good
       fit is worth.
