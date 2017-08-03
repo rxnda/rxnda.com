@@ -1,20 +1,16 @@
 var Busboy = require('busboy')
 var clone = require('../data/clone')
-var docx = require('commonform-docx')
+var docxMessage = require('../messages/docx')
 var ecb = require('ecb')
-var ed25519 = require('ed25519')
 var email = require('../email')
 var escape = require('../util/escape')
 var escapeStringRegexp = require('escape-string-regexp')
 var expirationDate = require('../data/expiration-date')
 var expired = require('../data/expired')
-var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
-var ooxmlSignaturePages = require('ooxml-signature-pages')
-var outlineNumbering = require('outline-numbering')
 var path = require('path')
 var pump = require('pump')
 var readJSONFile = require('../data/read-json-file')
@@ -23,7 +19,6 @@ var sameArray = require('../data/same-array')
 var signPath = require('../data/sign-path')
 var signatureProperties = require('../data/signature-properties')
 var spell = require('reviewers-edition-spell')
-var stringify = require('json-stable-stringify')
 var stripe = require('stripe')
 var validCountersignPost = require('../data/valid-countersign-post')
 var xtend = require('xtend')
@@ -416,28 +411,14 @@ function post (configuration, request, response, send) {
 
 function write (configuration, request, response, data) {
   var directory = configuration.directory
-  var sender = data.send.signatures.sender
-  var senderName = sender.company || sender.name
-  var recipient = xtend(
-    data.send.signatures.recipient, data.countersign
-  )
-  var recipientName = (
-    recipient.company || recipient.name || recipient.email
-  )
+  var merged = clone(data)
   runSeries([
     function emailDOCX (done) {
-      email(configuration, {
-        to: sender.email + ',' + recipient.email,
-        subject: 'Signed NDA',
-        text: formatEmail(configuration, [
-          'Attached please find a countersigned copy of the NDA ' +
-          'between' + senderName + ' and ' + recipientName + '.'
-        ].join('\n\n')),
-        docx: {
-          data: makeDOCX(configuration, data),
-          name: 'NDA.docx'
-        }
-      }, done)
+      email(
+        configuration,
+        docxMessage(configuration, data),
+        done
+      )
     },
     function rmFiles (done) {
       runSeries([
@@ -534,70 +515,6 @@ ${footer()}`)
       })
     }
   }
-}
-
-function makeDOCX (configuration, data) {
-  var send = data.send
-  var countersign = data.countersign
-  var form = data.send.form
-  var zip = docx(
-    form.commonform,
-    send.directions,
-    {
-      title: form.title,
-      edition: spell(form.edition),
-      hash: true,
-      numbering: outlineNumbering,
-      indentMargins: true,
-      centerTitle: true,
-      markFilled: true,
-      after: ooxmlSignaturePages([
-        // Sender Page
-        prefilledSignaturePage(
-          configuration,
-          form.signatures[0],
-          xtend(send.signatures.sender, {date: send.timestamp})
-        ),
-        // Recipient Page
-        prefilledSignaturePage(
-          configuration,
-          form.signatures[1],
-          xtend(send.signatures.recipient, countersign)
-        )
-      ])
-    }
-  )
-  return zip.generate({type: 'nodebuffer'})
-}
-
-function prefilledSignaturePage (configuration, page, data) {
-  var returned = clone(page)
-  returned.name = data.name
-  returned.meta = (
-    'Signed via rxnda.com. Ed25519:\n' +
-    ed25519.Sign(
-      Buffer.from(stringify(data), 'utf8'),
-      configuration.keys.private
-    ).toString('hex')
-  )
-  if (returned.entities) {
-    returned.entities = [
-      {
-        name: data.company,
-        jurisdiction: data.jurisdiction,
-        form: data.form,
-        by: data.title
-      }
-    ]
-  }
-  returned.conformed = '/' + data.signature + '/'
-  // Replace information array with prefilled information object.
-  returned.information = returned.information
-    .reduce(function (object, key) {
-      object[key] = data[key]
-      return object
-    }, {})
-  return returned
 }
 
 function errorsFor (name, postData) {

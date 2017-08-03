@@ -1,11 +1,11 @@
 var cancelPath = require('../data/cancel-path')
+var cancelledMessage = require('../messages/cancelled')
 var chargePath = require('../data/charge-path')
 var ecb = require('ecb')
 var email = require('../email')
 var escape = require('../util/escape')
 var expirationDate = require('../data/expiration-date')
 var expired = require('../data/expired')
-var formatEmail = require('../util/format-email')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')
@@ -112,12 +112,6 @@ ${footer('cancel')}`)
 }
 
 function post (configuration, request, response, data) {
-  var sender = data.signatures.sender
-  var senderName = sender.company || sender.name
-  var recipient = data.signatures.recipient
-  var recipientName = (
-    recipient.company || recipient.name || recipient.email
-  )
   runSeries([
     function rmFiles (done) {
       runSeries([
@@ -133,16 +127,11 @@ function post (configuration, request, response, data) {
       ], done)
     },
     function emailConfirmations (done) {
-      email(configuration, {
-        to: sender.email + ', ' + recipient.email,
-        subject: 'NDA Offer Cancelled',
-        text: formatEmail(configuration, [
-          'The offer to enter an NDA ' +
-          'between' + senderName + ' and ' + recipientName + ' ' +
-          'has been cancelled.',
-          'No one will be charged.'
-        ].join('\n\n'))
-      }, done)
+      email(
+        configuration,
+        cancelledMessage(configuration, data),
+        done
+      )
     }
   ], function (error) {
     /* istanbul ignore if */
