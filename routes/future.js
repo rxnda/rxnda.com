@@ -33,66 +33,74 @@ ${nav()}
   <p>
     RxNDA&rsquo;s approach is somewhat newfangled.
     Lawyers and clients should judge its service on
-    its merits.  But in the position of a customer,
-    we&rsquo;d appreciate some sense of the people
-    behind the website.  What they&rsquo;re thinking.
+    its merits.  But from a customer&rsquo;s point of
+    view, it&rsquo;s valuable to have some sense of
+    who&rsquo;s behind a service.
+    What they&rsquo;re thinking.
     What they&rsquo;re planning.
   </p>
   <p>
-    Here&rsquo;s a snapshot of current thinking.
+    Here&rsquo;s a snapshot.
     These plans are very much subject to change.
   </p>
 
   <h3>Prescription System</h3>
   <p>
-    On the software side, we plan to add support for
-    &ldquo;prescriptions&rdquo;: private combinations of
+    On the software side, add support for
+    &ldquo;prescriptions&rdquo;:
+    private combinations of
     selected forms, prefilled blanks, and additional notes
-    that attorneys can use to communicate which form to
-    use, when, and how, to specific clients.  The site
-    would send the prescribing attorney a private link
-    they can share with the client.
+    that attorneys can use to communicate
+    which form to use, when, and how,
+    to specific clients.
   </p>
   <p>
-    The tentative plan is to charge a flat fee per
-    prescription, good for a limited time, say six
-    months or one year, and to reduce the cost per NDA
-    signed through the site for NDAs sent &ldquo;on
-    prescription&rdquo;.
+    The tentative plan is
+    to charge a flat fee per prescription,
+    good for a limited time,
+    say six months or one year,
+    and to reduce the cost per NDA signed through the site
+    for NDAs sent &ldquo;on prescription&rdquo;.
   </p>
 
   <h3>Improve Forms</h3>
   <p>
-    Good form NDAs are refined products of highly technical
-    writing.  Even the best writing and technical products
-    can always be improved.  The law changes.  Needs
-    change.  The craft of contract drafting progresses.
+    Good NDAs are refined products of highly technical writing.
+    Even the best writing and technical products
+    can always be improved.
+    The law changes.
+    Needs change.
+    The craft of contract drafting progresses.
     Good form NDAs must evolve.
   </p>
   <p>
     Budget permitting, RxNDA will invest earnings in
-    contracts with lawyers to review and revise existing
-    RxNDA forms.  Ideally, on a regular basis.
-    The &ldquo;edition&rdquo; system is built to describe
-    improvements to the forms over time, so it&rsquo;s as
-    quick and easy as possible for lawyers to assess new
-    editions for use by their clients.
+    contracts with lawyers
+    to review and revise existing RxNDA forms.
+    Ideally, on a regular basis.
+    The <a href=https://reviewersedition.org>edition</a> system
+    is designed to describe improvements to the forms over time,
+    so it&rsquo;s as quick and easy as possible
+    for lawyers to assess new editions
+    for use by their clients.
   </p>
 
   <h3>More Forms</h3>
   <p>
-    The nearly universal term &ldquo;NDA&rdquo; disguises
-    a great deal of variation in terms between industries,
+    The nearly universal term &ldquo;NDA&rdquo;
+    disguises a great deal of variation in terms
+    between industries,
     especially when peculiar regulation applies.
   </p>
   <p>
-    Budget permitting, RxNDA will invest earnings in
-    contracts with lawyers to prepare additional form
-    NDAs, for more situations, to give everyone access
-    to a public set of off-the-shelf NDAs.  RxNDA will
-    make these forms available for sending via rxnda.com,
-    as well as to download and use under permissive public
-    licenses.
+    Budget permitting,
+    RxNDA will invest earnings in contracts with lawyers
+    to prepare additional form NDAs,
+    for more situations.
+    RxNDA will make these forms available
+    for sending via rxnda.com,
+    as well as to download and use
+    under permissive public licenses.
   </p>
 </main>
 ${footer()}`)
