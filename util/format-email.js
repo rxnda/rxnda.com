@@ -10,7 +10,7 @@ module.exports = function wrapEMail (configuration, string) {
       ].join('')
     ),
     {
-      width: 55,
+      width: 50,
       indent: ''
     }
   )
