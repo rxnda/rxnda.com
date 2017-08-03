@@ -17,7 +17,7 @@ module.exports = function (configuration, data) {
   var senderName = sender.company || sender.name
   var recipientName = recipient.company || recipient.name
   return {
-    to: sender.email,
+    to: sender.email + ',' + recipient.email,
     subject: (
       'Signed NDA between ' + senderName + ' and ' + recipientName
     ),
