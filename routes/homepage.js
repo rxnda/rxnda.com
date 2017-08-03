@@ -36,18 +36,18 @@ ${nav()}
       cancel. If they countersign within seven days, we
       charge your card and e-mail everybody a complete
       Word <code>.docx</code> copy of the agreement.
-      We delete our record of the offer.
+      RxNDA deletes its record of the offer.
     </li>
   </ol>
   <p>
     There&rsquo;s no charge for sending an offer and
     canceling it, or for sending an offer that expires
-    after seven days.  We delete our records of canceled
+    after seven days.  RxNDA deletes records of canceled
     and expired offers, too.
   </p>
   <p>
-    For more information, see our
-    <a href=/questions>questions &amp; answers page</a>.
+    For more information, see 
+    <a href=/questions>Questions &amp; Answers</a>.
   </p>
 </main>
 ${footer()}`)

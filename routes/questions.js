@@ -79,19 +79,19 @@ ${nav()}
     <li>No eyeballs or special handling without specific permission.</li>
   </ol>
   <p>
-    In a nutshell, we treat information from customers
+    In a nutshell, RxNDA treats information from customers
     like asbestos and lead.  Moving it between parties
-    is part of our business.  But we don&rsquo;t want any
-    more of it around than necessary, and we sure as Hell
-    don&rsquo;t want to touch it.
+    is part of the business.  But RxNDA doesn&rsquo;t want any
+    more of it around than necessary, and sure as Hell
+    doesn&rsquo;t want to touch it.
   </p>
 
   <h4 class=question>What information do you store?</h4>
   <p>
-    For each NDA request, our software creates a single
+    For each NDA request, RxNDA software creates a single
     file on the server containing the information submitted
     on the NDA send form, minus credit card details, which
-    go directly to our payment processor.  That means our
+    go directly to the payment processor.  That means our
     files have, for example:
   </p>
   <ul>
