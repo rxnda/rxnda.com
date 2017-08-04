@@ -1,6 +1,7 @@
 html {
   font-size: 130%;
   line-height: 1.4;
+  overflow-y: scroll;
   text-align: center;
 }
 
