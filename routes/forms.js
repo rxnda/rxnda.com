@@ -207,14 +207,30 @@ function showEdition (configuration, request, response) {
       } else {
         response.setHeader('Content-Type', 'text/html; charset=ASCII')
         response.end(html`
-${preamble(data.title + ' ' + data.edition)}
+${banner()}
+${preamble(data.title + ', ' + spell(data.edition))}
+${nav()}
 <main>
-  <h1>${escape(data.title)}, ${escape(data.edition)}</h1>
+  <h1>${escape(data.title)}</h1>
+  <p class=edition>${escape(spell(data.edition))}</p>
+  <p>
+    <a href="/send/${request.params.title}/${request.params.edition}">
+      Sign &amp; Send this Form Online
+    </a>
+  </p>
+  <p>
+    <a href="/docx/${request.params.title}/${request.params.edition}">
+      Download a .docx Copy
+    </a>
+  </p>
+  <p>
+    <a href="${escape(data.repository)}" target=_blank>
+      View Development Files
+    </a>
+  </p>
   ${formattingNote()}
   <article class=commonform>
   ${commonformHTML(data.commonform, [], {
-    title: data.title,
-    edition: spell(data.edition),
     html5: true,
     lists: true
   }).replace(/[•]/g, '__________')}
