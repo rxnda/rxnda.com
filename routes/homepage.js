@@ -18,7 +18,7 @@ ${nav()}
   </p>
   <ol>
     <li>
-      Visit <a href=/send>the form picker</a>.  Ans a
+      Visit <a href=/send>the form picker</a>.  Answer a
       few questions about your needs and click the big button
       to find your form.  Have your lawyer review it to
       make sure it meets your needs.
