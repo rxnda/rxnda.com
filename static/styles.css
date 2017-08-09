@@ -284,3 +284,15 @@ dd {
 .question + p:before {
   content: 'A:';
 }
+
+.formsTable {
+  width: 100%;
+}
+
+.formsTable tbody {
+  vertical-align: top;
+}
+
+.formsTable th {
+  font-weight: normal;
+}

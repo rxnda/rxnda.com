@@ -105,6 +105,80 @@ ${nav()}
 <main>
   <h2>Forms</h2>
   ${formsOverview()}
+  <h3>Overview</h3>
+  <p>Sixteen standard RxNDA forms are available, covering all combinations of:</p>
+  <ol>
+    <li>broad (B) or narrow (N) definition of confidential information</li>
+    <li>one-way (1W) or two-way (2W) confidentiality obligations</li>
+    <li>
+      business-to-business (B2B),
+      business-to-individual (B2I),
+      individual-to-business (I2B), and
+      individual-to-individual (I2I)
+    </li>
+  </ol>
+  <p>
+    All sixteen variants come from a single template,
+    and share most language in common,
+    making them easy to review and compare:
+  </p>
+  <table class=formsTable>
+    <thead>
+      <tr>
+        <td colspan=3></td>
+        <th>Broad</th>
+        <th>Narrow</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th rowspan=4>One-Way</th>
+        <th rowspan=2>From Business</th>
+        <th>To Business</th>
+        <td><a href=/forms/RxNDA_B-1W-B2B>B-1W-B2B</a></td>
+        <td><a href=/forms/RxNDA_N-1W-B2B>N-1W-B2B</a></td>
+      </tr>
+      <tr>
+        <th>To Individual</th>
+        <td><a href=/forms/RxNDA_B-1W-B2I>B-1W-B2I</a></td>
+        <td><a href=/forms/RxNDA_N-1W-B2I>N-1W-B2I</a></td>
+      </tr>
+      <tr>
+        <th rowspan=2>From Individual</th>
+        <th>To Business</th>
+        <td><a href=/forms/RxNDA_B-1W-I2B>B-1W-I2B</a></td>
+        <td><a href=/forms/RxNDA_N-1W-I2B>N-1W-I2B</a></td>
+      </tr>
+      <tr>
+        <th>To Individual</th>
+        <td><a href=/forms/RxNDA_B-1W-I2I>B-1W-I2I</a></td>
+        <td><a href=/forms/RxNDA_N-1W-I2I>N-1W-I2I</a></td>
+      </tr>
+      <tr>
+        <th rowspan=4>Two-Way</th>
+        <th rowspan=2>From Business</th>
+        <th>To Business</th>
+        <td><a href=/forms/RxNDA_B-2W-B2B>B-2W-B2B</a></td>
+        <td><a href=/forms/RxNDA_N-2W-B2B>N-2W-B2B</a></td>
+      </tr>
+      <tr>
+        <th>To Individual</th>
+        <td><a href=/forms/RxNDA_B-2W-B2I>B-2W-B2I</a></td>
+        <td><a href=/forms/RxNDA_N-2W-B2I>N-2W-B2I</a></td>
+      </tr>
+      <tr>
+        <th rowspan=2>From Individual</th>
+        <th>To Business</th>
+        <td><a href=/forms/RxNDA_B-2W-I2B>B-2W-I2B</a></td>
+        <td><a href=/forms/RxNDA_N-2W-I2B>N-2W-I2B</a></td>
+      </tr>
+      <tr>
+        <th>To Individual</th>
+        <td><a href=/forms/RxNDA_B-2W-I2I>B-2W-I2I</a></td>
+        <td><a href=/forms/RxNDA_N-2W-I2I>N-2W-I2I</a></td>
+      </tr>
+    </tbody>
+  </table>
   <ul id=list class=listOfForms>${list}</ul>
 </main>
 ${footer()}`)
