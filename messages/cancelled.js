@@ -3,7 +3,6 @@ var formatEmail = require('../util/format-email')
 module.exports = function (configuration, data) {
   var sender = data.signatures.sender
   var recipient = data.signatures.recipient
-  var domain = configuration.domain
   return {
     to: sender.email,
     subject: 'NDA Offer Cancelled',

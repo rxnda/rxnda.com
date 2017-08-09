@@ -411,7 +411,6 @@ function post (configuration, request, response, send) {
 
 function write (configuration, request, response, data) {
   var directory = configuration.directory
-  var merged = clone(data)
   runSeries([
     function emailDOCX (done) {
       email(

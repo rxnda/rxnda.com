@@ -13,9 +13,8 @@ document.addEventListener('DOMContentLoaded', function () {
         )
       }
     })
-  var card = document.getElementById('card')
   var form = document.forms[0]
-  if (card) {
+  if (document.getElementById('card')) {
     var stripe = window.Stripe(STRIPE_PUBLIC_KEY)
     var elements = stripe.elements()
     var card = elements.create('card')
