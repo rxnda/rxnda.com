@@ -49,7 +49,6 @@ ${nav()}
       Use this short form to find a form to fit your needs.
     </p>
   </section>
-  ${formsOverview()}
   <section>
     <h3>Find Your Form</h3>
     <form id=wizard action=/send method=GET ${novalidate(request)}>
@@ -74,6 +73,7 @@ ${nav()}
       <input type=submit value="Find My Form">
     </form>
   </section>
+  ${formsOverview()}
 </main>
 ${footer()}
 </body>
