@@ -286,7 +286,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
   if (sendValue) {
     return `
 <section class=field>
-  <label for=${name}>${escape(label)}</label>
+  <label>${escape(label)}</label>
   <input
       name=${name}
       value='${escape(sendValue)}'
@@ -299,7 +299,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
     if (name.endsWith('address')) {
       return `
 <section class=field>
-  <label for='${name}'>${label}</label>
+  <label>${label}</label>
   ${asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <textarea
@@ -311,7 +311,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
     } else {
       return `
 <section class=field>
-  <label for='${name}'>${label}</label>
+  <label>${label}</label>
   ${asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <input
@@ -342,7 +342,7 @@ function byline (recipient, postData) {
   var errors = errorsFor('signatures-recipient-signature', postData)
   return html`
 <section class=field>
-  <label for=signatures-recipient-signature>Signature</label>
+  <label>Signature</label>
   ${asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <input

@@ -1,4 +1,5 @@
 html {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 130%;
   line-height: 1.4;
   overflow-y: scroll;
@@ -34,7 +35,7 @@ nav[role=navigation] ul li:before,
 footer[role=contentinfo] ul li:before {
   color: #777;
   content: '\00B7';
-  padding: 0 0.5rem;
+  padding: 0 0.3rem;
 }
 
 nav[role=navigation] ul li:first-of-type:before,

@@ -200,7 +200,7 @@ ${nav()}
       <section class=theirSignature>
         <h4>The Other Side</h4>
         <section class=field>
-          <label for=signatures-recipient-email>Their Email</label>
+          <label>Their Email</label>
           ${asterisk()}
           <input
               name=signatures-recipient-email
@@ -381,7 +381,7 @@ function input (name, label, notes, value, errors) {
   if (name.endsWith('address')) {
     return html`
 <section class=field>
-  <label for='${name}'>${escape(label)}</label>
+  <label>${escape(label)}</label>
   ${required && asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <textarea
@@ -393,7 +393,7 @@ function input (name, label, notes, value, errors) {
   } else {
     return html`
 <section class=field>
-  <label for='${name}'>${escape(label)}</label>
+  <label>${escape(label)}</label>
   ${required && asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <input
@@ -415,7 +415,7 @@ function byline (postData) {
   var errors = errorsFor('signatures-sender-signature', postData)
   return html`
 <section class=field>
-  <label for=signatures-sender-signature>Signature</label>
+  <label>Signature</label>
   ${asterisk()}
   ${errors && paragraphs(errors, 'error')}
   <input
