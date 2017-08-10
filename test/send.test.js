@@ -123,6 +123,27 @@ tape.test('send w/ coupon', function (test) {
   })
 })
 
+tape.test('send w/ invalid coupon', function (test) {
+  server(function (port, closeServer) {
+    webdriver
+      .url('http://localhost:' + port + '/send/Testing/1e?coupon=invalid')
+      .getText('section#payment h3')
+      .catch(function (error) {
+        test.ifError(error)
+        test.end()
+        closeServer()
+      })
+      .then(function (text) {
+        test.equal(
+          text, 'Credit Card Payment',
+          'shows credit card entry'
+        )
+        test.end()
+        closeServer()
+      })
+  })
+})
+
 tape.test('invalid send', function (test) {
   server(function (port, closeServer) {
     var form = new FormData()
