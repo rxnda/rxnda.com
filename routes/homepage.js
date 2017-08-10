@@ -14,7 +14,10 @@ ${nav()}
   <p>
     RxNDA is a simple Internet service for proposing
     and signing standardized commercial nondisclosure
-    agreements.  It works 1-2-3:
+    agreements.
+  </p>
+  <p>
+    It works 1-2-3:
   </p>
   <ol>
     <li>
