@@ -184,7 +184,7 @@ ${banner()}
             })
         }
         <section class=information>
-          <p>Once you press Countersign:</p>
+          <p>When you press Countersign:</p>
           <ol>
             <li>
               ${escape(send.address)} will e-mail both you and the other

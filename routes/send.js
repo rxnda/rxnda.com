@@ -222,7 +222,7 @@ ${nav()}
 
     <section class=information>
       <h3>Next Steps</h3>
-      <p>Once you press Sign &amp; Send:</p>
+      <p>When you press Sign &amp; Send:</p>
       <ol>
         <li>
           ${escape(address)} will send the other side a secret link
