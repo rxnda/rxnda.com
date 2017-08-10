@@ -42,6 +42,8 @@ ${nav()}
   <p>
     Here&rsquo;s a snapshot.
     These plans are very much subject to change.
+    If you&rdquo;d like news at it happens,
+    <a href=/lists>consider subscribing to a mailing list</a>.
   </p>
 
   <h3>Prescription System</h3>

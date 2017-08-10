@@ -179,6 +179,11 @@ ${nav()}
       </tr>
     </tbody>
   </table>
+  <h3>Updates</h3>
+  <p>
+    For the latest news on RxNDA forms,
+    <a href=/lists>subscribe to our lawyers mailing list</a>.
+  </p>
   <ul id=list class=listOfForms>${list}</ul>
 </main>
 ${footer()}`)
