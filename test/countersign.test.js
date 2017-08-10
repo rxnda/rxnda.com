@@ -20,7 +20,7 @@ tape.test('Countersign', function (test) {
       .then(function () {
         return webdriver.url(
           'http://localhost:' + port + '/countersign/' +
-          /([a-f0-9]{64})/.exec(signEMail.text)[1]
+          /([a-f0-9]{64})/.exec(signEMail.html)[1]
         )
       })
       .waitForExist('input[name="signatures-recipient-name"]', 20000)
@@ -82,7 +82,9 @@ tape.test('Countersign w/ coupon', function (test) {
       },
       function (done) {
         webdriver
-          .url('http://localhost:' + port + '/send/Testing/1e?coupon=abc')
+          .url(
+            'http://localhost:' + port + '/send/Testing/1e?coupon=abc'
+          )
           .setValue(
             'input[name="signatures-sender-name"]',
             'Test User'
@@ -105,10 +107,12 @@ tape.test('Countersign w/ coupon', function (test) {
           .then(function () {
             return webdriver.url(
               'http://localhost:' + port + '/countersign/' +
-              /([a-f0-9]{64})/.exec(signEMail.text)[1]
+              /([a-f0-9]{64})/.exec(signEMail.html)[1]
             )
           })
-          .waitForExist('input[name="signatures-recipient-name"]', 20000)
+          .waitForExist(
+            'input[name="signatures-recipient-name"]', 20000
+          )
           .setValue(
             'input[name="signatures-recipient-name"]',
             'Bob'
@@ -144,5 +148,72 @@ tape.test('Countersign w/ coupon', function (test) {
       test.end()
       closeServer()
     })
+  })
+})
+
+tape.test('Receipt E-Mail', function (test) {
+  var receipt
+  var signEMail
+  email.events.on('message', function (data) {
+    if (data.subject && data.subject.endsWith('Receipt')) {
+      receipt = data
+    } else if (data.subject && data.subject.startsWith('NDA')) {
+      signEMail = data
+    }
+  })
+  server(function (port, closeServer) {
+    sendSimple(webdriver, port)
+      .waitForExist('.sent', 20000)
+      .then(function () {
+        return webdriver.url(
+          'http://localhost:' + port + '/countersign/' +
+          /([a-f0-9]{64})/.exec(signEMail.html)[1]
+        )
+      })
+      .waitForExist('input[name="signatures-recipient-name"]', 20000)
+      .setValue(
+        'input[name="signatures-recipient-name"]',
+        'Bob'
+      )
+      .setValue(
+        'input[name="signatures-recipient-signature"]',
+        'Bob'
+      )
+      .setValue(
+        'input[name="signatures-recipient-company"]',
+        'SomeCo'
+      )
+      .setValue(
+        'input[name="signatures-recipient-jurisdiction"]',
+        'California'
+      )
+      .setValue(
+        'input[name="signatures-recipient-form"]',
+        'corporation'
+      )
+      .setValue(
+        'input[name="signatures-recipient-title"]',
+        'CEO'
+      )
+      .setValue(
+        'textarea[name="signatures-recipient-address"]',
+        'Neverland'
+      )
+      .click('input[name=terms]')
+      .click('input[type=submit]')
+      .waitForExist('.agreed')
+      .catch(function (error) {
+        test.ifError(error)
+        test.end()
+        closeServer()
+      })
+      .then(function (result) {
+        test.assert(
+          receipt.html.includes('$10.00 Paid'),
+          'bills $10'
+        )
+        test.end()
+        closeServer()
+      })
   })
 })

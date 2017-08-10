@@ -17,7 +17,7 @@ tape.test('Cancel', function (test) {
       .then(function () {
         return webdriver.url(
           'http://localhost:' + port + '/cancel/' +
-          /([a-f0-9]{64})/.exec(cancelEMail.text)[1]
+          /([a-f0-9]{64})/.exec(cancelEMail.html)[1]
         )
       })
       .waitForExist('input[type=submit]')

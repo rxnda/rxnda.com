@@ -59,7 +59,7 @@ tape.test('Sweep Backdated', function (test) {
       function getSign (done) {
         http.get(
           'http://localhost:' + port + '/countersign/' +
-          /([a-f0-9]{64})/.exec(signEMail.text)[1],
+          /([a-f0-9]{64})/.exec(signEMail.html)[1],
           function (response) {
             test.equal(
               response.statusCode, 404,
@@ -72,7 +72,7 @@ tape.test('Sweep Backdated', function (test) {
       function getCancel (done) {
         http.get(
           'http://localhost:' + port + '/cancel/' +
-          /([a-f0-9]{64})/.exec(cancelEMail.text)[1],
+          /([a-f0-9]{64})/.exec(cancelEMail.html)[1],
           function (response) {
             test.equal(
               response.statusCode, 404,
@@ -149,7 +149,7 @@ tape.test('Sweep Unexpired', function (test) {
       function getSign (done) {
         http.get(
           'http://localhost:' + port + '/countersign/' +
-          /([a-f0-9]{64})/.exec(signEMail.text)[1],
+          /([a-f0-9]{64})/.exec(signEMail.html)[1],
           function (response) {
             test.equal(
               response.statusCode, 200,
@@ -162,7 +162,7 @@ tape.test('Sweep Unexpired', function (test) {
       function getCancel (done) {
         http.get(
           'http://localhost:' + port + '/cancel/' +
-          /([a-f0-9]{64})/.exec(cancelEMail.text)[1],
+          /([a-f0-9]{64})/.exec(cancelEMail.html)[1],
           function (response) {
             test.equal(
               response.statusCode, 200,

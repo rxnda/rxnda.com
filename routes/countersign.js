@@ -1,5 +1,4 @@
 var Busboy = require('busboy')
-var clone = require('../data/clone')
 var docxMessage = require('../messages/docx')
 var ecb = require('ecb')
 var email = require('../email')
@@ -14,6 +13,7 @@ var novalidate = require('../util/novalidate')
 var path = require('path')
 var pump = require('pump')
 var readJSONFile = require('../data/read-json-file')
+var receiptMessage = require('../messages/receipt')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
 var signPath = require('../data/sign-path')
@@ -460,7 +460,14 @@ function write (configuration, request, response, data) {
         },
         continueOnError(function rmChargeFile (done) {
           fs.unlink(chargeFile, done)
-        })
+        }),
+        function sendReceipt (done) {
+          email(
+            configuration,
+            receiptMessage(configuration, data),
+            done
+          )
+        }
       ], done)
     }
   ], function (error) {

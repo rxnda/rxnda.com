@@ -1,16 +1,24 @@
-var formatEmail = require('../util/format-email')
+var messageEMail = require('./message-email')
 
 module.exports = function (configuration, data) {
   var sender = data.signatures.sender
   var recipient = data.signatures.recipient
+  var recipientName = (
+    recipient.company || recipient.name || recipient.email
+  )
+  var domain = configuration.domain
   return {
-    to: sender.email,
+    to: sender.email + ',' + recipient.email,
     subject: 'NDA Offer Cancelled',
-    text: formatEmail(configuration, `
-The offer to enter an NDA between 
-${sender.company || sender.name} and 
-${recipient.company || recipient.name || recipient.email} 
-has been cancelled.
-`.trim().replace(/ \n/g, ' '))
+    html: messageEMail(
+      'NDA Offer Cancelled',
+      [
+        `The offer to enter an NDA between ` +
+        `${sender.company || sender.name} and ` +
+        `${recipientName} has been cancelled.`,
+        `${recipientName} may no longer countersign.`,
+        `${domain} will not charge either side.`
+      ]
+    )
   }
 }

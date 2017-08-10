@@ -17,7 +17,7 @@ tape.test('View', function (test) {
       .then(function () {
         return webdriver.url(
           'http://localhost:' + port + '/view/' +
-          /([a-f0-9]{64})/.exec(signEMail.text)[1]
+          /([a-f0-9]{64})/.exec(signEMail.html)[1]
         )
       })
       .waitForExist('.commonform', 20000)

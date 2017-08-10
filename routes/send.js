@@ -19,7 +19,6 @@ var pump = require('pump')
 var readCoupon = require('../data/read-coupon')
 var readEdition = require('../data/read-edition')
 var readRandom = require('read-random')
-var receiptMessage = require('../messages/receipt')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
@@ -598,13 +597,6 @@ function write (configuration, request, response, data, form) {
         function writeChargeFile (done) {
           mkdirpThenWriteFile(
             chargePath(configuration, data.sign), chargeID, done
-          )
-        },
-        function emailReceipt (done) {
-          email(
-            configuration,
-            receiptMessage(configuration, data),
-            done
           )
         }
       ], done)

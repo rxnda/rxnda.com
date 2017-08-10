@@ -28,7 +28,12 @@ if (process.env.NODE_ENV === 'test') {
     form.append('from', from)
     form.append('to', message.to)
     form.append('subject', message.subject)
-    form.append('text', message.text)
+    if (message.text) {
+      form.append('text', message.text)
+    }
+    if (message.html) {
+      form.append('html', message.html)
+    }
     if (message.docx) {
       form.append('attachment', message.docx.data, {
         filename: message.docx.name,

@@ -1,12 +1,12 @@
 var clone = require('../data/clone')
 var docx = require('commonform-docx')
 var ed25519 = require('ed25519')
-var formatEmail = require('../util/format-email')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
 var spell = require('reviewers-edition-spell')
 var stringify = require('json-stable-stringify')
 var xtend = require('xtend')
+var messageEMail = require('./message-email')
 
 module.exports = function (configuration, data) {
   var sender = data.send.signatures.sender
@@ -21,10 +21,13 @@ module.exports = function (configuration, data) {
     subject: (
       'Signed NDA between ' + senderName + ' and ' + recipientName
     ),
-    text: formatEmail(configuration, `
-Attached please find a couternsigned copy of the NDA 
-between ${senderName} and ${recipientName}.
-`.trim().replace(/ \n/g, ' ')),
+    html: messageEMail(
+      'Signed NDA',
+      [
+        `Attached please find a signed copy of the NDA ` +
+        `between ${senderName} and ${recipientName}.`
+      ]
+    ),
     docx: {
       data: makeDOCX(configuration, data),
       name: 'NDA.docx'
