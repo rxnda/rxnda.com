@@ -144,6 +144,10 @@ form .field {
   position: relative;
 }
 
+form .field label {
+  font-weight: bold;
+}
+
 .signature {
   font-family: "Brush Script", "Lucida Handwriting", "Apple Chancery", cursive;
   font-style: italic;
