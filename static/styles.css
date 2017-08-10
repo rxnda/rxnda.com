@@ -54,12 +54,12 @@ blockquote footer {
 }
 
 footer[role=contentinfo] {
+  border-top: 1px solid #777;
   font-size: 80%;
   margin-top: 3rem;
   padding-bottom: 3rem;
   padding-top: 0.5rem;
   text-align: right;
-  border-top: 1px solid #777;
 }
 
 /* Inline Elements */
@@ -236,7 +236,7 @@ dd {
 .commonform ol ol ol { list-style-type: upper-alpha; }
 .commonform ol ol ol { list-style-type: upper-roman; }
 
-.commonform dfn { font-weight: bold; font-style: normal; }
+.commonform dfn { font-style: normal; font-weight: bold; }
 .commonform dfn:before { content: '\201C'; font-weight: normal; }
 .commonform dfn:after { content: '\201D'; font-weight: normal; }
 .commonform .use { font-style: italic; }
@@ -261,12 +261,12 @@ dd {
 /* Q&A */
 
 .question:before,
-.question + *:before
+.question + p:before
 {
-  font-weight: normal;
   display: block;
-  position: absolute;
+  font-weight: normal;
   left: -1.5rem;
+  position: absolute;
 }
 
 
