@@ -8,6 +8,7 @@ var send = require('send')
 var routes = module.exports = require('http-hash')()
 
 routes.set('/', require('./homepage'))
+routes.set('/key', require('./key'))
 routes.set('/questions', require('./questions'))
 routes.set('/future', require('./future'))
 routes.set('/help', require('./help'))
