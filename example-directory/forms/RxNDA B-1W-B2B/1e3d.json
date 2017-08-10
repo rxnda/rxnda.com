@@ -1012,8 +1012,10 @@
       ],
       "label": "Purpose",
       "notes": [
-        "Describe the reason the parties will share confidential information.",
-        "For example, “discussing the purchase of business software”"
+        "Describe the reason the parties will share confidential information."
+      ],
+      "examples": [
+        "discussing the purchase of business software"
       ]
     },
     {
@@ -1029,8 +1031,11 @@
       ],
       "label": "State",
       "notes": [
-        "Name the state whose law will govern the NDA, and where the parties will commit to litigate.",
-        "For example, “California” or “New York”"
+        "Name the state whose law will govern the NDA, and where the parties will commit to litigate."
+      ],
+      "examples": [
+        "California",
+        "New York"
       ]
     }
   ],

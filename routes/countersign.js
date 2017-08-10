@@ -213,7 +213,7 @@ function recipientBlock (page, send, postData) {
         'signatures-recipient-company', 'Your Company Name',
         [
           'Enter the legal name of your company.',
-          'For example, “SomeCo, LLC”.',
+          'For example: “SomeCo, LLC”',
           'If you leave this blank, the recipient can fill it out.'
         ],
         send.company
@@ -222,7 +222,7 @@ function recipientBlock (page, send, postData) {
         'signatures-recipient-form', 'Your Company&rsquo;s Legal Form',
         [
           'Enter the legal form of your company.',
-          'For example, “limited liability company”.'
+          'For example: “limited liability company”'
         ],
         send.form
       ) +
@@ -232,7 +232,7 @@ function recipientBlock (page, send, postData) {
         [
           'Enter the legal jurisdiction under whose laws your ' +
           'company is formed.',
-          'For example, “Delaware”.'
+          'For example: “Delaware”'
         ],
         send.jurisdiction
       ) +
@@ -245,7 +245,7 @@ function recipientBlock (page, send, postData) {
       inputWithPrior(
         'signatures-recipient-title', 'Your Title', [
           'Enter your title at the company.',
-          'For example, “Chief Executive Officer”.'
+          'For example: “Chief Executive Officer”'
         ],
         send.title
       )
@@ -257,7 +257,7 @@ function recipientBlock (page, send, postData) {
         'signatures-recipient-name', 'Your Name',
         [
           'Enter your full legal name.',
-          'For example, “Jane Doe”.'
+          'For example: “Jane Doe”'
         ],
         send.name
      )

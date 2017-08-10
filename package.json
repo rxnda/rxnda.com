@@ -32,6 +32,7 @@
     "docx-content-type": "^1.0.0",
     "ecb": "^1.0.0",
     "ed25519": "0.0.4",
+    "english-list": "^1.0.0",
     "escape-string-regexp": "^1.0.5",
     "etag": "^1.8.0",
     "form-data": "^2.2.0",
