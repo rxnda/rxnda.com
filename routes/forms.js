@@ -135,47 +135,47 @@ ${nav()}
         <th rowspan=4>One-Way</th>
         <th rowspan=2>From Business</th>
         <th>To Business</th>
-        <td><a href=/forms/RxNDA_B-1W-B2B>B-1W-B2B</a></td>
-        <td><a href=/forms/RxNDA_N-1W-B2B>N-1W-B2B</a></td>
+        <td><a href=/forms/B-1W-B2B>B-1W-B2B</a></td>
+        <td><a href=/forms/N-1W-B2B>N-1W-B2B</a></td>
       </tr>
       <tr>
         <th>To Individual</th>
-        <td><a href=/forms/RxNDA_B-1W-B2I>B-1W-B2I</a></td>
-        <td><a href=/forms/RxNDA_N-1W-B2I>N-1W-B2I</a></td>
+        <td><a href=/forms/B-1W-B2I>B-1W-B2I</a></td>
+        <td><a href=/forms/N-1W-B2I>N-1W-B2I</a></td>
       </tr>
       <tr>
         <th rowspan=2>From Individual</th>
         <th>To Business</th>
-        <td><a href=/forms/RxNDA_B-1W-I2B>B-1W-I2B</a></td>
-        <td><a href=/forms/RxNDA_N-1W-I2B>N-1W-I2B</a></td>
+        <td><a href=/forms/B-1W-I2B>B-1W-I2B</a></td>
+        <td><a href=/forms/N-1W-I2B>N-1W-I2B</a></td>
       </tr>
       <tr>
         <th>To Individual</th>
-        <td><a href=/forms/RxNDA_B-1W-I2I>B-1W-I2I</a></td>
-        <td><a href=/forms/RxNDA_N-1W-I2I>N-1W-I2I</a></td>
+        <td><a href=/forms/B-1W-I2I>B-1W-I2I</a></td>
+        <td><a href=/forms/N-1W-I2I>N-1W-I2I</a></td>
       </tr>
       <tr>
         <th rowspan=4>Two-Way</th>
         <th rowspan=2>From Business</th>
         <th>To Business</th>
-        <td><a href=/forms/RxNDA_B-2W-B2B>B-2W-B2B</a></td>
-        <td><a href=/forms/RxNDA_N-2W-B2B>N-2W-B2B</a></td>
+        <td><a href=/forms/B-2W-B2B>B-2W-B2B</a></td>
+        <td><a href=/forms/N-2W-B2B>N-2W-B2B</a></td>
       </tr>
       <tr>
         <th>To Individual</th>
-        <td><a href=/forms/RxNDA_B-2W-B2I>B-2W-B2I</a></td>
-        <td><a href=/forms/RxNDA_N-2W-B2I>N-2W-B2I</a></td>
+        <td><a href=/forms/B-2W-B2I>B-2W-B2I</a></td>
+        <td><a href=/forms/N-2W-B2I>N-2W-B2I</a></td>
       </tr>
       <tr>
         <th rowspan=2>From Individual</th>
         <th>To Business</th>
-        <td><a href=/forms/RxNDA_B-2W-I2B>B-2W-I2B</a></td>
-        <td><a href=/forms/RxNDA_N-2W-I2B>N-2W-I2B</a></td>
+        <td><a href=/forms/B-2W-I2B>B-2W-I2B</a></td>
+        <td><a href=/forms/N-2W-I2B>N-2W-I2B</a></td>
       </tr>
       <tr>
         <th>To Individual</th>
-        <td><a href=/forms/RxNDA_B-2W-I2I>B-2W-I2I</a></td>
-        <td><a href=/forms/RxNDA_N-2W-I2I>N-2W-I2I</a></td>
+        <td><a href=/forms/B-2W-I2I>B-2W-I2I</a></td>
+        <td><a href=/forms/N-2W-I2I>N-2W-I2I</a></td>
       </tr>
     </tbody>
   </table>

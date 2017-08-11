@@ -175,7 +175,7 @@ tape.test('send without entity info', function (test) {
       .request({
         port: port,
         method: 'POST',
-        path: '/send/RxNDA_N-2W-B2B/1e3d',
+        path: '/send/N-2W-B2B/1e3d',
         headers: form.getHeaders()
       })
       .once('response', function (response) {
