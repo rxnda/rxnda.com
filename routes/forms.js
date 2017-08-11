@@ -11,6 +11,7 @@ var readEdition = require('../data/read-edition')
 var readEditions = require('../data/read-editions')
 var readTitles = require('../data/read-titles')
 var revedCompare = require('reviewers-edition-compare')
+var revedParse = require('reviewers-edition-parse')
 var runParallel = require('run-parallel')
 var sanitize = require('../util/sanitize-path-component')
 var spell = require('reviewers-edition-spell')
@@ -54,8 +55,16 @@ function listForms (configuration, request, response) {
             readEditions(
               configuration, sanitize(title),
               ecb(done, function (editions) {
-                editions = editions.sort(revedCompare)
-                var latestEdition = editions[0]
+                var listOfEditions = editions
+                  .filter(function (edition) {
+                    return !revedParse(edition).draft
+                  })
+                if (listOfEditions.length === 0) {
+                  listOfEditions = editions
+                }
+                listOfEditions.sort(revedCompare)
+                listOfEditions.reverse()
+                var latestEdition = listOfEditions[0]
                 readEdition(
                   configuration, title, latestEdition,
                   ecb(done, function (latest) {
@@ -203,13 +212,23 @@ function listEditions (configuration, request, response) {
         ])
       } else {
         var list = ''
+        var listOfEditions = editions
+          .filter(function (edition) {
+            return !revedParse(edition).draft
+          })
+        if (listOfEditions.length === 0) {
+          listOfEditions = editions
+        }
         runParallel(
-          editions.map(function (edition) {
-            return function (done) {
-              readEdition(
-                configuration, title, edition,
-                ecb(done, function (data) {
-                  list += `
+          listOfEditions
+            .sort(revedCompare)
+            .reverse()
+            .map(function (edition) {
+              return function (done) {
+                readEdition(
+                  configuration, title, edition,
+                  ecb(done, function (data) {
+                    list += `
 <li>
   <h3>${escape(title)}</h3>
   <p class=edition>${escape(spell(edition))}</p>
@@ -231,11 +250,11 @@ function listEditions (configuration, request, response) {
       >Sign and Send</a>
   </p>
 </li>`
-                  done()
-                })
-              )
-            }
-          }),
+                    done()
+                  })
+                )
+              }
+            }),
           fail(function () {
             response.setHeader(
               'Content-Type', 'text/html; charset=ASCII'
