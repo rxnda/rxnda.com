@@ -54,9 +54,7 @@ function listForms (configuration, request, response) {
             readEditions(
               configuration, sanitize(title),
               ecb(done, function (editions) {
-                editions = editions
-                  .sort(revedCompare)
-                  .reverse()
+                editions = editions.sort(revedCompare)
                 var latestEdition = editions[0]
                 readEdition(
                   configuration, title, latestEdition,
