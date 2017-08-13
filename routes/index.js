@@ -43,7 +43,15 @@ staticFile('countersign.js')
 staticFile('cancel.js')
 staticFile('normalize.css')
 staticFile('styles.css')
-routes.set('/robots.txt', etagged('text/plain', 'User-Agent: *\nDisallow: /'))
+routes.set('/robots.txt', etagged(
+  'text/plain',
+  [
+    'User-Agent: *',
+    'Disallow: /cancel/',
+    'Disallow: /countersign/',
+    'Disallow: /view/'
+  ].join('\n')
+))
 
 function staticFile (file) {
   var filePath = path.join(__dirname, '..', 'static', file)
