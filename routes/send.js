@@ -339,7 +339,8 @@ function recipientBlock (signature) {
         'signatures-recipient-form', 'Their Company’s Legal Form',
         [
           'Enter the legal form of their company.',
-          'For example: “limited liability company”'
+          'For example: “limited liability company”',
+          'If you leave this blank, the recipient can fill it out.'
         ]
       ) +
       input(
@@ -348,7 +349,8 @@ function recipientBlock (signature) {
         [
           'Enter the legal jurisdiction under whose laws their ' +
           'company is formed.',
-          'For example: “Delaware”'
+          'For example: “Delaware”',
+          'If you leave this blank, the recipient can fill it out.'
         ]
       ) +
       input(
