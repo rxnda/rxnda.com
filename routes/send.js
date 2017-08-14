@@ -434,6 +434,7 @@ function byline (postData) {
     class=signature
     name=signatures-sender-signature
     type=text
+    autocomplete=off
     required>
   <p class=description>
     To sign the form, enter your name again, exactly as you did before.

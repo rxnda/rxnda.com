@@ -354,6 +354,7 @@ function byline (recipient, postData) {
       recipient.name &&
       `pattern="${escape(escapeStringRegexp(recipient.name))}"`
     }
+    autocomplete=off
     required>
   <p class=description>
     To sign the form, enter your name, exactly as above.
