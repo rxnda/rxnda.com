@@ -163,7 +163,7 @@ ${banner()}
       </section>
       <section class=yourSignature>
         <h4>Your Signature</h4>
-        ${recipientBlock(send.form.signatures[1], recipient)}
+        ${recipientBlock(send.form.signatures[1], recipient, postData)}
         ${byline(recipient, postData)}
         ${
           send.form.signatures[1].information
@@ -205,7 +205,7 @@ ${banner()}
 ${footer('sign')}`)
 }
 
-function recipientBlock (page, send, postData) {
+function recipientBlock (page, recipient, postData) {
   if (Array.isArray(page.entities)) {
     // Entity Signatory
     return (
@@ -216,15 +216,15 @@ function recipientBlock (page, send, postData) {
           'For example: “SomeCo, LLC”',
           'If you leave this blank, the recipient can fill it out.'
         ],
-        send.company
+        recipient.company
       ) +
       inputWithPrior(
-        'signatures-recipient-form', 'Your Company&rsquo;s Legal Form',
+        'signatures-recipient-form', 'Your Company’s Legal Form',
         [
           'Enter the legal form of your company.',
           'For example: “limited liability company”'
         ],
-        send.form
+        recipient.form
       ) +
       inputWithPrior(
         'signatures-recipient-jurisdiction',
@@ -234,20 +234,20 @@ function recipientBlock (page, send, postData) {
           'company is formed.',
           'For example: “Delaware”'
         ],
-        send.jurisdiction
+        recipient.jurisdiction
       ) +
       inputWithPrior(
         'signatures-recipient-name', 'Your Name', [
           'Enter your name.'
         ],
-        send.name
+        recipient.name
       ) +
       inputWithPrior(
         'signatures-recipient-title', 'Your Title', [
           'Enter your title at the company.',
           'For example: “Chief Executive Officer”'
         ],
-        send.title
+        recipient.title
       )
     )
   } else {
@@ -259,7 +259,7 @@ function recipientBlock (page, send, postData) {
           'Enter your full legal name.',
           'For example: “Jane Doe”'
         ],
-        send.name
+        recipient.name
      )
     )
   }
@@ -272,7 +272,7 @@ function recipientBlock (page, send, postData) {
         errorsFor(name, postData)
       )
     } else {
-      return input(name, label, notes)
+      return input(name, label, notes, value)
     }
   }
 }
@@ -297,7 +297,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
 </section>`
   } else {
     if (name.endsWith('address')) {
-      return `
+      return html`
 <section class=field>
   <label>${label}</label>
   ${asterisk()}
@@ -309,7 +309,7 @@ function input (name, label, notes, sendValue, postValue, errors) {
   >${escape(postValue || '')}</textarea>
 </section>`
     } else {
-      return `
+      return html`
 <section class=field>
   <label>${label}</label>
   ${asterisk()}
