@@ -7,7 +7,7 @@ module.exports = function (configuration, data) {
   var recipient = data.signatures.recipient
   var domain = configuration.domain
   return {
-    to: sender.email,
+    to: recipient.email,
     subject: 'NDA from ' + senderName,
     html: htmlEMail(
       'NDA from ' + senderName,
