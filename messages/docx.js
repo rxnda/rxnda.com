@@ -86,7 +86,7 @@ function makeDOCX (configuration, data) {
         prefilledSignaturePage(
           configuration,
           form.signatures[0],
-          xtend(send.signatures.sender, {eate: send.timestamp})
+          xtend(send.signatures.sender, {date: send.timestamp})
         ),
         // Recipient Page
         prefilledSignaturePage(
