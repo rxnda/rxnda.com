@@ -16,6 +16,7 @@ ${nav()}
     <li><a href=#everyone>For Everyone</a></li>
     <li><a href=#lawyers>For Lawyers</a></li>
     <li><a href=#businessfolk>For Businessfolk</a></li>
+    <li><a href=#techs>For Technical Experts</a></li>
   </ol>
 
   <p>
@@ -180,6 +181,36 @@ ${nav()}
     advises you that a particular edition of a particular
     form meets a particular kind of need, and that you
     can use it repeatedly in that kind of situation.
+  </p>
+
+  <h3 id=techs>For Technical Experts</h3>
+
+  <h4 class=question>
+    What kind of electronic signatures appear on signature pages?
+  </h4>
+  <p>
+    rxnda.com signs signature page data, along with the 
+    <a href=https://commonform.github.io>Common Form</a>
+    hash of the form, using
+    <a href=https://en.wikipedia.org/wiki/EdDSA>Ed25519</a>.
+    The server&rsquo;s public key is <a href=/key>available here</a>.
+  </p>
+
+  <h4 class=question>
+    What are the codes at the top of .docx copies of forms?
+  </h4>
+  <p>
+    <a href=https://en.wikipedia.org/wiki/SHA-2>SHA-256</a>
+    cryptographic hashes of the Common Form data encoding of
+    the form text.
+    See the
+    <a href=https://www.npmjs.com/package/commonform-hash
+      >commonform-hash</a>
+    and
+    <a href=https://www.npmjs.com/package/commonform-validate
+      >commonform-validate</a>
+    software packages.
+    Both are open source.
   </p>
 </main>
 ${footer()}`)
