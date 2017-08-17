@@ -15,7 +15,7 @@ module.exports = function (configuration, data) {
     subject: 'Your ' + domain + ' Cancellation Link',
     html: htmlEMail(
       'Your ' + domain + ' Cancellation Link',
-      'Cancel NDA offer to ' + recipientName + ' online.',
+      'Cancel Offer ' + recipientName + ' Online',
       [
         `You offered to sign a nondisclosure agreement ` +
         `${sender.company ? ('on behalf of' + sender.company) : ''} ` +

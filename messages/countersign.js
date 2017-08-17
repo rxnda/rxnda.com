@@ -19,7 +19,7 @@ module.exports = function (configuration, data) {
         `nondisclosure agreements.`
       ],
       `https://${domain}/countersign/${data.sign}`,
-      'Review the Offer Online',
+      'Review Offer Online',
       [
         'Keep this link safe and secure. ' +
         'It is your digital key to review and sign the NDA.',
