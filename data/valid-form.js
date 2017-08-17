@@ -15,10 +15,10 @@ module.exports = function validForm (argument) {
     revedParse(argument.edition) !== false &&
     // Release Date
     !isNaN(Date.parse(argument.released)) && // valid RFC3339/ISO8601
-    // Description
-    Array.isArray(argument.description) &&
-    argument.description.length !== 0 &&
-    argument.description.every(function (element) {
+    // Notes
+    Array.isArray(argument.notes) &&
+    argument.notes.length !== 0 &&
+    argument.notes.every(function (element) {
       return isString(element)
     }) &&
     // Repository

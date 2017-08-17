@@ -72,7 +72,7 @@ function listForms (configuration, request, response) {
                     list += `
 <li>
   <h3>${escape(title)}</h3>
-  ${paragraphs(latest.description)}
+  ${paragraphs(latest.notes)}
   <p>
     <a href=/send/${escape(encoded)}/${escape(latestEdition)}
       >Sign &amp; send the latest edition online.</a>
@@ -236,7 +236,7 @@ function listEditions (configuration, request, response) {
     Published ${escape(longDate(new Date(data.published)))}
   </p>
   ${draftWarning(edition)}
-  ${paragraphs(data.description)}
+  ${paragraphs(data.notes)}
   <p>
     <a href=/docx/${escape(encodeTitle(title))}/${escape(edition)}
       >Download .docx for Microsoft Word</a>

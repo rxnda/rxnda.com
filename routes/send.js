@@ -124,7 +124,7 @@ ${nav()}
 
     ${draftWarning(edition.edition)}
 
-    ${paragraphs(edition.description)}
+    ${paragraphs(edition.notes)}
 
     <p>
       <a href=${escape(read)} target=_blank
