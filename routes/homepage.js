@@ -21,25 +21,16 @@ ${nav()}
   </p>
   <ol>
     <li>
-      <a href=/send>Visit the form picker</a>.  Answer a
-      few questions about your needs and click the big button
-      to find your form.  Have your lawyer review it to
-      make sure it meets your needs.
+      <a href=/send>Pick a standard form</a>.
     </li>
     <li>
-      Fill in any blanks on the form, the details for your
-      signature, and at least an e-mail address for the
-      other side.  Type your name again, in a special box,
-      to sign.  Enter your credit card info and click
-      the big button.
+      Fill in the blanks, sign, and send online.
     </li>
     <li>
-      The site will e-mail the other side a link
-      to countersign or decline, and you a link to
-      cancel. If they countersign within seven days, RxNDA
-      charges your card and e-mails everybody a complete
-      Word <code>.docx</code> copy of the agreement.
-      RxNDA deletes its record of the offer.
+      RxNDA e-mails the other side a link to countersign online.
+      Once they&rsquo;ve signed, RxNDA charges your credit card,
+      e-mails everyone a fully signed copy, and deletes its records
+      of your transaction.
     </li>
   </ol>
   <p>
@@ -49,7 +40,7 @@ ${nav()}
     and expired offers, too.
   </p>
   <p>
-    For more information, see 
+    For more information, see
     <a href=/questions>Questions &amp; Answers</a>.
   </p>
 </main>
