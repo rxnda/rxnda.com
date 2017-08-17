@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'test') {
   var events = new EventEmitter()
   module.exports = function (configuration, message, callback) {
     var log = configuration.log.child({subsystem: 'email'})
-    log.info(elide(message, 'docx'))
+    log.info(elide(message, 'docx', 'pdf', 'ics'))
     events.emit('message', message)
     callback()
   }
@@ -23,7 +23,7 @@ if (process.env.NODE_ENV === 'test') {
     var key = configuration.email.key
     var from = configuration.email.sender + '@' + domain
     var log = configuration.log.child({subsystem: 'email'})
-    log.info(elide(message, 'docx'))
+    log.info(elide(message, 'docx', 'pdf', 'ics'))
     var form = new FormData()
     form.append('from', from)
     form.append('to', message.to)
@@ -39,6 +39,13 @@ if (process.env.NODE_ENV === 'test') {
         filename: message.docx.name,
         contentType: DOCX,
         knownLength: message.docx.data.length
+      })
+    }
+    if (message.pdf) {
+      form.append('attachment', message.pdf.data, {
+        filename: message.pdf.name,
+        contentType: 'application/pdf',
+        knownLength: message.pdf.data.length
       })
     }
     if (message.ics) {

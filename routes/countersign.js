@@ -414,11 +414,10 @@ function write (configuration, request, response, data) {
   var directory = configuration.directory
   runSeries([
     function emailDOCX (done) {
-      email(
-        configuration,
-        docxMessage(configuration, data),
-        done
-      )
+      docxMessage(configuration, data, ecb(done, function (message) {
+        request.log.info('generated message')
+        email(configuration, message, done)
+      }))
     },
     function rmFiles (done) {
       runSeries([

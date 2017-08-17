@@ -1,18 +1,24 @@
 var anniversary = require('anniversary')
+var spawn = require('child_process').spawn
 var clone = require('../data/clone')
 var docx = require('commonform-docx')
+var ecb = require('ecb')
 var ed25519 = require('ed25519')
+var fs = require('fs')
 var hash = require('commonform-hash')
 var icalDate = require('../util/ical-date')
 var messageEMail = require('./message-email')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
+var path = require('path')
+var rimraf = require('rimraf')
+var runSeries = require('run-series')
 var spell = require('reviewers-edition-spell')
 var stringify = require('json-stable-stringify')
 var uuid = require('uuid')
 var xtend = require('xtend')
 
-module.exports = function (configuration, data) {
+module.exports = function (configuration, data, callback) {
   var sender = data.send.signatures.sender
   var recipient = xtend(
     data.send.signatures.recipient,
@@ -21,7 +27,7 @@ module.exports = function (configuration, data) {
   var senderName = sender.company || sender.name
   var recipientName = recipient.company || recipient.name
   var expirationDate = anniversary(new Date(data.countersign.date))
-  return {
+  var message = {
     to: sender.email + ',' + recipient.email,
     subject: (
       'Signed NDA between ' + senderName + ' and ' + recipientName
@@ -56,7 +62,8 @@ module.exports = function (configuration, data) {
       'BEGIN:VALARM',
       'ACTION:EMAIL',
       'TRIGGER:-P30D',
-      'DESCRIPTION:Consider renewing the NDA before it expires in thirty days.',
+      'DESCRIPTION:' +
+      'Consider renewing the NDA before it expires in thirty days.',
       'SUMMARY:Expiration of NDA between Alice Sender and Bob',
       'ATTENDEE:mailto:' + sender.email,
       'ATTENDEE:mailto:' + recipient.email,
@@ -65,6 +72,16 @@ module.exports = function (configuration, data) {
       'END:VCALENDAR'
     ].join('\n'))
   }
+  convertToPDF(
+    configuration, message.docx.data,
+    ecb(callback, function (pdfBuffer) {
+      message.pdf = {
+        data: pdfBuffer,
+        name: 'NDA.pdf'
+      }
+      callback(null, message)
+    })
+  )
 }
 
 function makeDOCX (configuration, data) {
@@ -133,4 +150,42 @@ function prefilledSignaturePage (configuration, hash, page, data) {
       return object
     }, {})
   return returned
+}
+
+function convertToPDF (configuration, docx, callback) {
+  var pdfBuffer, temporaryDirectory, docxFile
+  runSeries([
+    function createTemporaryDirectory (done) {
+      fs.mkdtemp('/tmp/unoconv-', ecb(done, function (path) {
+        temporaryDirectory = path
+        done()
+      }))
+    },
+    function writeDOCXToDisk (done) {
+      docxFile = path.join(temporaryDirectory, 'NDA.docx')
+      fs.writeFile(docxFile, docx, done)
+    },
+    function runUnoconv (done) {
+      var child = spawn('unoconv', [docxFile])
+      child.once('close', function (code) {
+        if (code === 0) {
+          done()
+        } else if (code === 1) {
+          done(new Error('unoconv failed with status ' + code))
+        }
+      })
+    },
+    function readPDF (done) {
+      var pdfFile = path.join(temporaryDirectory, 'NDA.pdf')
+      fs.readFile(pdfFile, ecb(done, function (buffer) {
+        pdfBuffer = buffer
+        done()
+      }))
+    },
+    function cleanUp (done) {
+      rimraf(temporaryDirectory, done)
+    }
+  ], ecb(callback, function () {
+    callback(null, pdfBuffer)
+  }))
 }
