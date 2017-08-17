@@ -2,6 +2,7 @@ var anniversary = require('anniversary')
 var clone = require('../data/clone')
 var docx = require('commonform-docx')
 var ed25519 = require('ed25519')
+var hash = require('commonform-hash')
 var icalDate = require('../util/ical-date')
 var messageEMail = require('./message-email')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
@@ -70,6 +71,7 @@ function makeDOCX (configuration, data) {
   var send = data.send
   var countersign = data.countersign
   var form = data.send.form
+  var formHash = hash(form.commonform)
   var zip = docx(
     form.commonform,
     send.directions,
@@ -85,12 +87,14 @@ function makeDOCX (configuration, data) {
         // Sender Page
         prefilledSignaturePage(
           configuration,
+          formHash,
           form.signatures[0],
           xtend(send.signatures.sender, {date: send.timestamp})
         ),
         // Recipient Page
         prefilledSignaturePage(
           configuration,
+          formHash,
           form.signatures[1],
           xtend(send.signatures.recipient, countersign)
         )
@@ -100,15 +104,16 @@ function makeDOCX (configuration, data) {
   return zip.generate({type: 'nodebuffer'})
 }
 
-function prefilledSignaturePage (configuration, page, data) {
+function prefilledSignaturePage (configuration, hash, page, data) {
   var returned = clone(page)
   returned.name = data.name
   returned.meta = (
-    'Signed via rxnda.com. Ed25519:\n' +
+    'rxnda.com signature code:\n' +
     ed25519.Sign(
-      Buffer.from(stringify(data), 'utf8'),
+      Buffer.from(stringify(xtend(data, {hash: hash})), 'utf8'),
       configuration.keys.private
-    ).toString('hex')
+    ).toString('hex') + '\n' +
+    'Verify online at https://rxnda.com/verify.'
   )
   if (returned.entities) {
     returned.entities = [
