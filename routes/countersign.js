@@ -202,7 +202,7 @@ ${banner()}
     <input id=submitButton type=submit value='Countersign' >
   </form>
 </main>
-${footer('sign')}`)
+${footer('countersign')}`)
 }
 
 function recipientBlock (page, recipient, postData) {
