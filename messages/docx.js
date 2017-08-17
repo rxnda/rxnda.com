@@ -1,12 +1,15 @@
+var anniversary = require('anniversary')
 var clone = require('../data/clone')
 var docx = require('commonform-docx')
 var ed25519 = require('ed25519')
+var icalDate = require('../util/ical-date')
+var messageEMail = require('./message-email')
 var ooxmlSignaturePages = require('ooxml-signature-pages')
 var outlineNumbering = require('outline-numbering')
 var spell = require('reviewers-edition-spell')
 var stringify = require('json-stable-stringify')
+var uuid = require('uuid')
 var xtend = require('xtend')
-var messageEMail = require('./message-email')
 
 module.exports = function (configuration, data) {
   var sender = data.send.signatures.sender
@@ -16,6 +19,7 @@ module.exports = function (configuration, data) {
   )
   var senderName = sender.company || sender.name
   var recipientName = recipient.company || recipient.name
+  var expirationDate = anniversary(new Date(data.countersign.date))
   return {
     to: sender.email + ',' + recipient.email,
     subject: (
@@ -31,7 +35,34 @@ module.exports = function (configuration, data) {
     docx: {
       data: makeDOCX(configuration, data),
       name: 'NDA.docx'
-    }
+    },
+    // TODO: Add manifest flag for NDAs that don't expire in one year.
+    ics: Buffer.from([
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      'UID:' + uuid(),
+      'DTSTAMP:' + icalDate(new Date()),
+      'DTSTART:' + icalDate(expirationDate),
+      'DTEND:' + icalDate(expirationDate),
+      'SUMMARY:Expiration of NDA between ' +
+      senderName + ' and ' + recipientName,
+      'DESCRIPTION:Consider renewing the NDA before it expires.',
+      'STATUS:confirmed',
+      'ATTENDEE;CN=' + senderName + ':mailto:' + sender.email,
+      'ATTENDEE;CN=' + recipientName + ':mailto:' + recipient.email,
+      'BEGIN:VALARM',
+      'ACTION:EMAIL',
+      'TRIGGER:-P30D',
+      'DESCRIPTION:Consider renewing the NDA before it expires in thirty days.',
+      'SUMMARY:Expiration of NDA between Alice Sender and Bob',
+      'ATTENDEE:mailto:' + sender.email,
+      'ATTENDEE:mailto:' + recipient.email,
+      'END:VALARM',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\n'))
   }
 }
 
@@ -55,7 +86,7 @@ function makeDOCX (configuration, data) {
         prefilledSignaturePage(
           configuration,
           form.signatures[0],
-          xtend(send.signatures.sender, {date: send.timestamp})
+          xtend(send.signatures.sender, {eate: send.timestamp})
         ),
         // Recipient Page
         prefilledSignaturePage(

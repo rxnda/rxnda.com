@@ -41,6 +41,13 @@ if (process.env.NODE_ENV === 'test') {
         knownLength: message.docx.data.length
       })
     }
+    if (message.ics) {
+      form.append('attachment', message.ics, {
+        filename: 'expiration.ics',
+        contentType: 'text/calendar',
+        knownLength: message.ics.length
+      })
+    }
     pump(form, https.request({
       method: 'POST',
       host: 'api.mailgun.net',
