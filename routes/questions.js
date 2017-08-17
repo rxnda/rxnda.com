@@ -189,7 +189,7 @@ ${nav()}
     What kind of electronic signatures appear on signature pages?
   </h4>
   <p>
-    rxnda.com signs signature page data, along with the 
+    rxnda.com signs signature page data, along with the
     <a href=https://commonform.github.io>Common Form</a>
     hash of the form, using
     <a href=https://en.wikipedia.org/wiki/EdDSA>Ed25519</a>.
