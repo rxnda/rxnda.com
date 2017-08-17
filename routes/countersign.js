@@ -188,7 +188,7 @@ ${banner()}
           <ol>
             <li>
               ${escape(send.address)} will e-mail both you and the other
-              side, attaching a fully-signed Word copy of the NDA.
+              side, attaching a fully-signed copy of the NDA.
             </li>
             <li>
               ${escape(configuration.domain)} will charge the sender.
@@ -503,7 +503,7 @@ ${nav()}
     ${spell(form.edition)}.
   </p>
   <p>
-    You will receive a fully-signed Word copy by e-mail
+    You will receive a fully-signed copy by e-mail
     from ${escape(data.address)} shortly.
   </p>
 </main>

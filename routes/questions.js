@@ -197,7 +197,7 @@ ${nav()}
   </p>
 
   <h4 class=question>
-    What are the codes at the top of .docx copies of forms?
+    What are the codes at the top of the contracts?
   </h4>
   <p>
     <a href=https://en.wikipedia.org/wiki/SHA-2>SHA-256</a>
