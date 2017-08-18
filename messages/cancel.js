@@ -1,5 +1,5 @@
 var customerServiceCode = require('../util/customer-service-code')
-var htmlEMail = require('./action-email')
+var actionEMail = require('./action-email')
 var spell = require('reviewers-edition-spell')
 
 module.exports = function (configuration, data) {
@@ -13,12 +13,12 @@ module.exports = function (configuration, data) {
   return {
     to: sender.email,
     subject: 'Your ' + domain + ' Cancellation Link',
-    html: htmlEMail(
+    html: actionEMail(
       'Your ' + domain + ' Cancellation Link',
       'Cancel Offer ' + recipientName + ' Online',
       [
         `You offered to sign a nondisclosure agreement ` +
-        `${sender.company ? ('on behalf of' + sender.company) : ''} ` +
+        `${sender.company ? ('on behalf of ' + sender.company) : ''} ` +
         `with ${recipientName} on the terms of ${domain}'s  ` +
         `${form.title} form agreement, ${spell(form.edition)}.`
       ],

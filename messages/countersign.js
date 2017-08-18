@@ -1,5 +1,5 @@
 var customerServiceCode = require('../util/customer-service-code')
-var htmlEMail = require('./action-email')
+var actionEMail = require('./action-email')
 
 module.exports = function (configuration, data) {
   var sender = data.signatures.sender
@@ -9,7 +9,7 @@ module.exports = function (configuration, data) {
   return {
     to: recipient.email,
     subject: 'NDA from ' + senderName,
-    html: htmlEMail(
+    html: actionEMail(
       'NDA from ' + senderName,
       'Countersign an NDA from ' + senderName + ' online.',
       [
