@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === 'test') {
     form.append('from', from)
     form.append('to', message.to)
     form.append('subject', message.subject)
+    form.append('o:dkim', 'yes')
     if (message.text) {
       form.append('text', message.text)
     }
