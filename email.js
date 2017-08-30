@@ -29,6 +29,7 @@ if (process.env.NODE_ENV === 'test') {
     form.append('to', message.to)
     form.append('subject', message.subject)
     form.append('o:dkim', 'yes')
+    form.append('o:require-tls', 'yes')
     if (message.text) {
       form.append('text', message.text)
     }
