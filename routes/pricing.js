@@ -15,18 +15,24 @@ ${banner()}
 ${nav()}
 <main>
   <p class=bigPrice><span class=use-price></span></p>
+  <p class=bigPrice>
+    $${configuration.prices.use.toString()}
+  </p>
   <p>
     Successfully cosigning an NDA costs
-    ${configuration.prices.use.toString()} United States Dollars,
+    ${configuration.prices.use.toString()}
+    United States Dollars,
     charged when the other side countersigns.
     You must use a credit card to pay.
   </p>
   <p>
-    Sending an NDA that the other side does not countersign costs
-    nothing.
+    Sending an NDA that&rsquo;s not countersigned costs nothing.
   </p>
   <p>
-    Sending an NDA that you or the other side cancels costs nothing.
+    Sending an NDA that you cancel costs nothing.
+  </p>
+  <p>
+    Sending an NDA that the other side rejects costs nothing.
   </p>
 </main>
 ${footer()}`)

@@ -200,7 +200,7 @@ dd {
 
 .bigPrice {
   font-size: 400%;
-  margin: 0;
+  margin: 1rem;
   padding: 0;
   text-align: center;
 }
