@@ -60,6 +60,7 @@
     "signature-page-schema": "^1.0.1",
     "stripe": "^4.23.1",
     "uuid": "^3.1.0",
+    "validate-california-attorney-email": "github:kemitchell/validate-california-attorney-email.js",
     "w3-is-email": "0.0.1",
     "word-wrap": "^1.2.3",
     "wordwrap": "^1.0.0",

@@ -17,9 +17,9 @@ var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
 var path = require('path')
 var pump = require('pump')
+var randomCapability = require('../data/random-capability')
 var readCoupon = require('../data/read-coupon')
 var readEdition = require('../data/read-edition')
-var readRandom = require('read-random')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
@@ -673,12 +673,6 @@ ${footer()}`)
       }
     ], callback)
   }
-}
-
-function randomCapability (callback) {
-  readRandom(32, ecb(callback, function (bytes) {
-    callback(null, bytes.toString('hex'))
-  }))
 }
 
 function errorsFor (name, postData) {
