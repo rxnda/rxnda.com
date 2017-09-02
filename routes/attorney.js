@@ -24,6 +24,8 @@ var nav = require('../partials/nav')
 var paragraphs = require('../partials/paragraphs')
 var preamble = require('../partials/preamble')
 
+// TODO: sweep old attorney files
+
 module.exports = function forms (configuration, request, response) {
   var method = request.method
   if (method === 'GET' || method === 'POST') {
