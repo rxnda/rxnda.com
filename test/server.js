@@ -40,7 +40,11 @@ module.exports = function (test) {
       directory: directory,
       log: pino(fs.createWriteStream('test-server.log')),
       prices: {
-        use: 10
+        use: 10,
+        prescribe: 20
+      },
+      terms: {
+        prescription: 180
       },
       domain: 'rxnda.com',
       stripe: {

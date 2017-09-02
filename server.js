@@ -17,7 +17,17 @@ var configuration = {
     : path.join(process.cwd(), 'rxnda'),
   port: ENV.PORT ? parseInt(ENV.PORT) : 8080,
   prices: {
-    use: ENV.USE_PRICE ? parseInt(ENV.USE_PRICE) : 10
+    use: ENV.USE_PRICE
+      ? parseInt(ENV.USE_PRICE)
+      : 10,
+    prescribe: ENV.PRESCRIBE_PRICE
+      ? parseInt(ENV.PRESCRIBE_PRICE)
+      : 20
+  },
+  terms: {
+    prescription: ENV.PRESCRIPTION_TERM
+      ? parseInt(ENV.PRESCRIPTION_TERM)
+      : 180
   },
   log: log,
   stripe: {

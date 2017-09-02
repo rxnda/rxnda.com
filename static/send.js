@@ -2,9 +2,9 @@
 document.addEventListener('DOMContentLoaded', function () {
   // Add an event handler to validate the signature <input>.
   var name = document.getElementById('name')
-  document
-    .getElementById('signature')
-    .addEventListener('change', function (event) {
+  var signature = document.getElementById('signature')
+  if (signature) {
+    signature.addEventListener('change', function (event) {
       if (name.value === this.value) {
         this.setCustomValidity('')
       } else {
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         )
       }
     })
+  }
   var form = document.forms[0]
   if (document.getElementById('card')) {
     var stripe = window.Stripe(STRIPE_PUBLIC_KEY)
