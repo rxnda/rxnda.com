@@ -555,38 +555,6 @@ function write (configuration, request, response, data, form) {
         capabilityToProperty(data, 'sign')
       ], done)
     },
-    function writeFiles (done) {
-      runParallel([
-        function writeCancelFile (done) {
-          mkdirpThenWriteFile(
-            cancelPath(configuration, data.cancel), data.sign, done
-          )
-        },
-        function writeSignFile (done) {
-          mkdirpThenWriteFile(
-            signPath(configuration, data.sign), data, done
-          )
-        }
-      ], done)
-    },
-    function sendEmails (done) {
-      runSeries([
-        function emailCancelLink (done) {
-          email(
-            configuration,
-            cancelMessage(configuration, data),
-            done
-          )
-        },
-        function emailSignLink (done) {
-          email(
-            configuration,
-            countersignMessage(configuration, data),
-            done
-          )
-        }
-      ], done)
-    },
     function handlePayment (done) {
       var chargeID = null
       runSeries([
@@ -622,6 +590,38 @@ function write (configuration, request, response, data, form) {
         function writeChargeFile (done) {
           mkdirpThenWriteFile(
             chargePath(configuration, data.sign), chargeID, done
+          )
+        }
+      ], done)
+    },
+    function writeFiles (done) {
+      runParallel([
+        function writeCancelFile (done) {
+          mkdirpThenWriteFile(
+            cancelPath(configuration, data.cancel), data.sign, done
+          )
+        },
+        function writeSignFile (done) {
+          mkdirpThenWriteFile(
+            signPath(configuration, data.sign), data, done
+          )
+        }
+      ], done)
+    },
+    function sendEmails (done) {
+      runSeries([
+        function emailCancelLink (done) {
+          email(
+            configuration,
+            cancelMessage(configuration, data),
+            done
+          )
+        },
+        function emailSignLink (done) {
+          email(
+            configuration,
+            countersignMessage(configuration, data),
+            done
           )
         }
       ], done)

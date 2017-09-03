@@ -492,6 +492,12 @@ function write (
     fill: configuration.prices.fill
   }
   runSeries([
+    function generateCapabilities (done) {
+      runParallel([
+        capabilityToProperty(data, 'fill'),
+        capabilityToProperty(data, 'revoke')
+      ], done)
+    },
     function createCharge (done) {
       stripe(configuration.stripe.private).charges.create({
         amount: data.prices.prescribe * 100, // dollars to cents
@@ -503,12 +509,6 @@ function write (
         request.log.info({charge: charge.id})
         done()
       })
-    },
-    function generateCapabilities (done) {
-      runParallel([
-        capabilityToProperty(data, 'fill'),
-        capabilityToProperty(data, 'revoke')
-      ], done)
     },
     function writeFiles (done) {
       runParallel([
