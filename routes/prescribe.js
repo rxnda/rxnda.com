@@ -7,7 +7,7 @@ var email = require('../email')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
 var fillMessage = require('../messages/fill')
-var fillPath = require('../data/fill-path')
+var prescriptionPath = require('../data/prescription-path')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var list = require('english-list')
@@ -439,7 +439,7 @@ function post (configuration, request, response, form, attorney) {
           } else if (name === 'notes') {
             data.notes = value
           } else if (name === 'expiration') {
-            data.expiration = value
+            data.expiration = parseInt(value)
           } else if (name === 'terms') {
             data.terms = value
           }
@@ -519,7 +519,7 @@ function write (
         },
         function writeFillFile (done) {
           mkdirpThenWriteFile(
-            fillPath(configuration, data.fill), data, done
+            prescriptionPath(configuration, data.fill), data, done
           )
         }
       ], done)

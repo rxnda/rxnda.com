@@ -2,7 +2,7 @@ var ecb = require('ecb')
 var email = require('../email')
 var escape = require('../util/escape')
 var expired = require('../data/expired')
-var fillPath = require('../data/fill-path')
+var prescriptionPath = require('../data/prescription-path')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var notFound = require('./not-found')
@@ -32,9 +32,9 @@ module.exports = function revoke (configuration, request, response) {
         done()
       }))
     },
-    function readFillFile (done) {
-      var fillFile = fillPath(configuration, fillCapability)
-      readJSONFile(fillFile, ecb(done, function (parsed) {
+    function readPrescriptionFile (done) {
+      var prescriptionFile = prescriptionPath(configuration, fillCapability)
+      readJSONFile(prescriptionFile, ecb(done, function (parsed) {
         data = parsed
         done()
       }))
@@ -87,7 +87,7 @@ ${banner()}
       prescribed ${form.title}, ${spell(form.edition)},
       for use by
       ${escape(sender.company || sender.name)}
-      on ${escape(data.timestamp)}.
+      on ${escape(new Date(data.timestamp).toLocaleDateString())}.
     </p>
     <input
         id=submitButton
@@ -102,8 +102,8 @@ function post (configuration, request, response, data) {
   runSeries([
     function rmFiles (done) {
       runSeries([
-        function rmFillFile (done) {
-          fs.unlink(fillPath(configuration, data.fill), done)
+        function rmPrescriptionFile (done) {
+          fs.unlink(prescriptionPath(configuration, data.fill), done)
         },
         continueOnError(function rmRevokeFile (done) {
           fs.unlink(revokePath(configuration, data.revoke), done)
