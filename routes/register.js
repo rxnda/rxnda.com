@@ -8,7 +8,7 @@ var pump = require('pump')
 var randomCapability = require('../data/random-capability')
 var registrationMessage = require('../messages/registration')
 var runSeries = require('run-series')
-var validateEMail = require('validate-california-attorney-email')
+var validateAttorney = require('validate-california-attorney-email')
 
 var banner = require('../partials/banner')
 var footer = require('../partials/footer')
@@ -215,15 +215,23 @@ function validPost (data) {
 function write (configuration, request, response, data, form) {
   runSeries([
     function (done) {
-      validateEMail(data.number, data.email, function (error, valid) {
-        if (error) return done(error)
-        if (!valid) {
-          return done(
-            new Error('e-mail address does not match the bar database')
-          )
+      validateAttorney(
+        data.number, data.email,
+        function (error, match, active) {
+          if (error) return done(error)
+          if (!match) {
+            return done(
+              new Error('e-mail does not match the bar database')
+            )
+          }
+          if (!active) {
+            return done(
+              new Error('bar member is inactive')
+            )
+          }
+          done()
         }
-        done()
-      })
+      )
     },
     function (done) {
       randomCapability(function (error, capability) {
