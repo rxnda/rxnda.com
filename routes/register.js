@@ -36,6 +36,7 @@ function get (configuration, request, response, postData) {
   var numberErrors = errorsFor('number', postData)
   var emailErrors = errorsFor('email', postData)
   var stateErrors = errorsFor('state', postData)
+  var nameErrors = errorsFor('name', postData)
   response.end(html`
 ${preamble('Register as a Prescribing Attorney')}
 ${banner()}
@@ -89,6 +90,15 @@ ${nav()}
         </a>
         to register.
       </p>
+    </section>
+
+    <section class=field>
+      <label>
+        Name
+        <input name=name type=text required>
+      </label>
+      ${asterisk()}
+      ${nameErrors && paragraphs(nameErrors, 'error')}
     </section>
 
     <section class=field>
@@ -190,6 +200,12 @@ function validPost (data) {
         'Automatic registration is only available to ' +
         'State Bar of California members.'
       )
+    })
+  }
+  if (!data.name || typeof data.name !== 'string') {
+    errors.push({
+      name: 'name',
+      message: 'You must provide your name.'
     })
   }
   if (!data.number) {

@@ -1,14 +1,13 @@
 var Busboy = require('busboy')
+var VALID_TERMS = require('../data/valid-prescription-terms')
 var attorneyPath = require('../data/attorney-path')
-var cancelMessage = require('../messages/cancel')
-var cancelPath = require('../data/cancel-path')
-var chargePath = require('../data/charge-path')
-var countersignMessage = require('../messages/countersign')
 var decodeTitle = require('../util/decode-title')
 var ecb = require('ecb')
 var email = require('../email')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
+var fillMessage = require('../messages/fill')
+var fillPath = require('../data/fill-path')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var list = require('english-list')
@@ -20,14 +19,15 @@ var pump = require('pump')
 var randomCapability = require('../data/random-capability')
 var readEdition = require('../data/read-edition')
 var readJSONFile = require('../data/read-json-file')
+var revokeMessage = require('../messages/revoke')
+var revokePath = require('../data/revoke-path')
 var runParallel = require('run-parallel')
 var runSeries = require('run-series')
 var sameArray = require('../data/same-array')
 var sanitize = require('../util/sanitize-path-component')
-var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
-var validPost = require('../data/valid-post')
+var validPrescription = require('../data/valid-prescription')
 
 var banner = require('../partials/banner')
 var payment = require('../partials/payment')
@@ -84,7 +84,10 @@ function showGet (
     configuration.email.sender + '@' +
     configuration.email.domain
   )
-  var action = `/send/${encodeTitle(edition.title)}/${edition.edition}`
+  var action = (
+    `/prescribe/${encodeTitle(edition.title)}/${edition.edition}` +
+    `?attorney=${attorney.capability}`
+  )
   var read = `/forms/${encodeTitle(edition.title)}/${edition.edition}`
   var docx = `/docx/${encodeTitle(edition.title)}/${edition.edition}`
   var senderPage = edition.signatures[0]
@@ -95,7 +98,7 @@ ${nav()}
 <main>
   <noscript>
     <p>JavaScript has been disabled in your browser.</p>
-    <p>You must enabled JavaScript to send.</p>
+    <p>You must enabled JavaScript to prescribe.</p>
   </noscript>
 
   <form
@@ -126,6 +129,7 @@ ${nav()}
         ${postData.errors.length === 1 ? 'another box' : 'more boxes'}
         like this one.
       </p>
+      <pre>${JSON.stringify(postData.errors)})
     `}
 
     <section class=instructions>
@@ -135,7 +139,7 @@ ${nav()}
         Your notes will appear at the top of the page
         your client can use to send the form on prescription.
       </p>
-      <textarea name=notes rows=7></textarea>
+      <textarea name=notes rows=7>${postData && postData.notes}</textarea>
       <p>
         You may wish to address:
       </p>
@@ -149,6 +153,23 @@ ${nav()}
           that you do not fill for them below
         </li>
       </ul>
+    </section>
+
+    <section class=expiration>
+      <h3>Expiration</h3>
+      <p class=directions>
+        Choose a term after which the prescription will expire.
+      </p>
+      <select name=expiration>
+        ${VALID_TERMS.map(function (days) {
+          days = days.toString()
+          return html`
+            <option value=${days}
+              ${postData && postData.expiration === days && 'selected'}
+              >${days} calendar days</option>
+          `
+        })}
+      </select>
     </section>
 
     ${(edition.directions.length !== 0) && html`
@@ -225,10 +246,17 @@ ${nav()}
 
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
-    ${payment(configuration, [`
+    ${payment(configuration, [
+      `
       ${escape(configuration.domain)} will charge your credit card
       $${escape(configuration.prices.prescribe.toString())} now.
-    `])}
+      `,
+      `
+        The cost of sending NDAs on prescription will be discounted
+        from $${configuration.prices.use.toString()}
+        to $${configuration.prices.fill.toString()}.
+      `
+    ])}
 
     <section class=information>
       <h3>Next Steps</h3>
@@ -237,11 +265,6 @@ ${nav()}
         <li>
           ${escape(address)} will send you and your client a
           link for sending NDAs on prescription.
-        </li>
-        <li>
-          The prescription will expire in
-          ${escape(configuration.terms.prescription.toString())}
-          calendar days.
         </li>
         <li>
           ${escape(address)} will send you and your client
@@ -373,9 +396,9 @@ function asterisk () {
 
 function post (configuration, request, response, form, attorney) {
   var data = {
+    notes: null,
     signatures: {
-      sender: {},
-      recipient: {}
+      sender: {}
     },
     directions: [],
     token: null
@@ -413,8 +436,10 @@ function post (configuration, request, response, form, attorney) {
             })
           } else if (name === 'token') {
             data.token = value
-          } else if (name === 'coupon') {
-            data.coupon = value
+          } else if (name === 'notes') {
+            data.notes = value
+          } else if (name === 'expiration') {
+            data.expiration = value
           } else if (name === 'terms') {
             data.terms = value
           }
@@ -422,7 +447,7 @@ function post (configuration, request, response, form, attorney) {
       })
       .once('finish', function () {
         request.log.info({data: data})
-        var errors = validPost(data, form)
+        var errors = validPrescription(data, form)
         if (errors.length !== 0) {
           data.errors = errors
           showGet(
@@ -443,85 +468,76 @@ function validSignatureProperty (name) {
   return signatureProperties.includes(name)
 }
 
-function write (configuration, request, response, data, form) {
+function write (
+  configuration, request, response, data, attorney, form
+) {
   var domain = configuration.domain
   var now = new Date()
   var sender = data.signatures.sender
-  if (data.coupon) {
-    data.coupon = sanitize(data.coupon)
-  }
-  // Backdate offers from a specific e-mail address for test
+  data.attorney = attorney
+  // Backdate prescription from a specific e-mail address for test
   // purposes.  Backdating allows test code to run the sweep
   // procedure immediately, and verify that it has swept the
   // backdated offer.
   /* istanbul ignore else */
   if (process.env.NODE_ENV === 'test') {
     if (sender.email === 'backdate@example.com') {
-      now.setDate(now.getDate() - 10)
+      now.setDate(now.getDate() - 180)
     }
   }
   data.timestamp = now.toISOString()
   data.form = form
-  data.price = configuration.prices.use
+  data.prices = {
+    prescribe: configuration.prices.prescribe,
+    fill: configuration.prices.fill
+  }
   runSeries([
+    function createCharge (done) {
+      stripe(configuration.stripe.private).charges.create({
+        amount: data.prices.prescribe * 100, // dollars to cents
+        currency: 'usd',
+        description: domain,
+        source: data.token
+      }, function (error, charge) {
+        if (error) return done(error)
+        request.log.info({charge: charge.id})
+        done()
+      })
+    },
     function generateCapabilities (done) {
       runParallel([
-        capabilityToProperty(data, 'cancel'),
-        capabilityToProperty(data, 'sign')
+        capabilityToProperty(data, 'fill'),
+        capabilityToProperty(data, 'revoke')
       ], done)
     },
     function writeFiles (done) {
       runParallel([
-        function writeCancelFile (done) {
+        function writeRevokeFile (done) {
           mkdirpThenWriteFile(
-            cancelPath(configuration, data.cancel), data.sign, done
+            revokePath(configuration, data.revoke), data.fill, done
           )
         },
-        function writeSignFile (done) {
+        function writeFillFile (done) {
           mkdirpThenWriteFile(
-            signPath(configuration, data.sign), data, done
+            fillPath(configuration, data.fill), data, done
           )
         }
       ], done)
     },
     function sendEmails (done) {
       runSeries([
-        function emailCancelLink (done) {
+        function emailRevokeLink (done) {
           email(
             configuration,
-            cancelMessage(configuration, data),
+            revokeMessage(configuration, data),
             done
           )
         },
-        function emailSignLink (done) {
+        function emailFillLink (done) {
           email(
             configuration,
-            countersignMessage(configuration, data),
+            fillMessage(configuration, data),
             done
-          )
-        }
-      ], done)
-    },
-    function handlePayment (done) {
-      var chargeID = null
-      runSeries([
-        function createCharge (done) {
-          stripe(configuration.stripe.private).charges.create({
-            amount: data.price * 100, // dollars to cents
-            currency: 'usd',
-            description: domain,
-            // Important: Authorize, but don't capture/charge yet.
-            capture: false,
-            source: data.token
-          }, ecb(done, function (charge) {
-            chargeID = charge.id
-            request.log.info({charge: chargeID})
-            done()
-          }))
-        },
-        function writeChargeFile (done) {
-          mkdirpThenWriteFile(
-            chargePath(configuration, data.sign), chargeID, done
           )
         }
       ], done)
@@ -535,26 +551,21 @@ function write (configuration, request, response, data, form) {
     } else {
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
       var sender = data.signatures.sender
-      var recipient = data.signatures.recipient
-      var recipientName = (
-        recipient.company || recipient.name || recipient.email
-      )
       response.end(html`
 ${preamble()}
 ${banner()}
 ${nav()}
 <main>
-  <h2 class=sent>NDA Sent!</h2>
+  <h2 class=sent>Prescription Sent!</h2>
   <p>
-    You have offered to enter a nondisclosure agreement
-    ${sender.company && ('on behalf of ' + escape(sender.company))}
-    with ${escape(recipientName)} on the terms of the
+    You have prescribed the ${domain}
     ${escape(data.form.title)}  form agreement,
-    ${escape(spell(data.form.edition))}.
+    ${escape(spell(data.form.edition))}
+    for use by ${sender.company || sender.company}.
   </p>
   <p>
-    To cancel your request before the other side signs, visit
-    <a href=/cancel/${escape(data.cancel)}>this link</a>.
+    To revoke your prescription, visit
+    <a href=/revoke/${escape(data.revoke)}>this link</a>.
   </p>
 </main>
 ${footer()}`)

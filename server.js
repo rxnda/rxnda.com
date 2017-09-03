@@ -22,7 +22,10 @@ var configuration = {
       : 10,
     prescribe: ENV.PRESCRIBE_PRICE
       ? parseInt(ENV.PRESCRIBE_PRICE)
-      : 20
+      : 20,
+    fill: ENV.FILL_PRICE
+      ? parseInt(ENV.FILL_PRICE)
+      : 5
   },
   terms: {
     prescription: ENV.PRESCRIPTION_TERM

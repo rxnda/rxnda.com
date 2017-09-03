@@ -27,6 +27,9 @@ if (process.env.NODE_ENV === 'test') {
     var form = new FormData()
     form.append('from', from)
     form.append('to', message.to)
+    if (message.cc) {
+      form.append('cc', message.cc)
+    }
     form.append('subject', message.subject)
     form.append('o:dkim', 'yes')
     form.append('o:require-tls', 'yes')

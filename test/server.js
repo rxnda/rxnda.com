@@ -41,7 +41,8 @@ module.exports = function (test) {
       log: pino(fs.createWriteStream('test-server.log')),
       prices: {
         use: 10,
-        prescribe: 20
+        prescribe: 20,
+        fill: 5
       },
       terms: {
         prescription: 180
