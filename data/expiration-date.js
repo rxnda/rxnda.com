@@ -1,5 +1,9 @@
-module.exports = function expirationDate (send) {
-  var date = new Date(send.timestamp)
-  date.setDate(date.getDate() + 7)
+module.exports = function expirationDate (data) {
+  var date = new Date(data.timestamp)
+  if (data.expiration) {
+    date.setDate(date.getDate() + data.expiration)
+  } else {
+    date.setDate(date.getDate() + 7)
+  }
   return date
 }

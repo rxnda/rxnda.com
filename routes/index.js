@@ -24,6 +24,7 @@ routes.set('/send/:title/:edition', require('./send'))
 routes.set('/countersign/:capability', require('./countersign'))
 routes.set('/view/:capability', require('./view'))
 routes.set('/cancel/:capability', require('./cancel'))
+routes.set('/revoke/:capability', require('./revoke'))
 
 routes.set('/forms', require('./forms'))
 routes.set('/forms/:title', require('./forms'))
