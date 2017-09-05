@@ -63,7 +63,11 @@ module.exports = function (test) {
     }
     http.createServer()
       .on('request', function (request, response) {
-        handler(configuration, request, response)
+        try {
+          handler(configuration, request, response)
+        } catch (error) {
+          console.error(error)
+        }
       })
       .listen(0, function onceListening () {
         var server = this
@@ -78,3 +82,7 @@ module.exports = function (test) {
       })
   })
 }
+
+process.on('uncaughtException', function (error) {
+  console.error(error)
+})
