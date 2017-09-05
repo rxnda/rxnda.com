@@ -129,7 +129,6 @@ ${nav()}
         ${postData.errors.length === 1 ? 'another box' : 'more boxes'}
         like this one.
       </p>
-      <pre>${JSON.stringify(postData.errors)})
     `}
 
     <section class=instructions>

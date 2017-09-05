@@ -21,7 +21,7 @@ module.exports = function (configuration, data) {
         `${spell(form.edition)} for your use.`
       ],
       `https://${domain}/fill/${data.fill}`,
-      'Send NDAs Online',
+      'Send the NDA Online',
       [
         'Keep this link safe and secure. ' +
         'It is your digital key to send the NDA with your ' +

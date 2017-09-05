@@ -12,7 +12,7 @@ module.exports = function (configuration, data) {
       [
         'Use the link below to write prescriptions through RxNDA.'
       ],
-      `https://${domain}/prescribe/${data.capability}`,
+      `https://${domain}/attorney/${data.capability}`,
       'Write Prescriptions',
       [
         'Keep this link safe and secure. ' +

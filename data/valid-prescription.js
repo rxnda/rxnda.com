@@ -22,7 +22,7 @@ module.exports = function validPost (data, form) {
     'Notes must be a string.'
   )
 
-  if (!data.expiration || !VALID_TERMS.indexOf(data.expiration)) {
+  if (!data.expiration || !VALID_TERMS.includes(data.expiration)) {
     errors.push({
       name: 'expiration',
       message: 'Term must be one of the provided options.'

@@ -24,6 +24,7 @@ var sanitize = require('../util/sanitize-path-component')
 var signPath = require('../data/sign-path')
 var spell = require('reviewers-edition-spell')
 var stripe = require('stripe')
+var validFill = require('../data/valid-fill')
 var validPost = require('../data/valid-post')
 
 var banner = require('../partials/banner')
@@ -31,6 +32,7 @@ var footer = require('../partials/footer')
 var html = require('./html')
 var nav = require('../partials/nav')
 var paragraphs = require('../partials/paragraphs')
+var payment = require('../partials/payment')
 var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
@@ -125,7 +127,7 @@ ${nav()}
                   )
                   : []
               ),
-              priorValue(direction.blank),
+              priorBlankValue(direction.blank),
               errorsFor(name, postData)
             )
           })}
@@ -137,7 +139,7 @@ ${nav()}
 
       <section class=ownSignature>
         <h4>Your Side&rsquo;s Signature</h4>
-        ${senderBlock(senderPage, postData)}
+        ${senderBlock(senderPage, postData, prescription)}
         ${
           senderPage.information
             .filter(function (name) {
@@ -145,15 +147,23 @@ ${nav()}
             })
             .map(function (suffix) {
               var name = 'signatures-sender-' + suffix
+              var prior = null
+              if (prescription.signatures.sender[suffix]) {
+                prior = {
+                  value: prescription.signatures.sender[suffix],
+                  readonly: true
+                }
+              } else if (postData) {
+                prior = {
+                  value: postData.signatures.sender[suffix],
+                  readonly: false
+                }
+              }
               return input(
                 name,
                 'Your ' + suffix[0].toUpperCase() + suffix.slice(1),
                 [],
-                (
-                  postData
-                    ? postData.signatures.sender[suffix]
-                    : undefined
-                ),
+                prior,
                 errorsFor(name, postData)
               )
             })
@@ -181,6 +191,16 @@ ${nav()}
 
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
+    ${payment(configuration, [`
+      ${escape(configuration.domain)} will authorized a charge of
+      $${escape(prescription.prices.fill.toString())} to your credit
+      card now. If the other side countersigns within seven days,
+      ${escape(configuration.domain)} will collect the charge.
+      If the other side does not countersign in seven days,
+      or if you cancel before they countersign, your credit
+      card will not be charged.
+    `])}
+
     <section class=information>
       <h3>Next Steps</h3>
       <p>When you press Sign &amp; Send:</p>
@@ -200,12 +220,12 @@ ${nav()}
 </main>
 ${footer('send', 'stripe')}`)
 
-  function priorValue (blank) {
+  function priorBlankValue (blank) {
     var prescriptionMatch = findMatch(prescription.directions)
     if (prescriptionMatch) {
       return {
         value: prescriptionMatch.value,
-        disabled: true
+        readonly: true
       }
     }
     if (postData) {
@@ -213,7 +233,7 @@ ${footer('send', 'stripe')}`)
       if (postDataMatch) {
         return {
           value: postDataMatch.value,
-          disabled: false
+          readonly: false
         }
       }
     }
@@ -226,11 +246,11 @@ ${footer('send', 'stripe')}`)
   }
 }
 
-function senderBlock (signature, postData) {
+function senderBlock (signature, postData, prescription) {
   if (Array.isArray(signature.entities)) {
     // Entity Signatory
     return (
-      input(
+      inputWithPrior(
         'signatures-sender-company',
         'Your Company’s Name',
         [
@@ -279,14 +299,27 @@ function senderBlock (signature, postData) {
   }
 
   function inputWithPrior (name, label, notes) {
-    if (postData) {
-      return input(
-        name, label, notes,
-        postData.signatures.sender[name.split('-').reverse()[0]],
-        errorsFor(name, postData)
-      )
+    return input(
+      name, label, notes,
+      senderBlockValue(name),
+      errorsFor(name, postData)
+    )
+  }
+
+  function senderBlockValue (name) {
+    var suffix = name.split('-').reverse()[0]
+    if (prescription.signatures.sender[suffix]) {
+      return {
+        value: prescription.signatures.sender[suffix],
+        readonly: true
+      }
+    } else if (postData) {
+      return {
+        value: postData.signatures.sender[suffix],
+        readonly: false
+      }
     } else {
-      return input(name, label, notes)
+      return null
     }
   }
 }
@@ -368,7 +401,7 @@ function input (name, label, notes, prior, errors) {
       rows=3
       name="${escape(name)}"
       ${required && 'required'}
-      ${prior && prior.disabled && 'disabled'}
+      ${prior && prior.readonly && 'readonly=readonly'}
   >${prior && escape(prior.value)}</textarea>
 </section>`
   } else {
@@ -382,7 +415,7 @@ function input (name, label, notes, prior, errors) {
       ${(name === 'signatures-sender-name') && 'id=name'}
       type=${name === 'email' ? 'email' : 'text'}
       ${required && 'required'}
-      ${prior && prior.disabled && 'disabled'}
+      ${prior && prior.readonly && 'readonly=readonly'}
       value='${prior && escape(prior.value)}'>
   ${paragraphs(notes)}
 </section>`
@@ -418,7 +451,7 @@ function byline (postData) {
 </section>`
 }
 
-function post (configuration, request, response, form) {
+function post (configuration, request, response, prescription) {
   var data = {
     signatures: {
       sender: {},
@@ -469,12 +502,14 @@ function post (configuration, request, response, form) {
       })
       .once('finish', function () {
         request.log.info({data: data})
-        var errors = validPost(data, form)
+        var errors = []
+          .concat(validPost(data, prescription.form))
+          .concat(validFill(prescription, data))
         if (errors.length !== 0) {
           data.errors = errors
-          get(configuration, request, response, form, data)
+          get(configuration, request, response, prescription, data)
         } else {
-          write(configuration, request, response, data, form)
+          write(configuration, request, response, data, prescription)
         }
       })
   )
@@ -486,7 +521,7 @@ function validSignatureProperty (name) {
   return signatureProperties.includes(name)
 }
 
-function write (configuration, request, response, data, form) {
+function write (configuration, request, response, data, prescription) {
   var domain = configuration.domain
   var now = new Date()
   var sender = data.signatures.sender
@@ -504,9 +539,15 @@ function write (configuration, request, response, data, form) {
     }
   }
   data.timestamp = now.toISOString()
-  data.form = form
-  data.price = configuration.prices.use
+  data.form = prescription.form
+  data.price = prescription.prices.fill
   runSeries([
+    function generateCapabilities (done) {
+      runParallel([
+        capabilityToProperty(data, 'cancel'),
+        capabilityToProperty(data, 'sign')
+      ], done)
+    },
     function handlePayment (done) {
       var chargeID = null
       runSeries([
@@ -529,12 +570,6 @@ function write (configuration, request, response, data, form) {
             chargePath(configuration, data.sign), chargeID, done
           )
         }
-      ], done)
-    },
-    function generateCapabilities (done) {
-      runParallel([
-        capabilityToProperty(data, 'cancel'),
-        capabilityToProperty(data, 'sign')
       ], done)
     },
     function writeFiles (done) {

@@ -170,6 +170,8 @@ function post (configuration, request, response) {
             data.state = value
           } else if (name === 'email') {
             data.email = value
+          } else if (name === 'name') {
+            data.name = value
           }
         }
       })
