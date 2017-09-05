@@ -4,7 +4,8 @@ var path = require('path')
 var pino = require('pino')
 var runSeries = require('run-series')
 var schedule = require('node-schedule')
-var sweep = require('./sweep')
+var sweepOffers = require('./jobs/offers')
+var sweepPrescriptions = require('./jobs/prescriptions')
 var uuid = require('uuid')
 
 var ENV = process.env
@@ -83,16 +84,14 @@ runSeries([
     })
   },
   function filesweeper (done) {
-    var log = configuration.log.child({subsystem: 'filesweeper'})
-    schedule.scheduleJob({hour: [0, 12], minute: 0}, function () {
-      sweep(configuration, afterSweep)
+    var jobs = [sweepPrescriptions, sweepOffers]
+    jobs.forEach(function (job) {
+      job(configuration, function () { })
+      schedule.scheduleJob('0 * * * *', function () {
+        job(configuration, function () { /* pass */ })
+      })
     })
-    sweep(configuration, afterSweep)
     done()
-
-    function afterSweep () {
-      log.info('done')
-    }
   }
 ], function (error) {
   if (error) {

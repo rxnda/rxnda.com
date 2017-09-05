@@ -516,7 +516,7 @@ function write (
             revokePath(configuration, data.revoke), data.fill, done
           )
         },
-        function writeFillFile (done) {
+        function writePrescriptionPath (done) {
           mkdirpThenWriteFile(
             prescriptionPath(configuration, data.fill), data, done
           )

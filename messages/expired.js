@@ -8,13 +8,13 @@ module.exports = function (configuration, data) {
   return {
     to: sender.email,
     cc: attorney.email,
-    subject: 'NDA Prescription Revoked',
+    subject: 'NDA Prescription Expired',
     html: messageEMail(
-      'NDA Prescription Revoked',
+      'NDA Prescription Expited',
       [
         `The prescription for ${sender.company || sender.name}’s ` +
         `use of ` +
-        `${form.title}, ${spell(form.edition)} has been revoked.`
+        `${form.title}, ${spell(form.edition)} has expired.`
       ]
     )
   }
