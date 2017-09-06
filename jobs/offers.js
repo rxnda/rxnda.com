@@ -1,12 +1,12 @@
-var cancelPath = require('./data/cancel-path')
-var chargePath = require('./data/charge-path')
-var expired = require('./data/expired')
+var cancelPath = require('../data/cancel-path')
+var chargePath = require('../data/charge-path')
+var expired = require('../data/expired')
 var fs = require('fs')
 var path = require('path')
-var readJSONFile = require('./data/read-json-file')
+var readJSONFile = require('../data/read-json-file')
 var runParallelLimit = require('run-parallel-limit')
 var runSeries = require('run-series')
-var signPath = require('./data/sign-path')
+var signPath = require('../data/sign-path')
 
 module.exports = function sweep (configuration, callback) {
   var directory = configuration.directory
