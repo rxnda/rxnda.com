@@ -1,3 +1,4 @@
+var escape = require('../util/escape')
 var html = require('../routes/html')
 
 var paragraphs = require('./paragraphs')
