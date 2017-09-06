@@ -94,7 +94,6 @@ ${nav()}
       <h3>Signatures</h3>
 
       <section class=ownSignature>
-        <h4>Your Side&rsquo;s Signature</h4>
         ${senderBlock(senderPage, postData, function (suffix) {
           var prior = null
           if (prescription.signatures.sender[suffix]) {
