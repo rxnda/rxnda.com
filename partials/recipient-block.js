@@ -1,10 +1,14 @@
 var html = require('../routes/html')
+var errorsFor = require('../util/errors-for')
 
 var asterisk = require('./asterisk')
 var input = require('./input')
 
-module.exports = function (page, postData) {
-  return html`
+module.exports = function (page, postData, sendData) {
+  if (sendData) {
+    return rest(page, postData)
+  } else {
+    return html`
 <section class=field>
   <label>Their Email</label>
   ${asterisk()}
@@ -19,67 +23,90 @@ module.exports = function (page, postData) {
       }>
 </section>
 ${rest(page)}
-  `
-}
+    `
+  }
 
-function rest (signature) {
-  if (Array.isArray(signature.entities)) {
-    // Entity Signatory
-    return (
-      input(
-        'signatures-recipient-company', 'Their Company Name',
-        [
-          'Optionally enter the legal name of the other ' +
-          'side’s company.',
-          'For example: “TheirCo, LLC”',
-          'If you leave this blank, the recipient can fill it out.'
-        ]
-      ) +
-      input(
-        'signatures-recipient-form', 'Their Company’s Legal Form',
-        [
-          'Enter the legal form of their company.',
-          'For example: “limited liability company”',
-          'If you leave this blank, the recipient can fill it out.'
-        ]
-      ) +
-      input(
-        'signatures-recipient-jurisdiction',
-        'Their Company’s Legal jurisdiction',
-        [
-          'Enter the legal jurisdiction under whose laws their ' +
-          'company is formed.',
-          'For example: “Delaware”',
-          'If you leave this blank, the recipient can fill it out.'
-        ]
-      ) +
-      input(
-      'signatures-recipient-name', 'Their Name',
-        [
-          'Optionally name who will sign for the other side.',
-          'If you leave this blank, the recipient can fill it out.'
-        ]
-      ) +
-      input(
-        'signatures-recipient-title', 'Their Title',
-        [
-          'Optionally enter their title at the company.',
-          'For example: “Chief Executive Officer”',
-          'If you leave this blank, the recipient can fill it out.'
-        ]
-      )
-    )
-  } else {
-    // Individual Signatory
-    return (
-      input(
+  function rest (signature) {
+    if (Array.isArray(signature.entities)) {
+      // Entity Signatory
+      return (
+        inputWithPrior(
+          'signatures-recipient-company', 'Their Company Name',
+          [
+            'If you leave this blank, the recipient can fill it out.',
+            'Enter the legal name of the other side’s company.',
+            'For example: “TheirCo, LLC”'
+          ],
+          sendData && sendData.company
+        ) +
+        inputWithPrior(
+          'signatures-recipient-form', 'Their Company’s Legal Form',
+          [
+            'If you leave this blank, the recipient can fill it out.',
+            'Enter the legal form of their company.',
+            'For example: “limited liability company”'
+          ],
+          sendData && sendData.form
+        ) +
+        inputWithPrior(
+          'signatures-recipient-jurisdiction',
+          'Their Company’s Legal Jurisdiction',
+          [
+            'If you leave this blank, the recipient can fill it out.',
+            'Enter the legal jurisdiction under whose laws their ' +
+            'company is formed.',
+            'For example: “Delaware”'
+          ],
+          sendData && sendData.jurisdiction
+        ) +
+        inputWithPrior(
         'signatures-recipient-name', 'Their Name',
-        [
-          'Enter the other side’s full legal name.',
-          'For example: “Jane Doe”',
-          'If you leave this blank, the recipient can fill it out.'
-        ]
-     )
-    )
+          [
+            'If you leave this blank, the recipient can fill it out.',
+            'Name who will sign for the other side.'
+          ],
+          sendData && sendData.name
+        ) +
+        inputWithPrior(
+          'signatures-recipient-title', 'Their Title',
+          [
+            'If you leave this blank, the recipient can fill it out.',
+            'Enter their title at the company.',
+            'For example: “Chief Executive Officer”'
+          ],
+          sendData && sendData.title
+        )
+      )
+    } else {
+      // Individual Signatory
+      return (
+        inputWithPrior(
+          'signatures-recipient-name', 'Their Name',
+          [
+            'If you leave this blank, the recipient can fill it out.',
+            'Enter the other side’s full legal name.',
+            'For example: “Jane Doe”'
+          ],
+          sendData && sendData.name
+       )
+      )
+    }
+  }
+
+  function inputWithPrior (name, label, notes, sendValue) {
+    if (sendValue) {
+      return input(name, label, notes, {
+        value: sendValue,
+        readonly: true,
+        prefilled: true
+      })
+    } else {
+      var prior
+      var suffix = name.split('-').reverse()[0]
+      if (postData && postData[suffix]) {
+        prior = {value: postData[suffix]}
+      }
+      return input(name, label, notes, prior, errorsFor(name, postData))
+    }
   }
 }

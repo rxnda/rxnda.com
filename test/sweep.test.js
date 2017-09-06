@@ -6,7 +6,7 @@ var path = require('path')
 var runSeries = require('run-series')
 var sendTesting1e = require('./send-testing-1e')
 var server = require('./server')
-var sweep = require('../sweep')
+var sweepOffers = require('../jobs/offers')
 var tape = require('tape')
 var webdriver = require('./webdriver')
 
@@ -51,7 +51,7 @@ tape.test('Sweep Backdated', function (test) {
         done()
       },
       function runSweep (done) {
-        sweep(configuration, function (error) {
+        sweepOffers(configuration, function (error) {
           test.pass('swept')
           done(error)
         })
@@ -141,7 +141,7 @@ tape.test('Sweep Unexpired', function (test) {
         done()
       },
       function runSweep (done) {
-        sweep(configuration, function (error) {
+        sweepOffers(configuration, function (error) {
           test.pass('swept')
           done(error)
         })

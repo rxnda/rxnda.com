@@ -166,13 +166,24 @@ form > section {
   padding-bottom: 1rem;
 }
 
+.asterisk,
+.optional {
+  display: block;
+  padding-right: 0.25rem;
+  position: absolute;
+  right: 100%;
+  top: 0;
+}
+
 .asterisk {
   color: red;
-  display: block;
   font-size: 130%;
-  left: -1rem;
-  position: absolute;
-  top: 0;
+}
+
+.optional {
+  color: #ccc;
+  opacity: 0.5;
+  font-size: 100%;
 }
 
 /* /countersign */

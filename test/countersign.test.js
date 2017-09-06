@@ -36,13 +36,13 @@ tape.test('Countersign', function (test) {
         'input[name="signatures-recipient-company"]',
         'SomeCo'
       )
-      .setValue(
-        'input[name="signatures-recipient-jurisdiction"]',
+      .selectByValue(
+        'select[name="signatures-recipient-jurisdiction"]',
         'California'
       )
-      .setValue(
-        'input[name="signatures-recipient-form"]',
-        'corporation'
+      .selectByValue(
+        'select[name="signatures-recipient-form"]',
+        'Corporation'
       )
       .setValue(
         'input[name="signatures-recipient-title"]',
@@ -56,6 +56,9 @@ tape.test('Countersign', function (test) {
       .click('input[type=submit]')
       .waitForExist('.agreed')
       .getText('h2')
+      .catch(function (error) {
+        test.error(error)
+      })
       .then(function (h1Text) {
         test.assert(
           h1Text.includes('Agreed!'),
@@ -183,13 +186,13 @@ tape.test('Receipt E-Mail', function (test) {
         'input[name="signatures-recipient-company"]',
         'SomeCo'
       )
-      .setValue(
-        'input[name="signatures-recipient-jurisdiction"]',
+      .selectByValue(
+        'select[name="signatures-recipient-jurisdiction"]',
         'California'
       )
-      .setValue(
-        'input[name="signatures-recipient-form"]',
-        'corporation'
+      .selectByValue(
+        'select[name="signatures-recipient-form"]',
+        'Corporation'
       )
       .setValue(
         'input[name="signatures-recipient-title"]',

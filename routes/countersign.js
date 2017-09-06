@@ -2,8 +2,8 @@ var Busboy = require('busboy')
 var docxMessage = require('../messages/docx')
 var ecb = require('ecb')
 var email = require('../email')
+var errorsFor = require('../util/errors-for')
 var escape = require('../util/escape')
-var escapeStringRegexp = require('escape-string-regexp')
 var expirationDate = require('../data/expiration-date')
 var expired = require('../data/expired')
 var fs = require('fs')
@@ -24,10 +24,12 @@ var validCountersignPost = require('../data/valid-countersign-post')
 var xtend = require('xtend')
 
 var banner = require('../partials/banner')
+var byline = require('../partials/byline')
+var errorsMessage = require('../partials/errors-message')
 var footer = require('../partials/footer')
 var html = require('./html')
+var input = require('../partials/input')
 var nav = require('../partials/nav')
-var paragraphs = require('../partials/paragraphs')
 var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
@@ -108,13 +110,7 @@ ${banner()}
         })}
       </dl>
     `}
-    ${(postData && postData.errors) && html`
-      <p class=error>
-        Look below for
-        ${postData.errors.length === 1 ? 'another box' : 'more boxes'}
-        like this one.
-      </p>
-    `}
+    ${errorsMessage(postData)}
     <p>
       <a
           href=/view/${send.sign}
@@ -138,7 +134,7 @@ ${banner()}
     </p>
     <section class=signatures>
       <h3>Signatures</h3>
-      <section class=senderSignature>
+      <section>
         <h4>
           ${escape(
             sender.company ? sender.company : sender.name
@@ -161,10 +157,19 @@ ${banner()}
           ${escape(new Date(send.timestamp).toLocaleString())}.
         </p>
       </section>
-      <section class=yourSignature>
+      <section>
         <h4>Your Signature</h4>
         ${recipientBlock(send.form.signatures[1], recipient, postData)}
-        ${byline(recipient, postData)}
+        ${byline(
+          errorsFor('signature-recipient-signature', postData),
+          'recipient',
+          `
+          By signing here and clicking Countersign below, you
+          enter into a legally binding contract, on the terms they
+          proposed, with the other side.
+          `,
+          recipient.name
+        )}
         ${
           send.form.signatures[1].information
             .filter(function (name) {
@@ -177,8 +182,7 @@ ${banner()}
                 (suffix === 'date' ? '' : 'Your ') +
                 suffix[0].toUpperCase() + suffix.slice(1),
                 [],
-                undefined,
-                (postData ? postData[suffix] : undefined),
+                postData ? {value: postData[suffix]} : undefined,
                 errorsFor(name, postData)
               )
             })
@@ -228,7 +232,7 @@ function recipientBlock (page, recipient, postData) {
       ) +
       inputWithPrior(
         'signatures-recipient-jurisdiction',
-        'Your Company&rsquo;s Legal Jurisdiction',
+        'Your Company’s Legal Jurisdiction',
         [
           'Enter the legal jurisdiction under whose laws your ' +
           'company is formed.',
@@ -253,7 +257,7 @@ function recipientBlock (page, recipient, postData) {
   } else {
     // Individual Signatory
     return (
-      input(
+      inputWithPrior(
         'signatures-recipient-name', 'Your Name',
         [
           'Enter your full legal name.',
@@ -264,107 +268,26 @@ function recipientBlock (page, recipient, postData) {
     )
   }
 
-  function inputWithPrior (name, label, notes, value) {
-    if (postData) {
-      return input(
-        name, label, notes, value,
-        postData[name.split('-').reverse()[0]],
-        errorsFor(name, postData)
-      )
-    } else {
-      return input(name, label, notes, value)
+  function inputWithPrior (name, label, notes, sendValue) {
+    if (sendValue) {
+      return input(name, label, notes, {
+        value: sendValue,
+        readonly: true,
+        prefilled: true
+      })
     }
+    var prior
+    var suffix = name.split('-').reverse()[0]
+    if (postData) {
+      prior = {value: postData[suffix]}
+    }
+    return input(name, label, notes, prior, errorsFor(name, postData))
   }
 }
 
 function startsWithVowel (string) {
   return ['a', 'e', 'i', 'o', 'u', 'y']
     .includes(string[0].toLowerCase())
-}
-
-function input (name, label, notes, sendValue, postValue, errors) {
-  if (sendValue) {
-    return `
-<section class=field>
-  <label>${escape(label)}</label>
-  <input
-      name=${name}
-      value='${escape(sendValue)}'
-      type=text
-      required
-      readonly=readonly>
-  ${sendValue ? prefilled() : paragraphs(notes)}
-</section>`
-  } else {
-    if (name.endsWith('address')) {
-      return html`
-<section class=field>
-  <label>${label}</label>
-  ${asterisk()}
-  ${errors && paragraphs(errors, 'error')}
-  <textarea
-      rows=3
-      name=${name}
-      required
-  >${escape(postValue || '')}</textarea>
-</section>`
-    } else {
-      return html`
-<section class=field>
-  <label>${label}</label>
-  ${asterisk()}
-  ${errors && paragraphs(errors, 'error')}
-  <input
-      name=${name}
-      ${name === 'signatures-recipient-name' && 'id=name'}
-      type=${name === 'email' ? 'email' : 'text'}
-      value="${escape(postValue || '')}"
-      required>
-  ${paragraphs(notes)}
-</section>`
-    }
-  }
-
-  function prefilled () {
-    return notes.length === 0 ? '' : `
-<p class=note>
-  The sender filled this blank out for you.
-  If they did so incorrectly, tell them to resend the request.
-</p>`
-  }
-}
-
-function asterisk () {
-  return '<span class=asterisk>*</span>'
-}
-
-function byline (recipient, postData) {
-  var errors = errorsFor('signatures-recipient-signature', postData)
-  return html`
-<section class=field>
-  <label>Signature</label>
-  ${asterisk()}
-  ${errors && paragraphs(errors, 'error')}
-  <input
-    id=signature
-    class=signature
-    name=signatures-recipient-signature
-    type=text
-    ${
-      recipient.name &&
-      `pattern="${escape(escapeStringRegexp(recipient.name))}"`
-    }
-    autocomplete=off
-    required>
-  <p class=description>
-    To sign the form, enter your name, exactly as above.
-  </p>
-  <p class=warning>
-    By signing here and clicking Countersign below, you
-    enter into a legally binding contract, on the terms they
-    proposed, with the other side.
-  </p>
-</section>`
 }
 
 function post (configuration, request, response, send) {
@@ -520,19 +443,5 @@ ${footer()}`)
         done()
       })
     }
-  }
-}
-
-function errorsFor (name, postData) {
-  if (postData) {
-    return postData.errors
-      .filter(function (error) {
-        return error.name === name
-      })
-      .map(function (error) {
-        return error.message
-      })
-  } else {
-    return []
   }
 }
