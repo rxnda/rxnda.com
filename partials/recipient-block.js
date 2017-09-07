@@ -95,10 +95,16 @@ ${rest(page)}
 
   function inputWithPrior (name, label, notes, sendValue) {
     if (sendValue) {
-      return input(name, false, label, notes, {
-        value: sendValue,
-        readonly: true,
-        prefilled: true
+      return input({
+        name: name,
+        required: false,
+        label: label,
+        notes: notes,
+        prior: {
+          value: sendValue,
+          readonly: true,
+          prefilled: true
+        }
       })
     } else {
       var prior
@@ -106,7 +112,14 @@ ${rest(page)}
       if (postData && postData[suffix]) {
         prior = {value: postData[suffix]}
       }
-      return input(name, false, label, notes, prior, errorsFor(name, postData))
+      return input({
+        name: name,
+        required: false,
+        label: label,
+        notes: notes,
+        prior: prior,
+        errors: errorsFor(name, postData)
+      })
     }
   }
 }

@@ -7,7 +7,13 @@ var legalFormSelect = require('./legal-form-select')
 var optional = require('./optional')
 var paragraphs = require('./paragraphs')
 
-module.exports = function input (name, required, label, notes, prior, errors) {
+module.exports = function input (options) {
+  var errors = options.errors
+  var label = options.label
+  var name = options.name
+  var notes = options.notes
+  var prior = options.prior
+  var required = options.required || false
   if (name.endsWith('address')) {
     return html`
 <section class=field>
@@ -21,7 +27,7 @@ module.exports = function input (name, required, label, notes, prior, errors) {
       ${prior && prior.readonly && 'readonly=readonly'}
   >${prior && escape(prior.value)}</textarea>
   ${prior && prior.prefilled && prefilled()}
-  ${paragraphs(notes)}
+  ${notes && paragraphs(notes)}
 </section>`
   } else if (name.endsWith('jurisdiction')) {
     return html`
@@ -31,7 +37,7 @@ module.exports = function input (name, required, label, notes, prior, errors) {
   ${errors && paragraphs(errors, 'error')}
   ${jurisdictionSelect(name, required, prior)}
   ${prior && prior.prefilled && prefilled()}
-  ${paragraphs(notes)}
+  ${notes && paragraphs(notes)}
 </section>`
   } else if (name.endsWith('form')) {
     return html`
@@ -41,7 +47,7 @@ module.exports = function input (name, required, label, notes, prior, errors) {
   ${errors && paragraphs(errors, 'error')}
   ${legalFormSelect(name, required, prior)}
   ${prior && prior.prefilled && prefilled()}
-  ${paragraphs(notes)}
+  ${notes && paragraphs(notes)}
 </section>`
   } else {
     return html`
@@ -57,7 +63,7 @@ module.exports = function input (name, required, label, notes, prior, errors) {
       ${prior && prior.readonly && 'readonly=readonly'}
       value='${prior && escape(prior.value)}'>
   ${prior && prior.prefilled && prefilled()}
-  ${paragraphs(notes)}
+  ${notes && paragraphs(notes)}
 </section>`
   }
 }

@@ -177,15 +177,13 @@ ${banner()}
             })
             .map(function (suffix) {
               var name = 'signatures-recipient-' + suffix
-              return input(
-                name,
-                'required',
-                (suffix === 'date' ? '' : 'Your ') +
-                suffix[0].toUpperCase() + suffix.slice(1),
-                [],
-                postData ? {value: postData[suffix]} : undefined,
-                errorsFor(name, postData)
-              )
+              return input({
+                name: name,
+                required: true,
+                label: (suffix === 'date' ? '' : 'Your ') + suffix[0].toUpperCase() + suffix.slice(1),
+                prior: postData ? {value: postData[suffix]} : undefined,
+                errors: errorsFor(name, postData)
+              })
             })
         }
         <section class=information>
@@ -271,10 +269,16 @@ function recipientBlock (page, recipient, postData) {
 
   function inputWithPrior (name, label, notes, sendValue) {
     if (sendValue) {
-      return input(name, 'required', label, notes, {
-        value: sendValue,
-        readonly: true,
-        prefilled: true
+      return input({
+        name: name,
+        required: true,
+        label: label,
+        notes: notes,
+        prior: {
+          value: sendValue,
+          readonly: true,
+          prefilled: true
+        }
       })
     }
     var prior
@@ -282,9 +286,14 @@ function recipientBlock (page, recipient, postData) {
     if (postData) {
       prior = {value: postData[suffix]}
     }
-    return input(
-      name, 'required', label, notes, prior, errorsFor(name, postData)
-    )
+    return input({
+      name: name,
+      required: true,
+      label: label,
+      notes: notes,
+      prior: prior,
+      errors: errorsFor(name, postData)
+    })
   }
 }
 

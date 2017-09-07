@@ -58,7 +58,7 @@ tape.test('Register', function (test) {
         .setValue('input[name="number"]', '111111')
         .setValue('input[name="email"]', ATTORNEY_EMAIL)
         .click('input[type=submit]')
-        .waitForExist('.sent')
+        .waitForExist('.sent', 10000)
         .getText('h2')
         .then(function (h2Text) {
           test.assert(

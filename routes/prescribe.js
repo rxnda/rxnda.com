@@ -183,11 +183,11 @@ ${nav()}
                 })
                 .join(',')
             )
-            return input(
-              name,
-              false,
-              direction.label,
-              direction.notes.concat(
+            return input({
+              name: name,
+              requireD: false,
+              label: direction.label,
+              notes: direction.notes.concat(
                 direction.examples
                   ? 'For example: ' + list('or',
                     direction.examples.map(function (example) {
@@ -196,11 +196,11 @@ ${nav()}
                   )
                   : []
               ),
-              postData
+              prior: postData
                 ? priorValue(direction.blank, postData)
                 : undefined,
-              errorsFor(name, postData)
-            )
+              errors: errorsFor(name, postData)
+            })
           })}
       </section>
     `}
@@ -218,23 +218,21 @@ ${nav()}
             })
             .map(function (suffix) {
               var name = 'signatures-sender-' + suffix
-              return input(
-                name,
-                name === 'signatures-sender-email',
-                'Client’s ' + suffix[0].toUpperCase() + suffix.slice(1),
-                name === 'signatures-sender-email'
+              return input({
+                name: name,
+                required: name === 'signatures-sender-email',
+                label: 'Client’s ' + suffix[0].toUpperCase() + suffix.slice(1),
+                notes: name === 'signatures-sender-email'
                   ? [
                     'The link to send forms on prescription will be ' +
                     'sent to this address.'
                   ]
                   : [],
-                (
-                  postData
-                    ? postData.signatures.sender[suffix]
-                    : undefined
-                ),
-                errorsFor(name, postData)
-              )
+                prior: postData
+                  ? postData.signatures.sender[suffix]
+                  : undefined,
+                errors: errorsFor(name, postData)
+              })
             })
         }
       </section>
@@ -345,13 +343,21 @@ function senderBlock (signature, postData) {
 
   function inputWithPrior (name, required, label, notes) {
     if (postData) {
-      return input(
-        name, required, label, notes,
-        postData.signatures.sender[name.split('-').reverse()[0]],
-        errorsFor(name, postData)
-      )
+      return input({
+        name: name,
+        required: required,
+        label: label,
+        notes: notes,
+        prior: {value: postData.signatures.sender[name.split('-').reverse()[0]]},
+        errors: errorsFor(name, postData)
+      })
     } else {
-      return input(name, required, label, notes)
+      return input({
+        name: name,
+        required: required,
+        label: label,
+        notes: notes
+      })
     }
   }
 }

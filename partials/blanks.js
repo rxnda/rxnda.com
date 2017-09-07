@@ -23,11 +23,11 @@ module.exports = function (form, postData, priorValueOf) {
           })
           .join(',')
       )
-      return input(
-        name,
-        'required',
-        direction.label,
-        form.notes.concat(
+      return input({
+        name: name,
+        required: true,
+        label: direction.label,
+        notes: form.notes.concat(
           direction.examples
             ? 'For example: ' + list('or',
               direction.examples.map(function (example) {
@@ -36,9 +36,9 @@ module.exports = function (form, postData, priorValueOf) {
             )
             : []
         ),
-        priorValueOf(direction.blank),
-        errorsFor(name, postData)
-      )
+        prior: priorValueOf(direction.blank),
+        errors: errorsFor(name, postData)
+      })
     })}
 </section>
     `
