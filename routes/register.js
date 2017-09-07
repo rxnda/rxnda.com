@@ -8,7 +8,7 @@ var pump = require('pump')
 var randomCapability = require('../data/random-capability')
 var registrationMessage = require('../messages/registration')
 var runSeries = require('run-series')
-var validateAttorney = require('validate-california-attorney-email')
+var verifyAttorney = require('../external/verify-attorney')
 
 var banner = require('../partials/banner')
 var footer = require('../partials/footer')
@@ -233,7 +233,7 @@ function validPost (data) {
 function write (configuration, request, response, data, form) {
   runSeries([
     function (done) {
-      validateAttorney(
+      verifyAttorney(
         data.number, data.email,
         function (error, match, active) {
           if (error) return done(error)
