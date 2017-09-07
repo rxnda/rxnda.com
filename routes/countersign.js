@@ -179,6 +179,7 @@ ${banner()}
               var name = 'signatures-recipient-' + suffix
               return input(
                 name,
+                'required',
                 (suffix === 'date' ? '' : 'Your ') +
                 suffix[0].toUpperCase() + suffix.slice(1),
                 [],
@@ -270,7 +271,7 @@ function recipientBlock (page, recipient, postData) {
 
   function inputWithPrior (name, label, notes, sendValue) {
     if (sendValue) {
-      return input(name, label, notes, {
+      return input(name, 'required', label, notes, {
         value: sendValue,
         readonly: true,
         prefilled: true
@@ -281,7 +282,9 @@ function recipientBlock (page, recipient, postData) {
     if (postData) {
       prior = {value: postData[suffix]}
     }
-    return input(name, label, notes, prior, errorsFor(name, postData))
+    return input(
+      name, 'required', label, notes, prior, errorsFor(name, postData)
+    )
   }
 }
 

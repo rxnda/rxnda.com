@@ -30,12 +30,13 @@ var stripe = require('stripe')
 var validPrescription = require('../data/valid-prescription')
 
 var banner = require('../partials/banner')
-var payment = require('../partials/payment')
 var draftWarning = require('../partials/draft-warning')
 var footer = require('../partials/footer')
 var html = require('./html')
+var input = require('../partials/input')
 var nav = require('../partials/nav')
 var paragraphs = require('../partials/paragraphs')
+var payment = require('../partials/payment')
 var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
@@ -101,11 +102,7 @@ ${nav()}
     <p>You must enabled JavaScript to prescribe.</p>
   </noscript>
 
-  <form
-    id=sendForm
-    method=post
-    action=${escape(action)}
-    ${novalidate(request)}>
+  <form method=post action=${escape(action)} ${novalidate(request)}>
 
     <h2>Prescribe <cite>${escape(edition.title)}</cite></h2>
 
@@ -228,7 +225,7 @@ ${nav()}
                 name === 'signatures-sender-email'
                   ? [
                     'The link to send forms on prescription will be ' +
-                    'send to this address.'
+                    'sent to this address.'
                   ]
                   : [],
                 (
@@ -329,7 +326,7 @@ function senderBlock (signature, postData) {
         false,
         'The Signatory’s Title',
         [
-          'Enter a title at your company.',
+          'Enter a title at the company.',
           'For example: “Chief Executive Officer”'
         ]
       )
@@ -357,40 +354,6 @@ function senderBlock (signature, postData) {
       return input(name, required, label, notes)
     }
   }
-}
-
-function input (name, required, label, notes, value, errors) {
-  if (name.endsWith('address')) {
-    return html`
-<section class=field>
-  <label>${escape(label)}</label>
-  ${required && asterisk()}
-  ${errors && paragraphs(errors, 'error')}
-  <textarea
-      rows=3
-      name="${escape(name)}"
-      ${required && 'required'}
-  >${value && escape(value)}</textarea>
-</section>`
-  } else {
-    return html`
-<section class=field>
-  <label>${escape(label)}</label>
-  ${required && asterisk()}
-  ${errors && paragraphs(errors, 'error')}
-  <input
-      name="${name}"
-      ${(name === 'signatures-sender-name') && 'id=name'}
-      type=${name === 'email' ? 'email' : 'text'}
-      ${required && 'required'}
-      value='${value && escape(value)}'>
-  ${paragraphs(notes)}
-</section>`
-  }
-}
-
-function asterisk () {
-  return '<span class=asterisk>*</span>'
 }
 
 function post (configuration, request, response, form, attorney) {

@@ -94,8 +94,9 @@ ${nav()}
       <h3>Signatures</h3>
 
       <section class=ownSignature>
-        ${senderBlock(senderPage, postData, function (suffix) {
+        ${senderBlock(senderPage, postData, function (name) {
           var prior = null
+          var suffix = name.split('-').reverse()[0]
           if (prescription.signatures.sender[suffix]) {
             prior = {
               value: prescription.signatures.sender[suffix],

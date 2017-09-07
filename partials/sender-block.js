@@ -17,9 +17,10 @@ module.exports = function (page, postData, priorValueOf) {
       })
       .map(function (suffix) {
         var name = 'signatures-sender-' + suffix
-        var prior = priorValueOf(suffix)
+        var prior = priorValueOf(name)
         return input(
           name,
+          'required',
           'Your ' + suffix[0].toUpperCase() + suffix.slice(1),
           [],
           prior,
@@ -84,7 +85,7 @@ function senderBlock (signature, postData, priorValueOf) {
 
   function inputWithPrior (name, label, notes) {
     return input(
-      name, label, notes,
+      name, 'required', label, notes,
       priorValueOf(name),
       errorsFor(name, postData)
     )

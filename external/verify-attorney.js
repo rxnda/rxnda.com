@@ -4,7 +4,7 @@ if (process.env.NODE_ENV === 'test') {
   module.exports = function (number, email, callback) {
     setImmediate(function () {
       var match = email === 'valid@example.com'
-      var active = number === 111111
+      var active = number === '111111'
       events.emit('request', number, email)
       callback(null, match, active)
     })

@@ -3,8 +3,17 @@ var html = require('../routes/html')
 var escape = require('../util/escape')
 
 module.exports = function (name, required, prior) {
+  var readonly = prior && prior.readonly
   return html`
-    <select name="${escape(name)}" ${required && 'required'}>
+    ${readonly && html`
+      <input
+          type=hidden
+          name="${escape(name)}"
+          value="${escape(prior.value)}">
+    `}
+    <select
+        ${readonly ? 'disabled' : `name="${escape(name)}"`}
+        ${required && 'required'}>
       <option value=""></option>
       ${JURISDICTIONS.map(function (jurisdiction) {
         return html`

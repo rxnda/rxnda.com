@@ -7,11 +7,7 @@ var legalFormSelect = require('./legal-form-select')
 var optional = require('./optional')
 var paragraphs = require('./paragraphs')
 
-module.exports = function input (name, label, notes, prior, errors) {
-  var required = (
-    name.startsWith('signatures-sender-') ||
-    name.startsWith('directions-')
-  )
+module.exports = function input (name, required, label, notes, prior, errors) {
   if (name.endsWith('address')) {
     return html`
 <section class=field>

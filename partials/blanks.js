@@ -25,6 +25,7 @@ module.exports = function (form, postData, priorValueOf) {
       )
       return input(
         name,
+        'required',
         direction.label,
         form.notes.concat(
           direction.examples

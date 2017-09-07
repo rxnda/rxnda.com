@@ -95,7 +95,7 @@ ${rest(page)}
 
   function inputWithPrior (name, label, notes, sendValue) {
     if (sendValue) {
-      return input(name, label, notes, {
+      return input(name, false, label, notes, {
         value: sendValue,
         readonly: true,
         prefilled: true
@@ -106,7 +106,7 @@ ${rest(page)}
       if (postData && postData[suffix]) {
         prior = {value: postData[suffix]}
       }
-      return input(name, label, notes, prior, errorsFor(name, postData))
+      return input(name, false, label, notes, prior, errorsFor(name, postData))
     }
   }
 }
