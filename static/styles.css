@@ -45,8 +45,7 @@ footer[role=contentinfo] ul li:first-of-type:before {
 }
 
 main {
-  text-align: justify;
-  text-justify: inter-word;
+  text-align: left;
 }
 
 blockquote footer {
