@@ -36,14 +36,6 @@ ${nav()}
     Sending an NDA that the other side rejects costs nothing.
   </p>
   <p class=bigPrice>
-  </p>
-  <p>
-    Successfully cosigning an NDA
-    prescribed by an attorney costs
-    ${configuration.prices.fill.toString()}
-    United States Dollars.
-  </p>
-  <p class=bigPrice>
     $${configuration.prices.prescribe.toString()}
   </p>
   <p>
