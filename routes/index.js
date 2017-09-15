@@ -5,6 +5,8 @@ var etagged = require('./etagged')
 var replacestream = require('replacestream')
 var send = require('send')
 
+// TODO compare form editions
+
 var routes = module.exports = require('http-hash')()
 
 routes.set('/', require('./homepage'))
