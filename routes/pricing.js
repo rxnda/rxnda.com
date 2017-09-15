@@ -16,12 +16,18 @@ ${nav()}
 <main>
   <p class=bigPrice>
     $${configuration.prices.use.toString()}
+    /
+    $${configuration.prices.fill.toString()}
   </p>
   <p>
     Successfully cosigning an NDA costs
     ${configuration.prices.use.toString()}
-    United States Dollars,
-    charged when the other side countersigns.
+    United States Dollars.
+    Successfully cosigning an NDA prescribed by
+    an attorney costs
+    ${configuration.prices.fill.toString()}
+    United States Dollars.
+    This price is charged when the other side countersigns.
     You must use a credit card to pay.
   </p>
   <p>
@@ -30,7 +36,6 @@ ${nav()}
     Sending an NDA that the other side rejects costs nothing.
   </p>
   <p class=bigPrice>
-    $${configuration.prices.fill.toString()}
   </p>
   <p>
     Successfully cosigning an NDA
@@ -45,6 +50,8 @@ ${nav()}
     Prescribing an NDA for client use costs
     ${configuration.prices.fill.toString()}
     United States Dollars.
+    This price is charged when the prescription
+    is created.
   </p>
 </main>
 ${footer()}`)
