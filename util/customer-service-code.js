@@ -1,8 +1,9 @@
-var ed25519 = require('ed25519')
+var ed25519 = require('../ed25519')
 
 module.exports = function (configuration, capability, recipient) {
-  var signature = ed25519.Sign(
-    Buffer.from(capability + ' ' + recipient, 'utf8'),
+  var signature = ed25519.sign(
+    capability + ' ' + recipient,
+    configuration.keys.public,
     configuration.keys.private
   ).toString('hex')
   return (

@@ -3,7 +3,7 @@ var spawn = require('child_process').spawn
 var clone = require('../data/clone')
 var docx = require('commonform-docx')
 var ecb = require('ecb')
-var ed25519 = require('ed25519')
+var ed25519 = require('../ed25519')
 var fs = require('fs')
 var hash = require('commonform-hash')
 var icalDate = require('../util/ical-date')
@@ -126,8 +126,9 @@ function prefilledSignaturePage (configuration, hash, page, data) {
   returned.name = data.name
   returned.meta = (
     'rxnda.com signature code:\n' +
-    ed25519.Sign(
-      Buffer.from(stringify(xtend(data, {hash: hash})), 'utf8'),
+    ed25519.sign(
+      stringify(xtend(data, {hash: hash})),
+      configuration.keys.public,
       configuration.keys.private
     ).toString('hex') + '\n' +
     'Verify online at https://rxnda.com/verify.'

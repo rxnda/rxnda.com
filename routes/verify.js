@@ -1,5 +1,5 @@
 var Busboy = require('busboy')
-var ed25519 = require('ed25519')
+var ed25519 = require('../ed25519')
 var pump = require('pump')
 var stringify = require('json-stable-stringify')
 
@@ -131,9 +131,9 @@ function post (configuration, request, response) {
         data.signature = data.name
         data.terms = 'accepted'
         request.log.info({data: data, signature: signature})
-        var valid = ed25519.Verify(
-          Buffer.from(stringify(data), 'utf8'),
-          Buffer.from(signature, 'hex'),
+        var valid = ed25519.verify(
+          stringify(data),
+          signature,
           configuration.keys.public
         )
         response.setHeader('Content-Type', 'text/html; charset=ASCII')
