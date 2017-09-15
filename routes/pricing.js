@@ -26,11 +26,7 @@ ${nav()}
   </p>
   <p>
     Sending an NDA that&rsquo;s not countersigned costs nothing.
-  </p>
-  <p>
     Sending an NDA that you cancel costs nothing.
-  </p>
-  <p>
     Sending an NDA that the other side rejects costs nothing.
   </p>
   <p class=bigPrice>
