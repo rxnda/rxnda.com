@@ -55,8 +55,9 @@ ${nav()}
     <p>
       Register to create <em>prescriptions</em>:
       partially prefilled forms, with advice on proper use,
-      that enable specific clients to send NDAs through the
-      site at a substantial discount.
+      that enable specific clients to enter NDAs through the
+      site for $${configuration.prices.fill.toString()},
+      rather than $${configuration.prices.use.toString()}.
     </p>
 
     <p>
