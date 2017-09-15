@@ -14,7 +14,6 @@ ${preamble('Pricing')}
 ${banner()}
 ${nav()}
 <main>
-  <p class=bigPrice><span class=use-price></span></p>
   <p class=bigPrice>
     $${configuration.prices.use.toString()}
   </p>
@@ -33,6 +32,23 @@ ${nav()}
   </p>
   <p>
     Sending an NDA that the other side rejects costs nothing.
+  </p>
+  <p class=bigPrice>
+    $${configuration.prices.fill.toString()}
+  </p>
+  <p>
+    Successfully cosigning an NDA
+    prescribed by an attorney costs
+    ${configuration.prices.fill.toString()}
+    United States Dollars.
+  </p>
+  <p class=bigPrice>
+    $${configuration.prices.prescribe.toString()}
+  </p>
+  <p>
+    Prescribing an NDA for client use costs
+    ${configuration.prices.fill.toString()}
+    United States Dollars.
   </p>
 </main>
 ${footer()}`)
