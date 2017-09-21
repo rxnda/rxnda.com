@@ -3,6 +3,7 @@ var errorsFor = require('../util/errors-for')
 var escape = require('../util/escape')
 var htmlContent = require('../util/html-content')
 var internalError = require('./internal-error')
+var normalizeLineBreaks = require('../data/normalize-line-breaks')
 var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
 var offer = require('../data/offer')
@@ -182,9 +183,7 @@ function post (configuration, request, response, prescription) {
     new Busboy({headers: request.headers})
       .on('field', function (name, value) {
         if (value) {
-          value = value
-            .trim()
-            .replace(/\r?\n/, '\n')
+          value = normalizeLineBreaks(value.trim())
           var key
           if (name.startsWith('signatures-sender-')) {
             key = name.slice(18)

@@ -7,14 +7,15 @@ var email = require('../email')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
 var fillMessage = require('../messages/fill')
-var prescriptionPath = require('../data/prescription-path')
 var fs = require('fs')
 var internalError = require('./internal-error')
 var list = require('english-list')
 var mkdirp = require('mkdirp')
+var normalizeLineBreaks = require('../data/normalize-line-breaks')
 var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
 var path = require('path')
+var prescriptionPath = require('../data/prescription-path')
 var pump = require('pump')
 var randomCapability = require('../data/random-capability')
 var readEdition = require('../data/read-edition')
@@ -376,9 +377,7 @@ function post (configuration, request, response, form, attorney) {
     new Busboy({headers: request.headers})
       .on('field', function (name, value) {
         if (value) {
-          value = value
-            .trim()
-            .replace(/\r?\n/, '\n')
+          value = normalizeLineBreaks(value.trim())
           var key
           if (name.startsWith('signatures-sender-')) {
             key = name.slice(18)

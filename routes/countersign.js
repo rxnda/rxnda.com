@@ -8,6 +8,7 @@ var expirationDate = require('../data/expiration-date')
 var expired = require('../data/expired')
 var fs = require('fs')
 var internalError = require('./internal-error')
+var normalizeLineBreaks = require('../data/normalize-line-breaks')
 var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
 var path = require('path')
@@ -312,9 +313,7 @@ function post (configuration, request, response, send) {
           if (name.startsWith('signatures-recipient-')) {
             var key = name.slice(21)
             if (signatureProperties.includes(key)) {
-              countersign[key] = value
-                .trim()
-                .replace(/\r?\n/, '\n')
+              countersign[key] = normalizeLineBreaks(value.trim())
             }
           } else if (name === 'terms') {
             countersign.terms = value
