@@ -46,8 +46,8 @@ ${nav()}
     <a href=/lists>consider subscribing to a mailing list</a>.
   </p>
 
-  <h3>Prescription System</h3>
-  <p>
+  <h3 class=done>Prescription System</h3>
+  <p class=done>
     On the software side, add support for
     &ldquo;prescriptions&rdquo;:
     private combinations of
@@ -56,7 +56,7 @@ ${nav()}
     which form to use, when, and how,
     to specific clients.
   </p>
-  <p>
+  <p class=done>
     The tentative plan is
     to charge a flat fee per prescription,
     good for a limited time,

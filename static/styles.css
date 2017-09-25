@@ -317,3 +317,17 @@ hr {
   border: none;
   border-top: 1px solid black;
 }
+
+.done {
+  position: relative;
+  text-decoration: line-through;
+}
+
+.done:before {
+  color: darkgreen;
+  content: '✓';
+  display: block;
+  left: -1.5rem;
+  position: absolute;
+  text-decoration: none;
+}
