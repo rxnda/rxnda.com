@@ -31,7 +31,7 @@ ${nav()}
     You must use a credit card to pay.
   </p>
   <p>
-    Sending an NDA that&rsquo;s not countersigned costs nothing.
+    Sending an NDA that&rsquo;s never countersigned costs nothing.
     Sending an NDA that you cancel costs nothing.
     Sending an NDA that the other side rejects costs nothing.
   </p>
