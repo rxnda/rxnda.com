@@ -12,6 +12,8 @@ var offer = require('../data/offer')
 var pump = require('pump')
 var readCoupon = require('../data/read-coupon')
 var readEdition = require('../data/read-edition')
+var readEditions = require('../data/read-editions')
+var runParallel = require('run-parallel')
 var sameArray = require('../data/same-array')
 var sanitize = require('../util/sanitize-path-component')
 var spell = require('reviewers-edition-spell')
@@ -27,6 +29,7 @@ var footer = require('../partials/footer')
 var html = require('./html')
 var information = require('../partials/information')
 var nav = require('../partials/nav')
+var oldEditionWarning = require('../partials/old-edition-warning')
 var paragraphs = require('../partials/paragraphs')
 var payment = require('../partials/payment')
 var preamble = require('../partials/preamble')
@@ -37,27 +40,31 @@ var termsCheckbox = require('../partials/terms-checkbox')
 module.exports = function send (configuration, request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
-  readEdition(
-    configuration, sanitize(title), sanitize(edition),
-    function (error, data) {
-      /* istanbul ignore if */
-      if (error) {
-        internalError(configuration, request, response, error)
-      } else if (data === false) {
-        notFound(configuration, request, response, [
-          'There isn’t any form by that title and edition.'
-        ])
+  runParallel({
+    edition: function (done) {
+      readEdition(configuration, sanitize(title), sanitize(edition), done)
+    },
+    editions: function (done) {
+      readEditions(configuration, sanitize(title), done)
+    }
+  }, function (error, results) {
+    /* istanbul ignore if */
+    if (error) {
+      internalError(configuration, request, response, error)
+    } else if (results.edition === false) {
+      notFound(configuration, request, response, [
+        'There isn’t any form by that title and edition.'
+      ])
+    } else {
+      results.edition.title = title
+      results.edition.allEditions = results.editions
+      if (request.method === 'POST') {
+        post(configuration, request, response, results.edition)
       } else {
-        data.title = title
-        data.edition = edition
-        if (request.method === 'POST') {
-          post(configuration, request, response, data)
-        } else {
-          get(configuration, request, response, data)
-        }
+        get(configuration, request, response, results.edition)
       }
     }
-  )
+  })
 }
 
 function get (configuration, request, response, edition, postData) {
@@ -119,6 +126,15 @@ ${nav()}
     <p class=edition>${escape(spell(edition.edition))}</p>
 
     ${draftWarning(edition.edition)}
+
+    ${oldEditionWarning(
+      edition.title,
+      edition.edition,
+      edition.allEditions,
+      function (title, edition) {
+        return '/send/' + escape(title) + '/' + escape(edition)
+      }
+    )}
 
     ${paragraphs(edition.notes)}
 

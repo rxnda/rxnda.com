@@ -19,6 +19,7 @@ var prescriptionPath = require('../data/prescription-path')
 var pump = require('pump')
 var randomCapability = require('../data/random-capability')
 var readEdition = require('../data/read-edition')
+var readEditions = require('../data/read-editions')
 var readJSONFile = require('../data/read-json-file')
 var revokeMessage = require('../messages/revoke')
 var revokePath = require('../data/revoke-path')
@@ -36,6 +37,7 @@ var footer = require('../partials/footer')
 var html = require('./html')
 var input = require('../partials/input')
 var nav = require('../partials/nav')
+var oldEditionWarning = require('../partials/old-edition-warning')
 var paragraphs = require('../partials/paragraphs')
 var payment = require('../partials/payment')
 var preamble = require('../partials/preamble')
@@ -46,35 +48,40 @@ var termsCheckbox = require('../partials/terms-checkbox')
 module.exports = function prescribe (configuration, request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
-  readEdition(
-    configuration, sanitize(title), sanitize(edition),
-    function (error, edition) {
-      /* istanbul ignore if */
-      if (error) {
-        internalError(configuration, request, response, error)
-      } else if (edition === false) {
-        notFound(configuration, request, response, [
-          'There isn’t any form by that title and edition.'
-        ])
-      } else {
-        var attorneyFile = attorneyPath(
-          configuration, request.query.attorney
-        )
-        readJSONFile(attorneyFile, function (error, attorney) {
-          if (error) {
-            return notFound(configuration, request, response, [
-              'There isn’t any attorney with that ID.'
-            ])
-          }
-          if (request.method === 'POST') {
-            post(configuration, request, response, edition, attorney)
-          } else {
-            showGet(configuration, request, response, edition, attorney)
-          }
-        })
-      }
+  runParallel({
+    edition: function (done) {
+      readEdition(configuration, sanitize(title), sanitize(edition), done)
+    },
+    editions: function (done) {
+      readEditions(configuration, sanitize(title), done)
     }
-  )
+  }, function (error, results) {
+    /* istanbul ignore if */
+    if (error) {
+      internalError(configuration, request, response, error)
+    } else if (results.edition === false) {
+      notFound(configuration, request, response, [
+        'There isn’t any form by that title and edition.'
+      ])
+    } else {
+      var attorneyFile = attorneyPath(
+        configuration, request.query.attorney
+      )
+      readJSONFile(attorneyFile, function (error, attorney) {
+        if (error) {
+          return notFound(configuration, request, response, [
+            'There isn’t any attorney with that ID.'
+          ])
+        }
+        results.edition.allEditions = results.editions
+        if (request.method === 'POST') {
+          post(configuration, request, response, results.edition, attorney)
+        } else {
+          showGet(configuration, request, response, results.edition, attorney)
+        }
+      })
+    }
+  })
 }
 
 function showGet (
@@ -110,6 +117,17 @@ ${nav()}
     <p class=edition>${escape(spell(edition.edition))}</p>
 
     ${draftWarning(edition.edition)}
+
+    ${oldEditionWarning(
+      edition.title, edition.edition, edition.allEditions,
+      function (title, edition) {
+        return (
+          '/prescribe/' + escape(title) +
+          '/' + escape(edition) +
+          '?attorney=' + attorney.capability
+        )
+      }
+    )}
 
     ${paragraphs(edition.notes)}
 
@@ -349,7 +367,9 @@ function senderBlock (signature, postData) {
         required: required,
         label: label,
         notes: notes,
-        prior: {value: postData.signatures.sender[name.split('-').reverse()[0]]},
+        prior: {
+          value: postData.signatures.sender[name.split('-').reverse()[0]]
+        },
         errors: errorsFor(name, postData)
       })
     } else {
