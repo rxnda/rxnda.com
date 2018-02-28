@@ -7,7 +7,7 @@
     "licensee": "^4.5.0",
     "lint-staged": "^7.0.0",
     "ncp": "^2.0.0",
-    "standard": "^10.0.2",
+    "standard": "^11.0.0",
     "tape": "^4.9.0",
     "webdriverio": "^4.11.0"
   },
