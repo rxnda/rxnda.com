@@ -8,7 +8,7 @@
     "lint-staged": "^4.0.3",
     "ncp": "^2.0.0",
     "standard": "^10.0.2",
-    "tape": "^4.7.0",
+    "tape": "^4.9.0",
     "webdriverio": "^4.8.0"
   },
   "scripts": {
