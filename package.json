@@ -61,7 +61,7 @@
     "sodium-native": "^2.1.4",
     "stripe": "^5.5.0",
     "uuid": "^3.2.1",
-    "validate-california-attorney-email": "github:kemitchell/validate-california-attorney-email.js",
+    "validate-california-attorney-email": "^1.0.0",
     "w3-is-email": "0.0.1",
     "word-wrap": "^1.2.3",
     "wordwrap": "^1.0.0",
