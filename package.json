@@ -35,7 +35,7 @@
     "english-list": "^1.0.0",
     "escape-string-regexp": "^1.0.5",
     "etag": "^1.8.1",
-    "form-data": "^2.2.0",
+    "form-data": "^2.3.2",
     "html-entities": "^1.2.1",
     "http-hash": "^2.0.0",
     "json-parse-errback": "^2.0.1",
