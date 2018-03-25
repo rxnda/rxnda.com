@@ -43,7 +43,8 @@ module.exports = function (configuration, callback) {
                       expiredMessage(configuration, parsed),
                       done
                     )
-                  },
+                  }
+                ].concat([
                   revokePath(configuration, parsed.revoke),
                   prescriptionPath(configuration, parsed.fill)
                 ].map(function (file) {
@@ -56,7 +57,7 @@ module.exports = function (configuration, callback) {
                       done()
                     })
                   }
-                }),
+                })),
                 done
               )
             } else {
