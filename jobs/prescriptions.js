@@ -9,6 +9,8 @@ var revokePath = require('../data/revoke-path')
 var runParallelLimit = require('run-parallel-limit')
 var runSeries = require('run-series')
 
+var CONCURRENCY = 3
+
 module.exports = function (configuration, callback) {
   var directory = configuration.directory
   var prescriptions = path.join(directory, 'prescription')
@@ -67,7 +69,7 @@ module.exports = function (configuration, callback) {
           })
         }
       }),
-      3,
+      CONCURRENCY,
       function () {
         callback()
       }

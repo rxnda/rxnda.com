@@ -8,6 +8,8 @@ var runParallelLimit = require('run-parallel-limit')
 var runSeries = require('run-series')
 var signPath = require('../data/sign-path')
 
+var CONCURRENCY = 3
+
 module.exports = function sweep (configuration, callback) {
   var directory = configuration.directory
   var signs = path.join(directory, 'sign')
@@ -60,7 +62,7 @@ module.exports = function sweep (configuration, callback) {
             })
           }
         }),
-        3,
+        CONCURRENCY,
         function () {
           callback()
         }
