@@ -59,7 +59,7 @@
     "run-waterfall": "^1.1.4",
     "send": "^0.16.2",
     "signature-page-schema": "^1.0.1",
-    "sodium-native": "^2.1.4",
+    "sodium-native": "^2.1.5",
     "stripe": "^5.5.0",
     "uuid": "^3.2.1",
     "validate-california-attorney-email": "^1.0.0",
