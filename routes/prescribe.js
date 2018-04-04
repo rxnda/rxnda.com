@@ -43,8 +43,6 @@ var payment = require('../partials/payment')
 var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
-// TODO: sweep expired prescriptions
-
 module.exports = function prescribe (configuration, request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
