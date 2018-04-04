@@ -2,6 +2,7 @@ var Busboy = require('busboy')
 var VALID_TERMS = require('../data/valid-prescription-terms')
 var attorneyPath = require('../data/attorney-path')
 var decodeTitle = require('../util/decode-title')
+var deletePrescriptionCoupon = require('../data/delete-prescription-coupon')
 var ecb = require('ecb')
 var email = require('../email')
 var encodeTitle = require('../util/encode-title')
@@ -21,6 +22,7 @@ var randomCapability = require('../data/random-capability')
 var readEdition = require('../data/read-edition')
 var readEditions = require('../data/read-editions')
 var readJSONFile = require('../data/read-json-file')
+var readPrescriptionCoupon = require('../data/read-prescription-coupon')
 var revokeMessage = require('../messages/revoke')
 var revokePath = require('../data/revoke-path')
 var runParallel = require('run-parallel')
@@ -32,6 +34,7 @@ var stripe = require('stripe')
 var validPrescription = require('../data/valid-prescription')
 
 var banner = require('../partials/banner')
+var couponSection = require('../partials/coupon-section')
 var draftWarning = require('../partials/draft-warning')
 var footer = require('../partials/footer')
 var html = require('./html')
@@ -75,7 +78,23 @@ module.exports = function prescribe (configuration, request, response) {
         if (request.method === 'POST') {
           post(configuration, request, response, results.edition, attorney)
         } else {
-          showGet(configuration, request, response, results.edition, attorney)
+          if (request.query.coupon) {
+            var coupon = request.query.coupon
+            readPrescriptionCoupon(configuration, coupon, function (error, valid) {
+              if (error) {
+                internalError(configuration, request, response, error)
+              } else {
+                showGet(
+                  configuration, request, response, results.edition, attorney,
+                  valid ? coupon : null
+                )
+              }
+            })
+          } else {
+            showGet(
+              configuration, request, response, results.edition, attorney, null
+            )
+          }
         }
       })
     }
@@ -83,7 +102,7 @@ module.exports = function prescribe (configuration, request, response) {
 }
 
 function showGet (
-  configuration, request, response, edition, attorney, postData
+  configuration, request, response, edition, attorney, coupon, postData
 ) {
   response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
@@ -257,17 +276,21 @@ ${nav()}
 
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
-    ${payment(configuration, [
-      `
-      ${escape(configuration.domain)} will charge your credit card
-      $${escape(configuration.prices.prescribe.toString())} now.
-      `,
-      `
-        The cost of sending NDAs on prescription will be discounted
-        from $${configuration.prices.use.toString()}
-        to $${configuration.prices.fill.toString()}.
-      `
-    ])}
+    ${
+      coupon
+      ? couponSection(coupon)
+      : payment(configuration, [
+        `
+        ${escape(configuration.domain)} will charge your credit card
+        $${escape(configuration.prices.prescribe.toString())} now.
+        `,
+        `
+          The cost of sending NDAs on prescription will be discounted
+          from $${configuration.prices.use.toString()}
+          to $${configuration.prices.fill.toString()}.
+        `
+      ])
+    }
 
     <section class=information>
       <h3>Next Steps</h3>
@@ -427,20 +450,23 @@ function post (configuration, request, response, form, attorney) {
             data.expiration = parseInt(value)
           } else if (name === 'terms') {
             data.terms = value
+          } else if (name === 'coupon') {
+            data.coupon = value
           }
         }
       })
       .once('finish', function () {
         request.log.info({data: data})
         var errors = validPrescription(data, form)
+        var coupon = request.query.coupon
         if (errors.length !== 0) {
           data.errors = errors
           showGet(
-            configuration, request, response, form, attorney, data
+            configuration, request, response, form, attorney, coupon, data
           )
         } else {
           write(
-            configuration, request, response, data, attorney, form
+            configuration, request, response, data, attorney, coupon, form
           )
         }
       })
@@ -454,12 +480,15 @@ function validSignatureProperty (name) {
 }
 
 function write (
-  configuration, request, response, data, attorney, form
+  configuration, request, response, data, attorney, coupon, form
 ) {
   var domain = configuration.domain
   var now = new Date()
   var sender = data.signatures.sender
   data.attorney = attorney
+  if (data.coupon) {
+    data.coupon = sanitize(data.coupon)
+  }
   // Backdate prescription from a specific e-mail address for test
   // purposes.  Backdating allows test code to run the sweep
   // procedure immediately, and verify that it has swept the
@@ -484,16 +513,28 @@ function write (
       ], done)
     },
     function createCharge (done) {
-      stripe(configuration.stripe.private).charges.create({
-        amount: data.prices.prescribe * 100, // dollars to cents
-        currency: 'usd',
-        description: domain,
-        source: data.token
-      }, function (error, charge) {
-        if (error) return done(error)
-        request.log.info({charge: charge.id})
-        done()
-      })
+      if (data.coupon) {
+        var coupon = data.coupon
+        readPrescriptionCoupon(configuration, coupon, function (error, valid) {
+          if (error) return done(error)
+          if (valid) {
+            deletePrescriptionCoupon(configuration, coupon, done)
+          } else {
+            done(new Error('invalid coupon'))
+          }
+        })
+      } else {
+        stripe(configuration.stripe.private).charges.create({
+          amount: data.prices.prescribe * 100, // dollars to cents
+          currency: 'usd',
+          description: domain,
+          source: data.token
+        }, function (error, charge) {
+          if (error) return done(error)
+          request.log.info({charge: charge.id})
+          done()
+        })
+      }
     },
     function writeFiles (done) {
       runParallel([

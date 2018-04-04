@@ -234,7 +234,9 @@ function post (configuration, request, response, prescription) {
 function write (configuration, request, response, data, prescription) {
   var now = new Date()
   var sender = data.signatures.sender
-  if (data.coupon) {
+  if (prescription.coupon) {
+    data.coupon = {prescription: true}
+  } if (data.coupon) {
     data.coupon = sanitize(data.coupon)
   }
   // Backdate offers from a specific e-mail address for test
