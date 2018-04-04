@@ -22,7 +22,7 @@
     "outdated": "npm outdated | tee outdated.log"
   },
   "dependencies": {
-    "ajv": "^6.2.0",
+    "ajv": "^6.4.0",
     "anniversary": "^1.1.2",
     "busboy": "^0.2.14",
     "commonform-analyze": "^3.0.0",
