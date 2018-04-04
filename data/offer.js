@@ -25,26 +25,21 @@ module.exports = function (configuration, request, data, callback) {
       var chargeID = null
       runSeries([
         function createCharge (done) {
-          if (data.coupon) {
+          if (data.prescriptionCoupon) {
+            done()
+          } else if (data.coupon) {
             var coupon = data.coupon
-            if (typeof coupon === 'string') {
-              readCoupon(configuration, coupon, function (error, valid) {
-                if (error) return done(error)
-                if (valid) {
-                  chargeID = 'coupon'
-                  deleteCoupon(configuration, coupon, done)
-                } else {
-                  done(new Error('invalid coupon'))
-                }
-              })
-            } else {
-              if (coupon.prescription === true) {
+            readCoupon(configuration, coupon, function (error, valid) {
+              if (error) {
                 chargeID = 'coupon'
-                done()
+                done(error)
+              } else if (valid) {
+                chargeID = 'coupon'
+                deleteCoupon(configuration, coupon, done)
               } else {
                 done(new Error('invalid coupon'))
               }
-            }
+            })
           } else {
             stripe(configuration.stripe.private).charges.create({
               amount: data.price * 100, // dollars to cents
