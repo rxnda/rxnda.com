@@ -18,7 +18,8 @@
     "test": "NODE_ENV=test tape test/**.test.js",
     "testserver": "TMP=$(mktemp) ; ./make-keypair > $TMP ; . $TMP ; DIRECTORY=example-directory MAILGUN_KEY=key-7e4a9a258a0f7ac785449203354f8962 MAILGUN_DOMAIN=mail.rxnda.com node server.js ; rm $TMP",
     "license": "licensee --errors-only",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "outdated": "npm outdated | tee outdated.log"
   },
   "dependencies": {
     "ajv": "^6.2.0",
