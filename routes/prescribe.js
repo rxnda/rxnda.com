@@ -7,6 +7,7 @@ var ecb = require('ecb')
 var email = require('../email')
 var encodeTitle = require('../util/encode-title')
 var escape = require('../util/escape')
+var evergreenCoupon = require('../data/evergreen-coupon')
 var fillMessage = require('../messages/fill')
 var fs = require('fs')
 var internalError = require('./internal-error')
@@ -518,7 +519,8 @@ function write (
         readPrescriptionCoupon(configuration, coupon, function (error, valid) {
           if (error) return done(error)
           if (valid) {
-            deletePrescriptionCoupon(configuration, coupon, done)
+            if (evergreenCoupon(coupon)) done()
+            else deletePrescriptionCoupon(configuration, coupon, done)
           } else {
             done(new Error('invalid coupon'))
           }

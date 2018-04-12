@@ -4,6 +4,7 @@ var chargePath = require('../data/charge-path')
 var countersignMessage = require('../messages/countersign')
 var deleteCoupon = require('../data/delete-coupon')
 var email = require('../email')
+var evergreenCoupon = require('../data/evergreen-coupon')
 var mkdirpThenWriteJSON = require('../data/mkdirp-then-write-json')
 var randomCapability = require('../data/random-capability')
 var readCoupon = require('../data/read-coupon')
@@ -35,7 +36,8 @@ module.exports = function (configuration, request, data, callback) {
                 done(error)
               } else if (valid) {
                 chargeID = 'coupon'
-                deleteCoupon(configuration, coupon, done)
+                if (evergreenCoupon(coupon)) done()
+                else deleteCoupon(configuration, coupon, done)
               } else {
                 done(new Error('invalid coupon'))
               }
