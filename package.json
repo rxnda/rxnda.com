@@ -60,7 +60,7 @@
     "send": "^0.16.2",
     "signature-page-schema": "^1.0.1",
     "sodium-native": "^2.1.5",
-    "stripe": "^5.7.0",
+    "stripe": "^5.8.0",
     "uuid": "^3.2.1",
     "validate-california-attorney-email": "^1.0.0",
     "w3-is-email": "0.0.1",
