@@ -160,7 +160,7 @@ ${nav()}
     `])}
 
     ${information([
-      `${address} will send the other side a secret link` +
+      `${address} will send the other side a secret link ` +
       `that they can use to countersign or cancel online.`,
       `${address} will send you an e-mail with a secret link` +
       `that you can use to cancel before the other side countersigns.`
