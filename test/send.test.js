@@ -86,7 +86,7 @@ tape.test('invalid send w/o form validation', function (test) {
 tape.test('send w/ coupon', function (test) {
   server(function (port, closeServer) {
     webdriver
-      .url('http://localhost:' + port + '/send/Testing/1e?coupon=testcoupon')
+      .url('http://localhost:' + port + '/send/Testing/1e')
       .setValue(
         'input[name="signatures-sender-name"]',
         'Test User'
@@ -102,6 +102,10 @@ tape.test('send w/ coupon', function (test) {
       .setValue(
         'input[name="signatures-recipient-email"]',
         'recipient@example.com'
+      )
+      .setValue(
+        'input[name="coupon"]',
+        'testcoupon'
       )
       .click('input[name="terms"]')
       .click('input[type="submit"]')
@@ -126,8 +130,30 @@ tape.test('send w/ coupon', function (test) {
 tape.test('send w/ invalid coupon', function (test) {
   server(function (port, closeServer) {
     webdriver
-      .url('http://localhost:' + port + '/send/Testing/1e?coupon=invalid')
-      .getText('section#payment h3')
+      .url('http://localhost:' + port + '/send/Testing/1e')
+      .setValue(
+        'input[name="signatures-sender-name"]',
+        'Test User'
+      )
+      .setValue(
+        'input[name="signatures-sender-signature"]',
+        'Test User'
+      )
+      .setValue(
+        'input[name="signatures-sender-email"]',
+        'sender@example.com'
+      )
+      .setValue(
+        'input[name="signatures-recipient-email"]',
+        'recipient@example.com'
+      )
+      .setValue(
+        'input[name="coupon"]',
+        'invalidcoupon'
+      )
+      .click('input[name="terms"]')
+      .click('input[type="submit"]')
+      .getText('#payment .error')
       .catch(function (error) {
         test.ifError(error)
         test.end()
@@ -135,8 +161,8 @@ tape.test('send w/ invalid coupon', function (test) {
       })
       .then(function (text) {
         test.equal(
-          text, 'Credit Card Payment',
-          'shows credit card entry'
+          text,
+          'The coupon you entered is not valid.'
         )
         test.end()
         closeServer()

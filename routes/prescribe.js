@@ -35,7 +35,6 @@ var stripe = require('stripe')
 var validPrescription = require('../data/valid-prescription')
 
 var banner = require('../partials/banner')
-var couponSection = require('../partials/coupon-section')
 var draftWarning = require('../partials/draft-warning')
 var footer = require('../partials/footer')
 var html = require('./html')
@@ -79,23 +78,9 @@ module.exports = function prescribe (configuration, request, response) {
         if (request.method === 'POST') {
           post(configuration, request, response, results.edition, attorney)
         } else {
-          if (request.query.coupon) {
-            var coupon = request.query.coupon
-            readPrescriptionCoupon(configuration, coupon, function (error, valid) {
-              if (error) {
-                internalError(configuration, request, response, error)
-              } else {
-                showGet(
-                  configuration, request, response, results.edition, attorney,
-                  valid ? coupon : null
-                )
-              }
-            })
-          } else {
-            showGet(
-              configuration, request, response, results.edition, attorney, null
-            )
-          }
+          showGet(
+            configuration, request, response, results.edition, attorney
+          )
         }
       })
     }
@@ -103,7 +88,7 @@ module.exports = function prescribe (configuration, request, response) {
 }
 
 function showGet (
-  configuration, request, response, edition, attorney, coupon, postData
+  configuration, request, response, edition, attorney, postData
 ) {
   response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
@@ -277,21 +262,17 @@ ${nav()}
 
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
-    ${
-      coupon
-      ? couponSection(coupon)
-      : payment(configuration, [
-        `
-        ${escape(configuration.domain)} will charge your credit card
-        $${escape(configuration.prices.prescribe.toString())} now.
-        `,
-        `
-          The cost of sending NDAs on prescription will be discounted
-          from $${configuration.prices.use.toString()}
-          to $${configuration.prices.fill.toString()}.
-        `
-      ])
-    }
+    ${payment(postData, [
+      `
+      ${escape(configuration.domain)} will charge your credit card
+      $${escape(configuration.prices.prescribe.toString())} now.
+      `,
+      `
+        The cost of sending NDAs on prescription will be discounted
+        from $${configuration.prices.use.toString()}
+        to $${configuration.prices.fill.toString()}.
+      `
+    ])}
 
     <section class=information>
       <h3>Next Steps</h3>
@@ -459,15 +440,14 @@ function post (configuration, request, response, form, attorney) {
       .once('finish', function () {
         request.log.info({data: data})
         var errors = validPrescription(data, form)
-        var coupon = request.query.coupon
         if (errors.length !== 0) {
           data.errors = errors
           showGet(
-            configuration, request, response, form, attorney, coupon, data
+            configuration, request, response, form, attorney, data
           )
         } else {
           write(
-            configuration, request, response, data, attorney, coupon, form
+            configuration, request, response, data, attorney, form
           )
         }
       })
@@ -481,7 +461,7 @@ function validSignatureProperty (name) {
 }
 
 function write (
-  configuration, request, response, data, attorney, coupon, form
+  configuration, request, response, data, attorney, form
 ) {
   var domain = configuration.domain
   var now = new Date()
@@ -573,9 +553,22 @@ function write (
   ], function (error) {
     /* istanbul ignore if */
     if (error) {
-      request.log.error(error)
-      response.statusCode = 500
-      response.end()
+      if (error.message === 'invalid coupon') {
+        data.errors = [
+          {
+            name: 'coupon',
+            message: 'The coupon you entered is not valid.'
+          }
+        ]
+        showGet(
+          configuration, request, response,
+          data.form.edition, attorney, data
+        )
+      } else {
+        request.log.error(error)
+        response.statusCode = 500
+        response.end()
+      }
     } else {
       response.setHeader('Content-Type', 'text/html; charset=ASCII')
       var sender = data.signatures.sender

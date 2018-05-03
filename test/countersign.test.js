@@ -85,9 +85,7 @@ tape.test('Countersign w/ coupon', function (test) {
       },
       function (done) {
         webdriver
-          .url(
-            'http://localhost:' + port + '/send/Testing/1e?coupon=abc'
-          )
+          .url('http://localhost:' + port + '/send/Testing/1e')
           .setValue(
             'input[name="signatures-sender-name"]',
             'Test User'
@@ -103,6 +101,10 @@ tape.test('Countersign w/ coupon', function (test) {
           .setValue(
             'input[name="signatures-recipient-email"]',
             'recipient@example.com'
+          )
+          .setValue(
+            'input[name="coupon"]',
+            'abc'
           )
           .click('input[name="terms"]')
           .click('input[type="submit"]')

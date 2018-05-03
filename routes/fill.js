@@ -8,7 +8,6 @@ var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
 var offer = require('../data/offer')
 var pump = require('pump')
-var readCoupon = require('../data/read-coupon')
 var readPrescription = require('../data/read-prescription')
 var sameArray = require('../data/same-array')
 var sanitize = require('../util/sanitize-path-component')
@@ -20,7 +19,6 @@ var validSignatureProperty = require('../data/valid-signature-property')
 var attorneyNotes = require('../partials/attorney-notes')
 var banner = require('../partials/banner')
 var blanks = require('../partials/blanks')
-var couponSection = require('../partials/coupon-section')
 var errorsMessage = require('../partials/errors-message')
 var footer = require('../partials/footer')
 var html = require('./html')
@@ -46,29 +44,14 @@ module.exports = function send (configuration, request, response) {
       if (request.method === 'POST') {
         post(configuration, request, response, prescription)
       } else {
-        if (request.query.coupon) {
-          var coupon = request.query.coupon
-          readCoupon(configuration, coupon, function (error, valid) {
-            if (error) {
-              internalError(configuration, request, response, error)
-            } else {
-              if (valid) {
-                get(configuration, request, response, prescription, coupon)
-              } else {
-                get(configuration, request, response, prescription, null)
-              }
-            }
-          })
-        } else {
-          get(configuration, request, response, prescription, null)
-        }
+        get(configuration, request, response, prescription)
       }
     }
   })
 }
 
 function get (
-  configuration, request, response, prescription, coupon, postData
+  configuration, request, response, prescription, postData
 ) {
   response.statusCode = postData ? 400 : 200
   htmlContent(response)
@@ -80,7 +63,6 @@ function get (
   var action = `/fill/${request.params.capability}`
   var senderPage = form.signatures[0]
   var recipientPage = form.signatures[1]
-  var applicableCoupon = prescription.coupon || coupon
   response.end(html`
 ${preamble('Send ' + form.title + ' ' + form.edition)}
 ${banner()}
@@ -139,18 +121,15 @@ ${nav()}
 
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
-    ${applicableCoupon
-        ? couponSection(applicableCoupon)
-        : payment(configuration, [`
-          ${escape(configuration.domain)} will authorized a charge of
-          $${escape(prescription.prices.fill.toString())} to your credit
-          card now. If the other side countersigns within seven days,
-          ${escape(configuration.domain)} will collect the charge.
-          If the other side does not countersign in seven days,
-          or if you cancel before they countersign, your credit
-          card will not be charged.
-        `])
-    }
+    ${payment(postData, [`
+      ${escape(configuration.domain)} will authorized a charge of
+      $${escape(prescription.prices.fill.toString())} to your credit
+      card now. If the other side countersigns within seven days,
+      ${escape(configuration.domain)} will collect the charge.
+      If the other side does not countersign in seven days,
+      or if you cancel before they countersign, your credit
+      card will not be charged.
+    `])}
 
     ${information([
       `${address} will send the other side a secret link` +
@@ -244,7 +223,7 @@ function post (configuration, request, response, prescription) {
           .concat(validFill(prescription, data))
         if (errors.length !== 0) {
           data.errors = errors
-          get(configuration, request, response, prescription, data.coupon, data)
+          get(configuration, request, response, prescription, data)
         } else {
           write(configuration, request, response, data, prescription)
         }

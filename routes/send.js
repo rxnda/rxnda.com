@@ -10,7 +10,6 @@ var notFound = require('./not-found')
 var novalidate = require('../util/novalidate')
 var offer = require('../data/offer')
 var pump = require('pump')
-var readCoupon = require('../data/read-coupon')
 var readEdition = require('../data/read-edition')
 var readEditions = require('../data/read-editions')
 var runParallel = require('run-parallel')
@@ -22,7 +21,6 @@ var validSignatureProperty = require('../data/valid-signature-property')
 
 var banner = require('../partials/banner')
 var blanks = require('../partials/blanks')
-var couponSection = require('../partials/coupon-section')
 var draftWarning = require('../partials/draft-warning')
 var errorsMessage = require('../partials/errors-message')
 var footer = require('../partials/footer')
@@ -68,32 +66,6 @@ module.exports = function send (configuration, request, response) {
 }
 
 function get (configuration, request, response, edition, postData) {
-  if (request.query.coupon) {
-    var coupon = request.query.coupon
-    readCoupon(configuration, coupon, function (error, valid) {
-      if (error) {
-        internalError(configuration, request, response, error)
-      } else {
-        if (valid) {
-          showGet(
-            configuration, request, response, edition, postData, coupon
-          )
-        } else {
-          render()
-        }
-      }
-    })
-  } else {
-    render()
-  }
-  function render () {
-    showGet(configuration, request, response, edition, postData)
-  }
-}
-
-function showGet (
-  configuration, request, response, edition, postData, coupon
-) {
   response.statusCode = postData ? 400 : 200
   htmlContent(response)
   var address = (
@@ -177,19 +149,15 @@ ${nav()}
 
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
-    ${
-      coupon
-        ? couponSection(coupon)
-        : payment(configuration, [`
-          ${escape(configuration.domain)} will authorize a charge of
-          $${escape(configuration.prices.use.toString())} to your credit
-          card now.  If the other side countersigns within seven days,
-          ${escape(configuration.domain)} will collect the charge.
-          If the other side does not countersign in seven days,
-          or if you cancel before they countersign, your credit
-          card will not be charged.
-        `])
-      }
+    ${payment(postData, [`
+      ${escape(configuration.domain)} will authorize a charge of
+      $${escape(configuration.prices.use.toString())} to your credit
+      card now.  If the other side countersigns within seven days,
+      ${escape(configuration.domain)} will collect the charge.
+      If the other side does not countersign in seven days,
+      or if you cancel before they countersign, your credit
+      card will not be charged.
+    `])}
 
     ${information([
       `${address} will send the other side a secret link` +
@@ -286,8 +254,18 @@ function write (configuration, request, response, data, form) {
   offer(configuration, request, data, function (error) {
     /* istanbul ignore if */
     if (error) {
-      request.log.error(error)
-      internalError(configuration, request, response, error)
+      if (error.message === 'invalid coupon') {
+        data.errors = [
+          {
+            name: 'coupon',
+            message: 'The coupon you entered is not valid.'
+          }
+        ]
+        get(configuration, request, response, form, data)
+      } else {
+        request.log.error(error)
+        internalError(configuration, request, response, error)
+      }
     } else {
       htmlContent(response)
       var sender = data.signatures.sender

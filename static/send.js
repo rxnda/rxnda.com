@@ -15,16 +15,20 @@ document.addEventListener('DOMContentLoaded', function () {
     })
   }
   var form = document.forms[0]
-  if (document.getElementById('card')) {
-    var stripe = window.Stripe(STRIPE_PUBLIC_KEY)
-    var elements = stripe.elements()
-    var card = elements.create('card')
-    card.mount('#card')
-    form.addEventListener('submit', function (event) {
-      event.preventDefault()
-      var button = document.getElementById('submitButton')
-      button.setAttribute('disabled', true)
-      button.value = 'Sending...'
+  var stripe = window.Stripe(STRIPE_PUBLIC_KEY)
+  var elements = stripe.elements()
+  var card = elements.create('card')
+  card.mount('#card')
+  form.addEventListener('submit', function (event) {
+    event.preventDefault()
+    var button = document.getElementById('submitButton')
+    button.setAttribute('disabled', true)
+    button.value = 'Sending...'
+    var couponInput = document.getElementsByName('coupon')[0]
+    if (couponInput.value) {
+      card.unmount()
+      form.submit()
+    } else {
       stripe.createToken(card).then(function (result) {
         if (result.error) {
           var errorElement = document.getElementById('card-errors')
@@ -40,14 +44,6 @@ document.addEventListener('DOMContentLoaded', function () {
           form.submit()
         }
       })
-    })
-  } else {
-    form.addEventListener('submit', function (event) {
-      event.preventDefault()
-      var button = document.getElementById('submitButton')
-      button.setAttribute('disabled', true)
-      button.value = 'Sending...'
-      form.submit()
-    })
-  }
+    }
+  })
 })
