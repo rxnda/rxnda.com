@@ -55,7 +55,7 @@
     "rimraf": "^2.6.2",
     "run-parallel": "^1.1.9",
     "run-parallel-limit": "^1.0.5",
-    "run-series": "^1.1.6",
+    "run-series": "^1.1.8",
     "run-waterfall": "^1.1.4",
     "send": "^0.16.2",
     "signature-page-schema": "^1.0.1",
