@@ -14,26 +14,31 @@ ${preamble('Pricing')}
 ${banner()}
 ${nav()}
 <main>
+  <p>
+    Sending an NDA that&rsquo;s never countersigned costs nothing.
+    Sending an NDA that you cancel costs nothing.
+    Sending an NDA that the other side rejects costs nothing.
+  </p>
   <p class=bigPrice>
     $${configuration.prices.use.toString()}
-    /
-    $${configuration.prices.fill.toString()}
   </p>
   <p>
     Successfully cosigning an NDA costs
     ${configuration.prices.use.toString()}
     United States Dollars.
+    This price is charged when the other side countersigns.
+    You must use a credit card to pay.
+  </p>
+  <p class=bigPrice>
+    $${configuration.prices.fill.toString()}
+  </p>
+  <p>
     Successfully cosigning an NDA prescribed by
     an attorney costs
     ${configuration.prices.fill.toString()}
     United States Dollars.
     This price is charged when the other side countersigns.
     You must use a credit card to pay.
-  </p>
-  <p>
-    Sending an NDA that&rsquo;s never countersigned costs nothing.
-    Sending an NDA that you cancel costs nothing.
-    Sending an NDA that the other side rejects costs nothing.
   </p>
   <p class=bigPrice>
     $${configuration.prices.prescribe.toString()}
