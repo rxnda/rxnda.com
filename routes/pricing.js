@@ -40,7 +40,7 @@ ${nav()}
   </p>
   <p>
     Prescribing an NDA for client use costs
-    ${configuration.prices.fill.toString()}
+    ${configuration.prices.prescribe.toString()}
     United States Dollars.
     This price is charged when the prescription
     is created.
