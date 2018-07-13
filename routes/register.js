@@ -17,19 +17,19 @@ var nav = require('../partials/nav')
 var paragraphs = require('../partials/paragraphs')
 var preamble = require('../partials/preamble')
 
-module.exports = function send (configuration, request, response) {
+module.exports = function send (request, response) {
   var method = request.method
   if (method === 'GET') {
-    get(configuration, request, response)
+    get(request, response)
   } else if (method === 'POST') {
-    post(configuration, request, response)
+    post(request, response)
   } else {
     response.statusCode = 405
     response.end()
   }
 }
 
-function get (configuration, request, response, postData) {
+function get (request, response, postData) {
   response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   var MAILTO = 'register@rxnda.com?subject=Attorney%20Registration'
@@ -56,8 +56,8 @@ ${nav()}
       Register to create <em>prescriptions</em>:
       partially prefilled forms, with advice on proper use,
       that enable specific clients to enter NDAs through the
-      site for $${configuration.prices.fill.toString()},
-      rather than $${configuration.prices.use.toString()}.
+      site for $${process.env.FILL_PRICE},
+      rather than $${process.env.USE_PRICE}.
     </p>
 
     <p>
@@ -157,7 +157,7 @@ function asterisk () {
   return '<span class=asterisk>*</span>'
 }
 
-function post (configuration, request, response) {
+function post (request, response) {
   var data = {}
   pump(
     request,
@@ -181,9 +181,9 @@ function post (configuration, request, response) {
         var errors = validPost(data)
         if (errors.length !== 0) {
           data.errors = errors
-          get(configuration, request, response, data)
+          get(request, response, data)
         } else {
-          write(configuration, request, response, data)
+          write(request, response, data)
         }
       })
   )
@@ -231,7 +231,7 @@ function validPost (data) {
   return errors
 }
 
-function write (configuration, request, response, data, form) {
+function write (request, response, data, form) {
   runSeries([
     function (done) {
       verifyAttorney(
@@ -260,18 +260,14 @@ function write (configuration, request, response, data, form) {
       })
     },
     function writeFile (done) {
-      var file = attorneyPath(configuration, data.capability)
+      var file = attorneyPath(data.capability)
       runSeries([
         mkdirp.bind(null, path.dirname(file)),
         fs.writeFile.bind(null, file, JSON.stringify(data))
       ], done)
     },
     function (done) {
-      email(
-        configuration,
-        registrationMessage(configuration, data),
-        done
-      )
+      email(request.log, registrationMessage(data), done)
     }
   ], function (error) {
     /* istanbul ignore if */

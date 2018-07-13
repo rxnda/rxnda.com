@@ -6,8 +6,8 @@ var elide = require('./data/elide')
 if (process.env.NODE_ENV === 'test') {
   var EventEmitter = require('events').EventEmitter
   var events = new EventEmitter()
-  module.exports = function (configuration, message, callback) {
-    var log = configuration.log.child({subsystem: 'email'})
+  module.exports = function (requestLog, message, callback) {
+    var log = requestLog.child({subsystem: 'email'})
     log.info(elide(message, 'docx', 'pdf', 'ics'))
     events.emit('message', message)
     callback()
@@ -18,11 +18,11 @@ if (process.env.NODE_ENV === 'test') {
   var https = require('https')
   var pump = require('pump')
   var DOCX = require('docx-content-type')
-  module.exports = function (configuration, message, callback) {
-    var domain = configuration.email.domain
-    var key = configuration.email.key
-    var from = configuration.email.sender + '@' + domain
-    var log = configuration.log.child({subsystem: 'email'})
+  module.exports = function (requestLog, message, callback) {
+    var domain = process.env.MAILGUN_DOMAIN
+    var key = process.env.MAILGUN_KEY
+    var from = process.env.MAILGUN_SENDER + '@' + process.env.MAILGUN_DOMAIN
+    var log = requestLog.child({subsystem: 'email'})
     log.info(elide(message, 'docx', 'pdf', 'ics'))
     var form = new FormData()
     form.append('from', from)

@@ -1,8 +1,8 @@
 var fs = require('fs')
 var path = require('path')
 
-module.exports = function (configuration, title, callback) {
-  var directory = path.join(configuration.directory, 'forms', title)
+module.exports = function (title, callback) {
+  var directory = path.join(process.env.DIRECTORY, 'forms', title)
   fs.readdir(directory, function (error, files) {
     if (error) {
       /* istanbul ignore else */

@@ -26,23 +26,21 @@ var preamble = require('../partials/preamble')
 
 // TODO: sweep old attorney files
 
-module.exports = function forms (configuration, request, response) {
+module.exports = function forms (request, response) {
   var method = request.method
   if (method === 'GET' || method === 'POST') {
-    var attorneyFile = attorneyPath(
-      configuration, request.params.capability
-    )
+    var attorneyFile = attorneyPath(request.params.capability)
     readJSONFile(attorneyFile, function (error, attorney) {
       attorney.capability = request.params.capability
       if (error) {
-        return notFound(configuration, request, response, [
+        return notFound(request, response, [
           'There isn’t any attorney with that ID.'
         ])
       }
       if (method === 'GET') {
-        get(configuration, request, response, attorney)
+        get(request, response, attorney)
       } else if (method === 'POST') {
-        post(configuration, request, response, attorney)
+        post(request, response, attorney)
       }
     })
   } else {
@@ -50,14 +48,14 @@ module.exports = function forms (configuration, request, response) {
   }
 }
 
-function get (configuration, request, response) {
+function get (request, response) {
   runWaterfall([
-    readTitles.bind(null, configuration),
+    readTitles,
     function (titles, done) {
       runParallel(titles.map(function (title) {
         return function (done) {
           readEditions(
-            configuration, sanitize(title),
+            sanitize(title),
             function (error, editions) {
               if (error) return done(error)
               var listOfEditions = editions
@@ -71,7 +69,7 @@ function get (configuration, request, response) {
               listOfEditions.reverse()
               var latestEdition = listOfEditions[0]
               readEdition(
-                configuration, title, latestEdition,
+                title, latestEdition,
                 function (error, latest) {
                   if (error) return done(error)
                   done(null, {
@@ -89,7 +87,7 @@ function get (configuration, request, response) {
   ], function (error, forms) {
     /* istanbul ignore if */
     if (error) {
-      return internalError(configuration, request, response, error)
+      return internalError(request, response, error)
     }
     forms.sort(function (a, b) {
       return a.title.localeCompare(b.title)
@@ -139,7 +137,7 @@ ${footer()}
   })
 }
 
-function post (configuratoin, request, response, attorney) {
+function post (request, response, attorney) {
   var data = {}
   pump(
     request,

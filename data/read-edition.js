@@ -1,9 +1,9 @@
 var path = require('path')
 var readJSONFile = require('./read-json-file')
 
-module.exports = function (configuration, title, edition, callback) {
+module.exports = function (title, edition, callback) {
   var file = path.join(
-    configuration.directory, 'forms', title,
+    process.env.DIRECTORY, 'forms', title,
     edition + '.json'
   )
   readJSONFile(file, function (error, data) {

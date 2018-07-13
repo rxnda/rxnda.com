@@ -19,21 +19,19 @@ var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = function revoke (configuration, request, response) {
+module.exports = function revoke (request, response) {
   var fillCapability
   var data
   runSeries([
     function readRevokeFile (done) {
-      var revokeFile = revokePath(
-        configuration, request.params.capability
-      )
+      var revokeFile = revokePath(request.params.capability)
       readJSONFile(revokeFile, ecb(done, function (parsed) {
         fillCapability = parsed
         done()
       }))
     },
     function readPrescriptionFile (done) {
-      var prescriptionFile = prescriptionPath(configuration, fillCapability)
+      var prescriptionFile = prescriptionPath(fillCapability)
       readJSONFile(prescriptionFile, ecb(done, function (parsed) {
         data = parsed
         done()
@@ -45,21 +43,21 @@ module.exports = function revoke (configuration, request, response) {
       if (error.code === 'ENOENT') {
         respond404()
       } else {
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       }
     } else {
       if (expired(data)) {
         respond404()
       } else if (request.method === 'POST') {
-        post(configuration, request, response, data)
+        post(request, response, data)
       } else {
-        get(configuration, request, response, data)
+        get(request, response, data)
       }
     }
   })
 
   function respond404 () {
-    notFound(configuration, request, response, [
+    notFound(request, response, [
       'If you followed a link to this page to revoke an NDA ' +
       'prescription, the prescription may have expired, ' +
       'or it may have been revoked already.'
@@ -67,7 +65,7 @@ module.exports = function revoke (configuration, request, response) {
   }
 }
 
-function get (configuration, request, response, data) {
+function get (request, response, data) {
   var sender = data.signatures.sender
   var form = data.form
   var attorney = data.attorney
@@ -98,24 +96,20 @@ ${banner()}
 ${footer('cancel')}`)
 }
 
-function post (configuration, request, response, data) {
+function post (request, response, data) {
   runSeries([
     function rmFiles (done) {
       runSeries([
         function rmPrescriptionFile (done) {
-          fs.unlink(prescriptionPath(configuration, data.fill), done)
+          fs.unlink(prescriptionPath(data.fill), done)
         },
         continueOnError(function rmRevokeFile (done) {
-          fs.unlink(revokePath(configuration, data.revoke), done)
+          fs.unlink(revokePath(data.revoke), done)
         })
       ], done)
     },
     function emailConfirmations (done) {
-      email(
-        configuration,
-        revokedMessage(configuration, data),
-        done
-      )
+      email(request.log, revokedMessage(data), done)
     }
   ], function (error) {
     /* istanbul ignore if */

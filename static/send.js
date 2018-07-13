@@ -1,4 +1,4 @@
-/* global STRIPE_PUBLIC_KEY */
+/* global STRIPE_PUBLISHABLE_KEY */
 document.addEventListener('DOMContentLoaded', function () {
   // Add an event handler to validate the signature <input>.
   var name = document.getElementById('name')
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
   }
   var form = document.forms[0]
-  var stripe = window.Stripe(STRIPE_PUBLIC_KEY)
+  var stripe = window.Stripe(STRIPE_PUBLISHABLE_KEY)
   var elements = stripe.elements()
   var card = elements.create('card')
   card.mount('#card')

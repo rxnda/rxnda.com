@@ -11,10 +11,9 @@ var runSeries = require('run-series')
 
 var CONCURRENCY = 3
 
-module.exports = function (configuration, callback) {
-  var directory = configuration.directory
-  var prescriptions = path.join(directory, 'prescription')
-  var log = configuration.log.child({subsystem: 'prescription sweeper'})
+module.exports = function (serverLog, callback) {
+  var prescriptions = path.join(process.env.DIRECTORY, 'prescription')
+  var log = serverLog.child({subsystem: 'prescription sweeper'})
   log.info('running')
   fs.readdir(prescriptions, function (error, files) {
     /* istanbul ignore if */
@@ -40,15 +39,11 @@ module.exports = function (configuration, callback) {
               runSeries(
                 [
                   function (done) {
-                    email(
-                      configuration,
-                      expiredMessage(configuration, parsed),
-                      done
-                    )
+                    email(serverLog, expiredMessage(parsed), done)
                   }
                 ].concat([
-                  revokePath(configuration, parsed.revoke),
-                  prescriptionPath(configuration, parsed.fill)
+                  revokePath(parsed.revoke),
+                  prescriptionPath(parsed.fill)
                 ].map(function (file) {
                   return function (done) {
                     fs.unlink(file, function (error) {

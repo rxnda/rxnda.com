@@ -14,26 +14,26 @@ var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = function forms (configuration, request, response) {
+module.exports = function forms (request, response) {
   if (request.method !== 'GET') {
     methodNotAllowed.apply(null, arguments)
   }
-  readWizard(configuration, function (error, wizard) {
+  readWizard(function (error, wizard) {
     /* istanbul ignore if */
     if (error) {
-      internalError(configuration, request, response, error)
+      internalError(request, response, error)
     } else {
       var queryKeys = Object.keys(request.query)
       if (queryKeys.length === 0) {
-        showForm(configuration, request, response, wizard)
+        showForm(request, response, wizard)
       } else {
-        redirect(configuration, request, response, wizard)
+        redirect(request, response, wizard)
       }
     }
   })
 }
 
-function showForm (configuration, request, response, wizard) {
+function showForm (request, response, wizard) {
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.end(html`
 ${preamble('Send')}
@@ -80,7 +80,7 @@ ${footer()}
 </html>`)
 }
 
-function redirect (configuration, request, response, wizard) {
+function redirect (request, response, wizard) {
   var query = request.query
   var valid = wizard
     .questions
@@ -115,13 +115,13 @@ function redirect (configuration, request, response, wizard) {
       response.end()
     } else {
       readEditions(
-        configuration, title,
+        title,
         function (error, editions) {
           /* istanbul ignore if */
           if (error) {
-            internalError(configuration, request, response, error)
+            internalError(request, response, error)
           } else if (editions === false) {
-            internalError(configuration, request, response, error)
+            internalError(request, response, error)
           } else {
             var latest = editions
               .sort(revedCompare)

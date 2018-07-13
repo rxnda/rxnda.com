@@ -1,5 +1,5 @@
 var path = require('path')
 
-module.exports = function attorneyPath (configuration, capability) {
-  return path.join(configuration.directory, 'attorney', capability)
+module.exports = function attorneyPath (capability) {
+  return path.join(process.env.DIRECTORY, 'attorney', capability)
 }

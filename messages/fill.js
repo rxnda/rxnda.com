@@ -2,10 +2,9 @@ var customerServiceCode = require('../util/customer-service-code')
 var actionEMail = require('./action-email')
 var spell = require('reviewers-edition-spell')
 
-module.exports = function (configuration, data) {
+module.exports = function (data) {
   var sender = data.signatures.sender
   var senderName = sender.company || sender.name
-  var domain = configuration.domain
   var attorney = data.attorney
   var form = data.form
   return {
@@ -17,10 +16,10 @@ module.exports = function (configuration, data) {
       'Send NDAs online.',
       [
         `${attorney.name} prescribed ${senderName} ` +
-        `${domain}'s ${form.title} form nondisclosure agreement, ` +
+        `${process.env.DOMAIN}'s ${form.title} form nondisclosure agreement, ` +
         `${spell(form.edition)} for your use.`
       ],
-      `https://${domain}/fill/${data.fill}`,
+      `https://${process.env.DOMAIN}/fill/${data.fill}`,
       'Send the NDA Online',
       [
         'Keep this link safe and secure. ' +
@@ -28,7 +27,7 @@ module.exports = function (configuration, data) {
         'attorney\u2019s commentary and an on-prescription discount.',
         'Customer service may ask you to share this  ' +
         'verification code if you request assistance:',
-        customerServiceCode(configuration, data.fill, sender.email)
+        customerServiceCode(data.fill, sender.email)
       ]
     )
   }

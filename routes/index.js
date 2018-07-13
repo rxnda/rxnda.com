@@ -34,14 +34,14 @@ routes.set('/forms/:title', require('./forms'))
 routes.set('/forms/:title/:edition', require('./forms'))
 routes.set('/docx/:title/:edition', require('./docx'))
 
-routes.set('/send.js', function (configuration, request, response) {
+routes.set('/send.js', function (request, response) {
   response.setHeader('Content-Type', 'application/javascript')
   var filePath = path.join(__dirname, '..', 'static', 'send.js')
   pump(
     fs.createReadStream(filePath),
     replacestream(
-      'STRIPE_PUBLIC_KEY',
-      JSON.stringify(configuration.stripe.public)
+      'STRIPE_PUBLISHABLE_KEY',
+      JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY)
     ),
     response
   )
@@ -63,7 +63,7 @@ routes.set('/robots.txt', etagged(
 
 function staticFile (file) {
   var filePath = path.join(__dirname, '..', 'static', file)
-  routes.set('/' + file, function (configuration, request, response) {
+  routes.set('/' + file, function (request, response) {
     pump(send(request, filePath), response)
   })
 }

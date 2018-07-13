@@ -12,23 +12,23 @@ var formattingNote = require('../partials/formatting-note')
 var footer = require('../partials/footer')
 var banner = require('../partials/banner')
 
-module.exports = function view (configuration, request, response) {
+module.exports = function view (request, response) {
   if (request.method !== 'GET') {
     methodNotAllowed.apply(null, arguments)
   }
-  var signFile = signPath(configuration, request.params.capability)
+  var signFile = signPath(request.params.capability)
   readJSONFile(signFile, function (error, sign) {
     if (error) {
       /* istanbul ignore else */
       if (error.code === 'ENOENT') {
-        notFound(configuration, request, response, [
+        notFound(request, response, [
           'If you followed a link to this page to cancel an NDA ' +
           'offer the offer may have expired, the other side may have ' +
           'declined, or it may have been deleted from the system ' +
           'after countersigning.'
         ])
       } else {
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       }
     } else {
       response.setHeader('Content-Type', 'text/html; charset=ASCII')

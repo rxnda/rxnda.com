@@ -1,7 +1,7 @@
 var path = require('path')
 
-module.exports = function readWizard (configuration, callback) {
-  var index = path.resolve(path.join(configuration.directory, 'wizard'))
+module.exports = function readWizard (callback) {
+  var index = path.resolve(path.join(process.env.DIRECTORY, 'wizard'))
   try {
     var wizard = require(index)
     callback(null, wizard)

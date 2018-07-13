@@ -12,6 +12,15 @@ var runSeries = require('run-series')
 module.exports = function (test) {
   var prefix = path.join(os.tmpdir(), 'rxnda')
   var keypair = ed25519.keys()
+  process.env.PUBLIC_KEY = keypair.publicKey.toString('hex')
+  process.env.PRIVATE_KEY = keypair.privateKey.toString('hex')
+  process.env.USE_PRICE = 10
+  process.env.PRESCRIBE_PRICE = 10
+  process.env.FILL_PRICE = 5
+  process.env.PRESCRIPTION_TERM = 180
+  process.env.DOMAIN = 'rxnda.com'
+  process.env.MAILGUN_DOMAIN = 'rxnda.com'
+  process.env.MAILGUN_SENDER = 'notifications'
   var directory
   runSeries([
     function (done) {
@@ -35,35 +44,12 @@ module.exports = function (test) {
     if (error) {
       throw error
     }
-    var configuration = {
-      directory: directory,
-      log: pino(fs.createWriteStream('test-server.log')),
-      prices: {
-        use: 10,
-        prescribe: 20,
-        fill: 5
-      },
-      terms: {
-        prescription: 180
-      },
-      domain: 'rxnda.com',
-      stripe: {
-        public: process.env.STRIPE_PUBLIC_KEY,
-        private: process.env.STRIPE_PRIVATE_KEY
-      },
-      email: {
-        domain: 'rxnda.com',
-        sender: 'notifications'
-      },
-      keys: {
-        public: keypair.publicKey,
-        private: keypair.privateKey
-      }
-    }
+    var serverLog = pino(fs.createWriteStream('test-server.log'))
+    process.env.DIRECTORY = directory
     http.createServer()
       .on('request', function (request, response) {
         try {
-          handler(configuration, request, response)
+          handler(serverLog, request, response)
         } catch (error) {
           console.error(error)
         }
@@ -77,7 +63,7 @@ module.exports = function (test) {
               // pass
             })
           })
-        }, configuration)
+        }, serverLog)
       })
   })
 }

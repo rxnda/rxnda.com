@@ -6,9 +6,7 @@ var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = function notFound (
-  configuration, request, response, message
-) {
+module.exports = function notFound (request, response, message) {
   response.statusCode = 404
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.end(html`

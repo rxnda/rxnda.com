@@ -12,18 +12,18 @@ var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = function terms (configuration, request, response) {
+module.exports = function terms (request, response) {
   if (request.method !== 'GET') {
     methodNotAllowed.apply(null, arguments)
     return
   }
   load({
-    terms: readTerms.bind(null, configuration),
-    privacy: readPrivacyPolicy.bind(null, configuration)
+    terms: readTerms,
+    privacy: readPrivacyPolicy
   }, function (error, loaded) {
     /* istanbul ignore if */
     if (error) {
-      internalError(configuration, request, response, error)
+      internalError(request, response, error)
     } else {
       var terms = loaded.terms
       var privacy = loaded.privacy

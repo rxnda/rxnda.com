@@ -21,7 +21,7 @@ tape.test('Sweep Backdated', function (test) {
       cancelEMail = data
     }
   })
-  server(function (port, closeServer, configuration) {
+  server(function (port, closeServer, serverLog) {
     runSeries([
       function send (done) {
         sendTesting1e(
@@ -51,7 +51,7 @@ tape.test('Sweep Backdated', function (test) {
         done()
       },
       function runSweep (done) {
-        sweepOffers(configuration, function (error) {
+        sweepOffers(serverLog, function (error) {
           test.pass('swept')
           done(error)
         })
@@ -86,7 +86,7 @@ tape.test('Sweep Backdated', function (test) {
       ['charge', 'sign', 'cancel'].map(function (subdirectory) {
         return function checkEmpty (done) {
           var checking = path.join(
-            configuration.directory, subdirectory
+            process.env.DIRECTORY, subdirectory
           )
           fs.readdir(checking, ecb(done, function (files) {
             test.deepEqual(
@@ -116,7 +116,7 @@ tape.test('Sweep Unexpired', function (test) {
       cancelEMail = data
     }
   })
-  server(function (port, closeServer, configuration) {
+  server(function (port, closeServer, serverLog) {
     runSeries([
       function send (done) {
         sendTesting1e(webdriver, port, 'donotbackdate@example.com')
@@ -141,7 +141,7 @@ tape.test('Sweep Unexpired', function (test) {
         done()
       },
       function runSweep (done) {
-        sweepOffers(configuration, function (error) {
+        sweepOffers(serverLog, function (error) {
           test.pass('swept')
           done(error)
         })
@@ -176,7 +176,7 @@ tape.test('Sweep Unexpired', function (test) {
       ['charge', 'sign', 'cancel'].map(function (subdirectory) {
         return function checkEmpty (done) {
           var checking = path.join(
-            configuration.directory, subdirectory
+            process.env.DIRECTORY, subdirectory
           )
           fs.readdir(checking, ecb(done, function (files) {
             test.equal(

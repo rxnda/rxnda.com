@@ -3,7 +3,7 @@ var methodNotAllowed = require('./method-not-allowed')
 
 module.exports = function (contentType, body) {
   var tag = etag(body)
-  return function (configuration, request, response) {
+  return function (request, response) {
     if (request.method !== 'GET') {
       methodNotAllowed.apply(null, arguments)
       return

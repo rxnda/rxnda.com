@@ -12,7 +12,7 @@ var preamble = require('../partials/preamble')
 
 var lists = ['lawyers@mail.rxnda.com']
 
-module.exports = function (configuration, request, response) {
+module.exports = function (request, response) {
   if (request.method === 'GET') {
     get.apply(null, arguments)
   } else if (request.method === 'POST') {
@@ -22,7 +22,7 @@ module.exports = function (configuration, request, response) {
   }
 }
 
-function get (configuration, request, response) {
+function get (request, response) {
   response.setHeader(
     'Content-Type', 'text/html; charset=ACII'
   )
@@ -52,7 +52,7 @@ ${nav()}
 ${footer()}`)
 }
 
-function post (configuration, request, response) {
+function post (request, response) {
   var address
   var list
   pump(
@@ -70,9 +70,9 @@ function post (configuration, request, response) {
           response.statusCode = 400
           response.end()
         } else {
-          subscribe(configuration, list, address, function (error) {
+          subscribe(list, address, function (error) {
             if (error) {
-              internalError(configuration, request, response, error)
+              internalError(request, response, error)
             } else {
               response.setHeader(
                 'Content-Type', 'text/html; charset=ACII'

@@ -35,42 +35,42 @@ var recipientBlock = require('../partials/recipient-block')
 var senderBlock = require('../partials/sender-block')
 var termsCheckbox = require('../partials/terms-checkbox')
 
-module.exports = function send (configuration, request, response) {
+module.exports = function send (request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   runParallel({
     edition: function (done) {
-      readEdition(configuration, sanitize(title), sanitize(edition), done)
+      readEdition(sanitize(title), sanitize(edition), done)
     },
     editions: function (done) {
-      readEditions(configuration, sanitize(title), done)
+      readEditions(sanitize(title), done)
     }
   }, function (error, results) {
     /* istanbul ignore if */
     if (error) {
-      internalError(configuration, request, response, error)
+      internalError(request, response, error)
     } else if (results.edition === false) {
-      notFound(configuration, request, response, [
+      notFound(request, response, [
         'There isn’t any form by that title and edition.'
       ])
     } else {
       results.edition.title = title
       results.edition.allEditions = results.editions
       if (request.method === 'POST') {
-        post(configuration, request, response, results.edition)
+        post(request, response, results.edition)
       } else {
-        get(configuration, request, response, results.edition)
+        get(request, response, results.edition)
       }
     }
   })
 }
 
-function get (configuration, request, response, edition, postData) {
+function get (request, response, edition, postData) {
   response.statusCode = postData ? 400 : 200
   htmlContent(response)
   var address = (
-    configuration.email.sender + '@' +
-    configuration.email.domain
+    process.env.MAILGUN_SENDER + '@' +
+    process.env.MAILGUN_DOMAIN
   )
   var action = `/send/${encodeTitle(edition.title)}/${edition.edition}`
   var read = `/forms/${encodeTitle(edition.title)}/${edition.edition}`
@@ -150,10 +150,10 @@ ${nav()}
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
     ${payment(postData, [`
-      ${escape(configuration.domain)} will authorize a charge of
-      $${escape(configuration.prices.use.toString())} to your credit
+      ${escape(process.env.DOMAIN)} will authorize a charge of
+      $${escape(process.env.USE_PRICE)} to your credit
       card now.  If the other side countersigns within seven days,
-      ${escape(configuration.domain)} will collect the charge.
+      ${escape(process.env.DOMAIN)} will collect the charge.
       If the other side does not countersign in seven days,
       or if you cancel before they countersign, your credit
       card will not be charged.
@@ -172,7 +172,7 @@ ${nav()}
 ${footer('send', 'stripe')}`)
 }
 
-function post (configuration, request, response, form) {
+function post (request, response, form) {
   var data = {
     signatures: {
       sender: {},
@@ -224,15 +224,15 @@ function post (configuration, request, response, form) {
         var errors = validPost(data, form)
         if (errors.length !== 0) {
           data.errors = errors
-          get(configuration, request, response, form, data)
+          get(request, response, form, data)
         } else {
-          write(configuration, request, response, data, form)
+          write(request, response, data, form)
         }
       })
   )
 }
 
-function write (configuration, request, response, data, form) {
+function write (request, response, data, form) {
   var now = new Date()
   var sender = data.signatures.sender
   if (data.coupon) {
@@ -250,8 +250,8 @@ function write (configuration, request, response, data, form) {
   }
   data.timestamp = now.toISOString()
   data.form = form
-  data.price = configuration.prices.use
-  offer(configuration, request, data, function (error) {
+  data.price = parseInt(process.env.USE_PRICE)
+  offer(request, data, function (error) {
     /* istanbul ignore if */
     if (error) {
       if (error.message === 'invalid coupon') {
@@ -261,10 +261,10 @@ function write (configuration, request, response, data, form) {
             message: 'The coupon you entered is not valid.'
           }
         ]
-        get(configuration, request, response, form, data)
+        get(request, response, form, data)
       } else {
         request.log.error(error)
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       }
     } else {
       htmlContent(response)

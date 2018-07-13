@@ -17,7 +17,7 @@ tape.test('Expired', function (test) {
       cancelEMail = data
     }
   })
-  server(function (port, closeServer, configuration) {
+  server(function (port, closeServer) {
     runSeries([
       function send (done) {
         sendTesting1e(

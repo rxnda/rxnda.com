@@ -18,7 +18,7 @@ var stringify = require('json-stable-stringify')
 var uuid = require('uuid')
 var xtend = require('xtend')
 
-module.exports = function (configuration, data, callback) {
+module.exports = function (data, callback) {
   var sender = data.send.signatures.sender
   var recipient = xtend(
     data.send.signatures.recipient,
@@ -40,7 +40,7 @@ module.exports = function (configuration, data, callback) {
       ]
     ),
     docx: {
-      data: makeDOCX(configuration, data),
+      data: makeDOCX(data),
       name: 'NDA.docx'
     },
     // TODO: Add manifest flag for NDAs that don't expire in one year.
@@ -73,7 +73,7 @@ module.exports = function (configuration, data, callback) {
     ].join('\n'))
   }
   convertToPDF(
-    configuration, message.docx.data,
+    message.docx.data,
     ecb(callback, function (pdfBuffer) {
       message.pdf = {
         data: pdfBuffer,
@@ -84,7 +84,7 @@ module.exports = function (configuration, data, callback) {
   )
 }
 
-function makeDOCX (configuration, data) {
+function makeDOCX (data) {
   var send = data.send
   var countersign = data.countersign
   var form = data.send.form
@@ -103,14 +103,12 @@ function makeDOCX (configuration, data) {
       after: ooxmlSignaturePages([
         // Sender Page
         prefilledSignaturePage(
-          configuration,
           formHash,
           form.signatures[0],
           xtend(send.signatures.sender, {date: send.timestamp})
         ),
         // Recipient Page
         prefilledSignaturePage(
-          configuration,
           formHash,
           form.signatures[1],
           xtend(send.signatures.recipient, countersign)
@@ -121,15 +119,15 @@ function makeDOCX (configuration, data) {
   return zip.generate({type: 'nodebuffer'})
 }
 
-function prefilledSignaturePage (configuration, hash, page, data) {
+function prefilledSignaturePage (hash, page, data) {
   var returned = clone(page)
   returned.name = data.name
   returned.meta = (
     'rxnda.com signature code:\n' +
     ed25519.sign(
       stringify(xtend(data, {hash: hash})),
-      configuration.keys.public,
-      configuration.keys.private
+      Buffer.from(process.env.PUBLIC_KEY, 'hex'),
+      Buffer.from(process.env.PRIVATE_KEY, 'hex')
     ).toString('hex') + '\n' +
     'Verify online at https://rxnda.com/verify.'
   )
@@ -153,7 +151,7 @@ function prefilledSignaturePage (configuration, hash, page, data) {
   return returned
 }
 
-function convertToPDF (configuration, docx, callback) {
+function convertToPDF (docx, callback) {
   var pdfBuffer, temporaryDirectory, docxFile
   runSeries([
     function createTemporaryDirectory (done) {

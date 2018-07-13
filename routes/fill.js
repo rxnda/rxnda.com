@@ -30,35 +30,35 @@ var recipientBlock = require('../partials/recipient-block')
 var senderBlock = require('../partials/sender-block')
 var termsCheckbox = require('../partials/terms-checkbox')
 
-module.exports = function send (configuration, request, response) {
+module.exports = function send (request, response) {
   var capability = request.params.capability
-  readPrescription(configuration, capability, function (error, prescription) {
+  readPrescription(capability, function (error, prescription) {
     if (error) {
-      internalError(configuration, request, response, error)
+      internalError(request, response, error)
     /* istanbul ignore if */
     } else if (prescription === false) {
-      notFound(configuration, request, response, [
+      notFound(request, response, [
         'There isn’t any such prescription.'
       ])
     } else {
       if (request.method === 'POST') {
-        post(configuration, request, response, prescription)
+        post(request, response, prescription)
       } else {
-        get(configuration, request, response, prescription)
+        get(request, response, prescription)
       }
     }
   })
 }
 
 function get (
-  configuration, request, response, prescription, postData
+  request, response, prescription, postData
 ) {
   response.statusCode = postData ? 400 : 200
   htmlContent(response)
   var form = prescription.form
   var address = (
-    configuration.email.sender + '@' +
-    configuration.email.domain
+    process.env.MAILGUN_SENDER + '@' +
+    process.env.MAILGUN_DOMAIN
   )
   var action = `/fill/${request.params.capability}`
   var senderPage = form.signatures[0]
@@ -122,10 +122,10 @@ ${nav()}
     ${termsCheckbox(postData ? errorsFor('terms', postData) : [])}
 
     ${payment(postData, [`
-      ${escape(configuration.domain)} will authorized a charge of
+      ${escape(process.env.DOMAIN)} will authorized a charge of
       $${escape(prescription.prices.fill.toString())} to your credit
       card now. If the other side countersigns within seven days,
-      ${escape(configuration.domain)} will collect the charge.
+      ${escape(process.env.DOMAIN)} will collect the charge.
       If the other side does not countersign in seven days,
       or if you cancel before they countersign, your credit
       card will not be charged.
@@ -169,7 +169,7 @@ ${footer('send', 'stripe')}`)
   }
 }
 
-function post (configuration, request, response, prescription) {
+function post (request, response, prescription) {
   var data = {
     signatures: {
       sender: {},
@@ -223,15 +223,15 @@ function post (configuration, request, response, prescription) {
           .concat(validFill(prescription, data))
         if (errors.length !== 0) {
           data.errors = errors
-          get(configuration, request, response, prescription, data)
+          get(request, response, prescription, data)
         } else {
-          write(configuration, request, response, data, prescription)
+          write(request, response, data, prescription)
         }
       })
   )
 }
 
-function write (configuration, request, response, data, prescription) {
+function write (request, response, data, prescription) {
   var now = new Date()
   var sender = data.signatures.sender
   if (prescription.coupon) {
@@ -253,11 +253,11 @@ function write (configuration, request, response, data, prescription) {
   data.timestamp = now.toISOString()
   data.form = prescription.form
   data.price = prescription.prices.fill
-  offer(configuration, request, data, function (error) {
+  offer(request, data, function (error) {
     /* istanbul ignore if */
     if (error) {
       request.log.error(error)
-      internalError(configuration, request, response, error)
+      internalError(request, response, error)
     } else {
       htmlContent(response)
       var sender = data.signatures.sender

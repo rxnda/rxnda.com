@@ -9,11 +9,11 @@ var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = function (configuration, request, response) {
+module.exports = function (request, response) {
   if (request.method === 'POST') {
-    post(configuration, request, response)
+    post(request, response)
   } else {
-    get(configuration, request, response)
+    get(request, response)
   }
 }
 
@@ -27,7 +27,7 @@ var WARNING = html`
 
 var ASTERISK = '<span class=asterisk>*</span>'
 
-function get (configuration, request, response) {
+function get (request, response) {
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.end(html`
 ${preamble('Verify a Signature')}
@@ -106,7 +106,7 @@ ${nav()}
 ${footer()}`)
 }
 
-function post (configuration, request, response) {
+function post (request, response) {
   var data = {}
   var signature
   var whitelist = [
@@ -134,7 +134,7 @@ function post (configuration, request, response) {
         var valid = ed25519.verify(
           stringify(data),
           signature,
-          configuration.keys.public
+          Buffer.from(process.env.PUBLIC_KEY, 'hex')
         )
         response.setHeader('Content-Type', 'text/html; charset=ASCII')
         response.end(html`

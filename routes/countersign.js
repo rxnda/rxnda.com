@@ -34,31 +34,29 @@ var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
-module.exports = function counterisgn (
-  configuration, request, response
-) {
-  var signFile = signPath(configuration, request.params.capability)
+module.exports = function counterisgn (request, response) {
+  var signFile = signPath(request.params.capability)
   readJSONFile(signFile, function (error, data) {
     if (error) {
       /* istanbul ignore else */
       if (error.code === 'ENOENT') {
         respond404()
       } else {
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       }
     } else {
       if (expired(data)) {
         respond404()
       } else if (request.method === 'POST') {
-        post(configuration, request, response, data)
+        post(request, response, data)
       } else {
-        get(configuration, request, response, data)
+        get(request, response, data)
       }
     }
   })
 
   function respond404 () {
-    notFound(configuration, request, response, [
+    notFound(request, response, [
       'If you followed a link to this page to countersign an NDA ' +
       'offer the offer may have expired, the other side may have ' +
       'declined, or it may have been deleted from the system ' +
@@ -67,7 +65,7 @@ module.exports = function counterisgn (
   }
 }
 
-function get (configuration, request, response, send, postData) {
+function get (request, response, send, postData) {
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   response.statusCode = postData ? 400 : 200
   var recipient = send.signatures.recipient
@@ -195,7 +193,7 @@ ${banner()}
               side, attaching a fully-signed copy of the NDA.
             </li>
             <li>
-              ${escape(configuration.domain)} will charge the sender.
+              ${escape(process.env.DOMAIN)} will charge the sender.
               You will not be charged.
             </li>
           </ol>
@@ -303,7 +301,7 @@ function startsWithVowel (string) {
     .includes(string[0].toLowerCase())
 }
 
-function post (configuration, request, response, send) {
+function post (request, response, send) {
   var countersign = {}
   pump(
     request,
@@ -327,50 +325,49 @@ function post (configuration, request, response, send) {
         var errors = validCountersignPost(countersign, send.form)
         if (errors.length !== 0) {
           countersign.errors = errors
-          get(configuration, request, response, send, countersign)
+          get(request, response, send, countersign)
         } else {
           countersign.date = new Date().toISOString()
           var data = {
             send: send,
             countersign: countersign,
             address: (
-              configuration.email.sender + '@' +
-              configuration.email.domain
+              process.env.MAILGUN_SENDER + '@' +
+              process.env.MAILGUN_DOMAIN
             )
           }
-          write(configuration, request, response, data)
+          write(request, response, data)
         }
       })
   )
 }
 
-function write (configuration, request, response, data) {
-  var directory = configuration.directory
+function write (request, response, data) {
   runSeries([
     function emailDOCX (done) {
-      docxMessage(configuration, data, ecb(done, function (message) {
+      docxMessage(data, ecb(done, function (message) {
         request.log.info('generated message')
-        email(configuration, message, done)
+        email(request.log, message, done)
       }))
     },
     function rmFiles (done) {
       runSeries([
         function rmSignFile (done) {
           fs.unlink(
-            path.join(directory, 'sign', data.send.sign),
+            path.join(process.env.DIRECTORY, 'sign', data.send.sign),
             done
           )
         },
         continueOnError(function rmCancelFile (done) {
           fs.unlink(
-            path.join(directory, 'cancel', data.send.cancel),
+            path.join(process.env.DIRECTORY, 'cancel', data.send.cancel),
             done
           )
         })
       ], done)
     },
     function chargeSender (done) {
-      var chargeFile = path.join(directory, 'charge', data.send.sign)
+      var chargeFile = path.join(process.env.DIRECTORY, 'charge', data.send.sign)
       var chargeID
       runSeries([
         function readChargeID (done) {
@@ -384,7 +381,7 @@ function write (configuration, request, response, data) {
             request.log.info('applied coupon')
             done()
           } else {
-            stripe(configuration.stripe.private)
+            stripe(process.env.STRIPE_SECRET_KEY)
               .charges
               .capture(chargeID, ecb(done, function (charge) {
                 request.log.info({charge: charge})
@@ -396,11 +393,7 @@ function write (configuration, request, response, data) {
           fs.unlink(chargeFile, done)
         }),
         function sendReceipt (done) {
-          email(
-            configuration,
-            receiptMessage(configuration, data),
-            done
-          )
+          email(request.log, receiptMessage(data), done)
         }
       ], done)
     }

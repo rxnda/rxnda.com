@@ -11,7 +11,7 @@ var revedParse = require('reviewers-edition-parse')
 var sanitize = require('../util/sanitize-path-component')
 var spell = require('reviewers-edition-spell')
 
-module.exports = function docx (configuration, request, response) {
+module.exports = function docx (request, response) {
   if (request.method !== 'GET') {
     methodNotAllowed.apply(null, arguments)
     return
@@ -22,11 +22,11 @@ module.exports = function docx (configuration, request, response) {
     return respond404()
   }
   readEdition(
-    configuration, sanitize(title), sanitize(edition),
+    sanitize(title), sanitize(edition),
     function (error, data) {
       /* istanbul ignore if */
       if (error) {
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       } else if (data === false) {
         respond404()
       } else {
@@ -51,7 +51,7 @@ module.exports = function docx (configuration, request, response) {
   )
 
   function respond404 () {
-    notFound(configuration, request, response, [
+    notFound(request, response, [
       'There isn’t any form by that title and edition.'
     ])
   }

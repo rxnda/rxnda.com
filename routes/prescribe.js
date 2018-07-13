@@ -46,55 +46,49 @@ var payment = require('../partials/payment')
 var preamble = require('../partials/preamble')
 var termsCheckbox = require('../partials/terms-checkbox')
 
-module.exports = function prescribe (configuration, request, response) {
+module.exports = function prescribe (request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   runParallel({
     edition: function (done) {
-      readEdition(configuration, sanitize(title), sanitize(edition), done)
+      readEdition(sanitize(title), sanitize(edition), done)
     },
     editions: function (done) {
-      readEditions(configuration, sanitize(title), done)
+      readEditions(sanitize(title), done)
     }
   }, function (error, results) {
     /* istanbul ignore if */
     if (error) {
-      internalError(configuration, request, response, error)
+      internalError(request, response, error)
     } else if (results.edition === false) {
-      notFound(configuration, request, response, [
+      notFound(request, response, [
         'There isn’t any form by that title and edition.'
       ])
     } else {
-      var attorneyFile = attorneyPath(
-        configuration, request.query.attorney
-      )
+      var attorneyFile = attorneyPath(request.query.attorney)
       readJSONFile(attorneyFile, function (error, attorney) {
         if (error) {
-          return notFound(configuration, request, response, [
+          return notFound(request, response, [
             'There isn’t any attorney with that ID.'
           ])
         }
         results.edition.allEditions = results.editions
         if (request.method === 'POST') {
-          post(configuration, request, response, results.edition, attorney)
+          post(request, response, results.edition, attorney)
         } else {
-          showGet(
-            configuration, request, response, results.edition, attorney
-          )
+          showGet(request, response, results.edition, attorney)
         }
       })
     }
   })
 }
 
-function showGet (
-  configuration, request, response, edition, attorney, postData
-) {
+function showGet (request, response, edition, attorney, postData) {
   response.statusCode = postData ? 400 : 200
   response.setHeader('Content-Type', 'text/html; charset=ASCII')
   var address = (
-    configuration.email.sender + '@' +
-    configuration.email.domain
+    process.env.MAILGUN_SENDER + '@' +
+    process.env.MAILGUN_DOMAIN
   )
   var action = (
     `/prescribe/${encodeTitle(edition.title)}/${edition.edition}` +
@@ -264,13 +258,13 @@ ${nav()}
 
     ${payment(postData, [
       `
-      ${escape(configuration.domain)} will charge your credit card
-      $${escape(configuration.prices.prescribe.toString())} now.
+      ${escape(process.env.DOMAIN)} will charge your credit card
+      $${escape(process.env.PRESCRIBE_PRICE)} now.
       `,
       `
         The cost of sending NDAs on prescription will be discounted
-        from $${configuration.prices.use.toString()}
-        to $${configuration.prices.fill.toString()}.
+        from $${process.env.USE_PRICE}
+        to $${process.env.FILL_PRICE}.
       `
     ])}
 
@@ -386,7 +380,7 @@ function senderBlock (signature, postData) {
   }
 }
 
-function post (configuration, request, response, form, attorney) {
+function post (request, response, form, attorney) {
   var data = {
     notes: null,
     signatures: {
@@ -442,13 +436,9 @@ function post (configuration, request, response, form, attorney) {
         var errors = validPrescription(data, form)
         if (errors.length !== 0) {
           data.errors = errors
-          showGet(
-            configuration, request, response, form, attorney, data
-          )
+          showGet(request, response, form, attorney, data)
         } else {
-          write(
-            configuration, request, response, data, attorney, form
-          )
+          write(request, response, data, attorney, form)
         }
       })
   )
@@ -460,10 +450,7 @@ function validSignatureProperty (name) {
   return signatureProperties.includes(name)
 }
 
-function write (
-  configuration, request, response, data, attorney, form
-) {
-  var domain = configuration.domain
+function write (request, response, data, attorney, form) {
   var now = new Date()
   var sender = data.signatures.sender
   data.attorney = attorney
@@ -483,8 +470,8 @@ function write (
   data.timestamp = now.toISOString()
   data.form = form
   data.prices = {
-    prescribe: configuration.prices.prescribe,
-    fill: configuration.prices.fill
+    prescribe: parseInt(process.env.PRESCRIBE_PRICE),
+    fill: parseInt(process.env.FILL_PRICE)
   }
   runSeries([
     function generateCapabilities (done) {
@@ -496,20 +483,20 @@ function write (
     function createCharge (done) {
       if (data.coupon) {
         var coupon = data.coupon
-        readPrescriptionCoupon(configuration, coupon, function (error, valid) {
+        readPrescriptionCoupon(coupon, function (error, valid) {
           if (error) return done(error)
           if (valid) {
             if (evergreenCoupon(coupon)) done()
-            else deletePrescriptionCoupon(configuration, coupon, done)
+            else deletePrescriptionCoupon(coupon, done)
           } else {
             done(new Error('invalid coupon'))
           }
         })
       } else {
-        stripe(configuration.stripe.private).charges.create({
+        stripe(process.env.STRIPE_SECRET_KEY).charges.create({
           amount: data.prices.prescribe * 100, // dollars to cents
           currency: 'usd',
-          description: domain,
+          description: process.env.DOMAIN,
           source: data.token
         }, function (error, charge) {
           if (error) return done(error)
@@ -522,12 +509,12 @@ function write (
       runParallel([
         function writeRevokeFile (done) {
           mkdirpThenWriteFile(
-            revokePath(configuration, data.revoke), data.fill, done
+            revokePath(data.revoke), data.fill, done
           )
         },
         function writePrescriptionPath (done) {
           mkdirpThenWriteFile(
-            prescriptionPath(configuration, data.fill), data, done
+            prescriptionPath(data.fill), data, done
           )
         }
       ], done)
@@ -535,18 +522,10 @@ function write (
     function sendEmails (done) {
       runSeries([
         function emailRevokeLink (done) {
-          email(
-            configuration,
-            revokeMessage(configuration, data),
-            done
-          )
+          email(request.log, revokeMessage(data), done)
         },
         function emailFillLink (done) {
-          email(
-            configuration,
-            fillMessage(configuration, data),
-            done
-          )
+          email(request.log, fillMessage(data), done)
         }
       ], done)
     }
@@ -560,10 +539,7 @@ function write (
             message: 'The coupon you entered is not valid.'
           }
         ]
-        showGet(
-          configuration, request, response,
-          data.form.edition, attorney, data
-        )
+        showGet(request, response, data.form.edition, attorney, data)
       } else {
         request.log.error(error)
         response.statusCode = 500
@@ -579,7 +555,7 @@ ${nav()}
 <main>
   <h2 class=sent>Prescription Sent!</h2>
   <p>
-    You have prescribed the ${domain}
+    You have prescribed the ${process.env.DOMAIN}
     ${escape(data.form.title)}  form agreement,
     ${escape(spell(data.form.edition))}
     for use by ${sender.company || sender.company}.

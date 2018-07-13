@@ -1,7 +1,7 @@
 var messageEMail = require('./message-email')
 var spell = require('reviewers-edition-spell')
 
-module.exports = function (configuration, data) {
+module.exports = function (data) {
   var sender = data.signatures.sender
   var attorney = data.attorney
   var form = data.form

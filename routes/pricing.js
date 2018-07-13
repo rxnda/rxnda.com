@@ -6,7 +6,7 @@ var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
 var handler
-module.exports = function (configuration, request, response) {
+module.exports = function (request, response) {
   /* istanbul ignore else */
   if (!handler) {
     handler = etagged('text/html; charset=ASCII', html`
@@ -20,32 +20,32 @@ ${nav()}
     Sending an NDA that the other side rejects costs nothing.
   </p>
   <p class=bigPrice>
-    $${configuration.prices.use.toString()}
+    $${process.env.USE_PRICE}
   </p>
   <p>
     Successfully cosigning an NDA costs
-    ${configuration.prices.use.toString()}
+    ${process.env.USE_PRICE}
     United States Dollars.
     This price is charged when the other side countersigns.
     You must use a credit card to pay.
   </p>
   <p class=bigPrice>
-    $${configuration.prices.fill.toString()}
+    $${process.env.FILL_PRICE}
   </p>
   <p>
     Successfully cosigning an NDA prescribed by
     an attorney costs
-    ${configuration.prices.fill.toString()}
+    ${process.env.FILL_PRICE}
     United States Dollars.
     This price is charged when the other side countersigns.
     You must use a credit card to pay.
   </p>
   <p class=bigPrice>
-    $${configuration.prices.prescribe.toString()}
+    $${process.env.PRESCRIBE_PRICE}
   </p>
   <p>
     Prescribing an NDA for client use costs
-    ${configuration.prices.prescribe.toString()}
+    ${process.env.PRESCRIBE_PRICE}
     United States Dollars.
     This price is charged when the prescription
     is created.
@@ -53,5 +53,5 @@ ${nav()}
 </main>
 ${footer()}`)
   }
-  handler(configuration, request, response)
+  handler(request, response)
 }

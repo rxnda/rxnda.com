@@ -77,8 +77,8 @@ tape.test('Countersign w/ coupon', function (test) {
       signEMail = data
     }
   })
-  server(function (port, closeServer, configuration) {
-    var couponFile = path.join(configuration.directory, 'coupon', 'abc')
+  server(function (port, closeServer) {
+    var couponFile = path.join(process.env.DIRECTORY, 'coupon', 'abc')
     runSeries([
       function (done) {
         fs.writeFile(couponFile, 'test coupon', done)

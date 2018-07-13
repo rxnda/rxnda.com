@@ -10,10 +10,9 @@ var signPath = require('../data/sign-path')
 
 var CONCURRENCY = 3
 
-module.exports = function sweep (configuration, callback) {
-  var directory = configuration.directory
-  var signs = path.join(directory, 'sign')
-  var log = configuration.log.child({subsystem: 'filesweeper'})
+module.exports = function sweep (serverLog, callback) {
+  var signs = path.join(process.env.DIRECTORY, 'sign')
+  var log = serverLog.child({subsystem: 'filesweeper'})
   log.info('running')
   fs.readdir(signs, function (error, files) {
     /* istanbul ignore if */
@@ -38,9 +37,9 @@ module.exports = function sweep (configuration, callback) {
                   fileLog.info('expired')
                   runSeries(
                     [
-                      signPath(configuration, parsed.sign),
-                      chargePath(configuration, parsed.sign),
-                      cancelPath(configuration, parsed.cancel)
+                      signPath(parsed.sign),
+                      chargePath(parsed.sign),
+                      cancelPath(parsed.cancel)
                     ].map(function (file) {
                       return function (done) {
                         fs.unlink(file, function (error) {

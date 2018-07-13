@@ -1,5 +1,5 @@
 var path = require('path')
 
-module.exports = function cancelPath (configuration, capability) {
-  return path.join(configuration.directory, 'cancel', capability)
+module.exports = function cancelPath (capability) {
+  return path.join(process.env.DIRECTORY, 'cancel', capability)
 }

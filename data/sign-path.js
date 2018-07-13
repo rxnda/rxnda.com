@@ -1,5 +1,5 @@
 var path = require('path')
 
-module.exports = function signPath (configuration, capability) {
-  return path.join(configuration.directory, 'sign', capability)
+module.exports = function signPath (capability) {
+  return path.join(process.env.DIRECTORY, 'sign', capability)
 }

@@ -26,15 +26,15 @@ var nav = require('../partials/nav')
 var paragraphs = require('../partials/paragraphs')
 var preamble = require('../partials/preamble')
 
-module.exports = function forms (configuration, request, response) {
+module.exports = function forms (request, response) {
   if (request.method === 'GET') {
     if (!request.params.title) {
-      listForms(configuration, request, response)
+      listForms(request, response)
     } else {
       if (!request.params.edition) {
-        listEditions(configuration, request, response)
+        listEditions(request, response)
       } else {
-        showEdition(configuration, request, response)
+        showEdition(request, response)
       }
     }
   } else {
@@ -42,18 +42,18 @@ module.exports = function forms (configuration, request, response) {
   }
 }
 
-function listForms (configuration, request, response) {
-  readTitles(configuration, function (error, titles) {
+function listForms (request, response) {
+  readTitles(function (error, titles) {
     /* istanbul ignore if */
     if (error) {
-      internalError(configuration, request, response, error)
+      internalError(request, response, error)
     } else {
       var list = ''
       runParallel(
         titles.map(function (title) {
           return function (done) {
             readEditions(
-              configuration, sanitize(title),
+              sanitize(title),
               ecb(done, function (editions) {
                 var listOfEditions = editions
                   .filter(function (edition) {
@@ -66,7 +66,7 @@ function listForms (configuration, request, response) {
                 listOfEditions.reverse()
                 var latestEdition = listOfEditions[0]
                 readEdition(
-                  configuration, title, latestEdition,
+                  title, latestEdition,
                   ecb(done, function (latest) {
                     var encoded = encodeTitle(title)
                     list += `
@@ -100,7 +100,7 @@ function listForms (configuration, request, response) {
         function (error) {
           /* istanbul ignore if */
           if (error) {
-            internalError(configuration, request, response, error)
+            internalError(request, response, error)
           } else {
             response.setHeader(
               'Content-Type', 'text/html; charset=ASCII'
@@ -201,13 +201,13 @@ ${footer()}`)
   })
 }
 
-function listEditions (configuration, request, response) {
+function listEditions (request, response) {
   var title = decodeTitle(request.params.title)
   readEditions(
-    configuration, sanitize(title),
+    sanitize(title),
     fail(function (editions) {
       if (editions === false) {
-        notFound(configuration, request, response, [
+        notFound(request, response, [
           'There isn’t any form by that title.'
         ])
       } else {
@@ -226,7 +226,7 @@ function listEditions (configuration, request, response) {
             .map(function (edition) {
               return function (done) {
                 readEdition(
-                  configuration, title, edition,
+                  title, edition,
                   ecb(done, function (data) {
                     list += `
 <li>
@@ -279,7 +279,7 @@ ${footer()}`)
     return function (error, value) {
       /* istanbul ignore if */
       if (error) {
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       } else {
         callback(value)
       }
@@ -287,17 +287,17 @@ ${footer()}`)
   }
 }
 
-function showEdition (configuration, request, response) {
+function showEdition (request, response) {
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
   readEdition(
-    configuration, sanitize(title), sanitize(edition),
+    sanitize(title), sanitize(edition),
     function (error, data) {
       /* istanbul ignore if */
       if (error) {
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       } else if (data === false) {
-        notFound(configuration, request, response, [
+        notFound(request, response, [
           'There isn’t any such edition of the form.'
         ])
       } else {

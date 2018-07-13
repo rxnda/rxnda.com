@@ -22,21 +22,19 @@ var html = require('./html')
 var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
-module.exports = function cancel (configuration, request, response) {
+module.exports = function cancel (request, response) {
   var signCapability
   var data
   runSeries([
     function readCancelFile (done) {
-      var cancelFile = cancelPath(
-        configuration, request.params.capability
-      )
+      var cancelFile = cancelPath(request.params.capability)
       readJSONFile(cancelFile, ecb(done, function (parsed) {
         signCapability = parsed
         done()
       }))
     },
     function readSignFile (done) {
-      var signFile = signPath(configuration, signCapability)
+      var signFile = signPath(signCapability)
       readJSONFile(signFile, ecb(done, function (parsed) {
         data = parsed
         done()
@@ -48,21 +46,21 @@ module.exports = function cancel (configuration, request, response) {
       if (error.code === 'ENOENT') {
         respond404()
       } else {
-        internalError(configuration, request, response, error)
+        internalError(request, response, error)
       }
     } else {
       if (expired(data)) {
         respond404()
       } else if (request.method === 'POST') {
-        post(configuration, request, response, data)
+        post(request, response, data)
       } else {
-        get(configuration, request, response, data)
+        get(request, response, data)
       }
     }
   })
 
   function respond404 () {
-    notFound(configuration, request, response, [
+    notFound(request, response, [
       'If you followed a link to this page to cancel an NDA offer ' +
       'the offer may have expired, the other side may have ' +
       'declined, or it may have been deleted from the system after ' +
@@ -71,7 +69,7 @@ module.exports = function cancel (configuration, request, response) {
   }
 }
 
-function get (configuration, request, response, data) {
+function get (request, response, data) {
   var recipient = data.signatures.recipient
   var sender = data.signatures.sender
   var expires = expirationDate(data)
@@ -111,27 +109,23 @@ ${banner()}
 ${footer('cancel')}`)
 }
 
-function post (configuration, request, response, data) {
+function post (request, response, data) {
   runSeries([
     function rmFiles (done) {
       runSeries([
         function rmSignFile (done) {
-          fs.unlink(signPath(configuration, data.sign), done)
+          fs.unlink(signPath(data.sign), done)
         },
         continueOnError(function rmCancelFile (done) {
-          fs.unlink(cancelPath(configuration, data.cancel), done)
+          fs.unlink(cancelPath(data.cancel), done)
         }),
         continueOnError(function rmChargeFile (done) {
-          fs.unlink(chargePath(configuration, data.sign), done)
+          fs.unlink(chargePath(data.sign), done)
         })
       ], done)
     },
     function emailConfirmations (done) {
-      email(
-        configuration,
-        cancelledMessage(configuration, data),
-        done
-      )
+      email(request.log, cancelledMessage(data), done)
     }
   ], function (error) {
     /* istanbul ignore if */

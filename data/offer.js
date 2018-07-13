@@ -13,8 +13,7 @@ var runSeries = require('run-series')
 var signPath = require('../data/sign-path')
 var stripe = require('stripe')
 
-module.exports = function (configuration, request, data, callback) {
-  var domain = configuration.domain
+module.exports = function (request, data, callback) {
   runSeries([
     function generateCapabilities (done) {
       runParallel([
@@ -30,23 +29,23 @@ module.exports = function (configuration, request, data, callback) {
             done()
           } else if (data.coupon) {
             var coupon = data.coupon
-            readCoupon(configuration, coupon, function (error, valid) {
+            readCoupon(coupon, function (error, valid) {
               if (error) {
                 chargeID = 'coupon'
                 done(error)
               } else if (valid) {
                 chargeID = 'coupon'
                 if (evergreenCoupon(coupon)) done()
-                else deleteCoupon(configuration, coupon, done)
+                else deleteCoupon(coupon, done)
               } else {
                 done(new Error('invalid coupon'))
               }
             })
           } else {
-            stripe(configuration.stripe.private).charges.create({
+            stripe(process.env.STRIPE_SECRET_KEY).charges.create({
               amount: data.price * 100, // dollars to cents
               currency: 'usd',
-              description: domain,
+              description: process.env.DOMAIN,
               // Important: Authorize, but don't capture/charge yet.
               capture: false,
               source: data.token
@@ -60,7 +59,7 @@ module.exports = function (configuration, request, data, callback) {
         },
         function writeChargeFile (done) {
           mkdirpThenWriteJSON(
-            chargePath(configuration, data.sign), chargeID, done
+            chargePath(data.sign), chargeID, done
           )
         }
       ], done)
@@ -69,12 +68,12 @@ module.exports = function (configuration, request, data, callback) {
       runParallel([
         function writeCancelFile (done) {
           mkdirpThenWriteJSON(
-            cancelPath(configuration, data.cancel), data.sign, done
+            cancelPath(data.cancel), data.sign, done
           )
         },
         function writeSignFile (done) {
           mkdirpThenWriteJSON(
-            signPath(configuration, data.sign), data, done
+            signPath(data.sign), data, done
           )
         }
       ], done)
@@ -82,18 +81,10 @@ module.exports = function (configuration, request, data, callback) {
     function sendEmails (done) {
       runSeries([
         function emailCancelLink (done) {
-          email(
-            configuration,
-            cancelMessage(configuration, data),
-            done
-          )
+          email(request.log, cancelMessage(data), done)
         },
         function emailSignLink (done) {
-          email(
-            configuration,
-            countersignMessage(configuration, data),
-            done
-          )
+          email(request.log, countersignMessage(data), done)
         }
       ], done)
     }

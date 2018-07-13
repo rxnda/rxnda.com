@@ -2,9 +2,7 @@ var fs = require('fs')
 var path = require('path')
 var pump = require('pump')
 
-module.exports = function serveFile (
-  configuration, request, response, file, contentType
-) {
+module.exports = function serveFile (request, response, file, contentType) {
   pump(
     fs.createReadStream(path.join(__dirname, '..', 'static', file)),
     response,

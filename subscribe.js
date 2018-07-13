@@ -1,13 +1,13 @@
+// subscribe(log...
+
 // Shim the Mailgun send function and export an EventEmitter
 // tests can use to check invocations.
 /* istanbul ignore else */
 if (process.env.NODE_ENV === 'test') {
   var EventEmitter = require('events').EventEmitter
   var events = new EventEmitter()
-  module.exports = function (
-    configuration, list, address, subscribed, callback
-  ) {
-    var log = configuration.log.child({subsystem: 'subscribe'})
+  module.exports = function (requestLog, list, address, subscribed, callback) {
+    var log = requestLog.log.child({subsystem: 'subscribe'})
     var item = {list: list, address: address}
     log.info(item)
     events.emit('add', item)
@@ -19,10 +19,10 @@ if (process.env.NODE_ENV === 'test') {
   var https = require('https')
   var pump = require('pump')
   var concat = require('concat-stream')
-  module.exports = function (configuration, list, address, callback) {
-    var key = configuration.email.key
+  module.exports = function (requestLog, list, address, callback) {
+    var key = process.env.MAILGUN_KEY
     var form = new FormData()
-    var log = configuration.log.child({subsystem: 'subscribe'})
+    var log = requestLog.log.child({subsystem: 'subscribe'})
     log.info({list: list, address: address})
     form.append('subscribed', 'yes')
     form.append('upsert', 'yes')
