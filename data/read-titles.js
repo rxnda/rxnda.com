@@ -6,13 +6,9 @@ module.exports = function (callback) {
   fs.readdir(directory, function (error, files) {
     /* istanbul ignore if */
     if (error) {
-      if (error.code === 'ENOENT') {
-        callback(null, false)
-      } else {
-        callback(error)
-      }
-    } else {
-      callback(null, files.sort())
+      if (error.code === 'ENOENT') return callback(null, false)
+      return callback(error)
     }
+    callback(null, files.sort())
   })
 }

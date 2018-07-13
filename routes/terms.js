@@ -14,8 +14,7 @@ var preamble = require('../partials/preamble')
 
 module.exports = function terms (request, response) {
   if (request.method !== 'GET') {
-    methodNotAllowed.apply(null, arguments)
-    return
+    return methodNotAllowed.apply(null, arguments)
   }
   load({
     terms: readTerms,
@@ -23,12 +22,12 @@ module.exports = function terms (request, response) {
   }, function (error, loaded) {
     /* istanbul ignore if */
     if (error) {
-      internalError(request, response, error)
-    } else {
-      var terms = loaded.terms
-      var privacy = loaded.privacy
-      response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      response.end(html`
+      return internalError(request, response, error)
+    }
+    var terms = loaded.terms
+    var privacy = loaded.privacy
+    response.setHeader('Content-Type', 'text/html; charset=ASCII')
+    response.end(html`
 ${preamble('Terms')}
 ${banner()}
 ${nav()}
@@ -70,6 +69,5 @@ ${nav()}
   </article>
 </main>
 ${footer()}`)
-    }
   })
 }

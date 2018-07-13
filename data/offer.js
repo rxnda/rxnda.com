@@ -26,10 +26,10 @@ module.exports = function (request, data, callback) {
       runSeries([
         function createCharge (done) {
           if (data.prescriptionCoupon) {
-            done()
+            return done()
           } else if (data.coupon) {
             var coupon = data.coupon
-            readCoupon(coupon, function (error, valid) {
+            return readCoupon(coupon, function (error, valid) {
               if (error) {
                 chargeID = 'coupon'
                 done(error)
@@ -41,21 +41,20 @@ module.exports = function (request, data, callback) {
                 done(new Error('invalid coupon'))
               }
             })
-          } else {
-            stripe(process.env.STRIPE_SECRET_KEY).charges.create({
-              amount: data.price * 100, // dollars to cents
-              currency: 'usd',
-              description: process.env.DOMAIN,
-              // Important: Authorize, but don't capture/charge yet.
-              capture: false,
-              source: data.token
-            }, function (error, charge) {
-              if (error) return done(error)
-              chargeID = charge.id
-              request.log.info({charge: chargeID})
-              done()
-            })
           }
+          stripe(process.env.STRIPE_SECRET_KEY).charges.create({
+            amount: data.price * 100, // dollars to cents
+            currency: 'usd',
+            description: process.env.DOMAIN,
+            // Important: Authorize, but don't capture/charge yet.
+            capture: false,
+            source: data.token
+          }, function (error, charge) {
+            if (error) return done(error)
+            chargeID = charge.id
+            request.log.info({charge: chargeID})
+            done()
+          })
         },
         function writeChargeFile (done) {
           mkdirpThenWriteJSON(

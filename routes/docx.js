@@ -13,40 +13,34 @@ var spell = require('reviewers-edition-spell')
 
 module.exports = function docx (request, response) {
   if (request.method !== 'GET') {
-    methodNotAllowed.apply(null, arguments)
-    return
+    return methodNotAllowed.apply(null, arguments)
   }
   var title = decodeTitle(request.params.title)
   var edition = request.params.edition
-  if (!revedParse(edition)) {
-    return respond404()
-  }
+  if (!revedParse(edition)) return respond404()
   readEdition(
     sanitize(title), sanitize(edition),
     function (error, data) {
       /* istanbul ignore if */
       if (error) {
-        internalError(request, response, error)
-      } else if (data === false) {
-        respond404()
-      } else {
-        var zip = render(data.commonform, [], {
-          title: title,
-          edition: spell(data.edition),
-          hash: true,
-          numbering: outlineNumbering,
-          indentMargins: true,
-          centerTitle: true,
-          markFilled: true,
-          after: ooxmlSignaturePages(data.signatures)
-        })
-        response.setHeader('Content-Type', docxContentType)
-        response.setHeader(
-          'Content-Disposition',
-          `attachment; filename="${title} ${data.edition}.docx"`
-        )
-        response.end(zip.generate({type: 'nodebuffer'}))
-      }
+        return internalError(request, response, error)
+      } else if (data === false) return respond404()
+      var zip = render(data.commonform, [], {
+        title: title,
+        edition: spell(data.edition),
+        hash: true,
+        numbering: outlineNumbering,
+        indentMargins: true,
+        centerTitle: true,
+        markFilled: true,
+        after: ooxmlSignaturePages(data.signatures)
+      })
+      response.setHeader('Content-Type', docxContentType)
+      response.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${title} ${data.edition}.docx"`
+      )
+      response.end(zip.generate({type: 'nodebuffer'}))
     }
   )
 

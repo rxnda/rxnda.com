@@ -59,27 +59,26 @@ module.exports = function prescribe (request, response) {
   }, function (error, results) {
     /* istanbul ignore if */
     if (error) {
-      internalError(request, response, error)
-    } else if (results.edition === false) {
-      notFound(request, response, [
+      return internalError(request, response, error)
+    }
+    if (results.edition === false) {
+      return notFound(request, response, [
         'There isn’t any form by that title and edition.'
       ])
-    } else {
-      var attorneyFile = attorneyPath(request.query.attorney)
-      readJSONFile(attorneyFile, function (error, attorney) {
-        if (error) {
-          return notFound(request, response, [
-            'There isn’t any attorney with that ID.'
-          ])
-        }
-        results.edition.allEditions = results.editions
-        if (request.method === 'POST') {
-          post(request, response, results.edition, attorney)
-        } else {
-          showGet(request, response, results.edition, attorney)
-        }
-      })
     }
+    var attorneyFile = attorneyPath(request.query.attorney)
+    readJSONFile(attorneyFile, function (error, attorney) {
+      if (error) {
+        return notFound(request, response, [
+          'There isn’t any attorney with that ID.'
+        ])
+      }
+      results.edition.allEditions = results.editions
+      if (request.method === 'POST') {
+        return post(request, response, results.edition, attorney)
+      }
+      showGet(request, response, results.edition, attorney)
+    })
   })
 }
 
@@ -345,17 +344,16 @@ function senderBlock (signature, postData) {
         ]
       )
     )
-  } else {
-    // Individual Signatory
-    return (
-      inputWithPrior(
-        'signatures-sender-name',
-        true,
-        'The Client’s Name',
-        ['Enter a full legal name.']
-      )
-    )
   }
+  // Individual Signatory
+  return (
+    inputWithPrior(
+      'signatures-sender-name',
+      true,
+      'The Client’s Name',
+      ['Enter a full legal name.']
+    )
+  )
 
   function inputWithPrior (name, required, label, notes) {
     if (postData) {
@@ -369,14 +367,13 @@ function senderBlock (signature, postData) {
         },
         errors: errorsFor(name, postData)
       })
-    } else {
-      return input({
-        name: name,
-        required: required,
-        label: label,
-        notes: notes
-      })
     }
+    return input({
+      name: name,
+      required: required,
+      label: label,
+      notes: notes
+    })
   }
 }
 
@@ -436,10 +433,9 @@ function post (request, response, form, attorney) {
         var errors = validPrescription(data, form)
         if (errors.length !== 0) {
           data.errors = errors
-          showGet(request, response, form, attorney, data)
-        } else {
-          write(request, response, data, attorney, form)
+          return showGet(request, response, form, attorney, data)
         }
+        write(request, response, data, attorney, form)
       })
   )
 }
@@ -483,27 +479,25 @@ function write (request, response, data, attorney, form) {
     function createCharge (done) {
       if (data.coupon) {
         var coupon = data.coupon
-        readPrescriptionCoupon(coupon, function (error, valid) {
+        return readPrescriptionCoupon(coupon, function (error, valid) {
           if (error) return done(error)
           if (valid) {
-            if (evergreenCoupon(coupon)) done()
-            else deletePrescriptionCoupon(coupon, done)
-          } else {
-            done(new Error('invalid coupon'))
+            if (evergreenCoupon(coupon)) return done()
+            return deletePrescriptionCoupon(coupon, done)
           }
-        })
-      } else {
-        stripe(process.env.STRIPE_SECRET_KEY).charges.create({
-          amount: data.prices.prescribe * 100, // dollars to cents
-          currency: 'usd',
-          description: process.env.DOMAIN,
-          source: data.token
-        }, function (error, charge) {
-          if (error) return done(error)
-          request.log.info({charge: charge.id})
-          done()
+          done(new Error('invalid coupon'))
         })
       }
+      stripe(process.env.STRIPE_SECRET_KEY).charges.create({
+        amount: data.prices.prescribe * 100, // dollars to cents
+        currency: 'usd',
+        description: process.env.DOMAIN,
+        source: data.token
+      }, function (error, charge) {
+        if (error) return done(error)
+        request.log.info({charge: charge.id})
+        done()
+      })
     },
     function writeFiles (done) {
       runParallel([
@@ -539,16 +533,15 @@ function write (request, response, data, attorney, form) {
             message: 'The coupon you entered is not valid.'
           }
         ]
-        showGet(request, response, data.form.edition, attorney, data)
-      } else {
-        request.log.error(error)
-        response.statusCode = 500
-        response.end()
+        return showGet(request, response, data.form.edition, attorney, data)
       }
-    } else {
-      response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      var sender = data.signatures.sender
-      response.end(html`
+      request.log.error(error)
+      response.statusCode = 500
+      return response.end()
+    }
+    response.setHeader('Content-Type', 'text/html; charset=ASCII')
+    var sender = data.signatures.sender
+    response.end(html`
 ${preamble()}
 ${banner()}
 ${nav()}
@@ -566,7 +559,6 @@ ${nav()}
   </p>
 </main>
 ${footer()}`)
-    }
   })
 
   function capabilityToProperty (object, key) {
@@ -605,7 +597,6 @@ function errorsFor (name, postData) {
       .map(function (error) {
         return error.message
       })
-  } else {
-    return []
   }
+  return []
 }

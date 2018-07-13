@@ -36,7 +36,7 @@ module.exports = function (serverLog, callback) {
             }
             if (expired(parsed)) {
               fileLog.info('expired')
-              runSeries(
+              return runSeries(
                 [
                   function (done) {
                     email(serverLog, expiredMessage(parsed), done)
@@ -48,19 +48,16 @@ module.exports = function (serverLog, callback) {
                   return function (done) {
                     fs.unlink(file, function (error) {
                       /* istanbul ignore if */
-                      if (error) {
-                        log.error(error)
-                      }
+                      if (error) log.error(error)
                       done()
                     })
                   }
                 })),
                 done
               )
-            } else {
-              fileLog.info('OK')
-              done()
             }
+            fileLog.info('OK')
+            done()
           })
         }
       }),

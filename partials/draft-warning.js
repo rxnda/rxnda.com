@@ -6,7 +6,6 @@ module.exports = function draftWarning (edition) {
   use a final edition unless you have a specific reason
   to prefer this draft.
 </p>`
-  } else {
-    return ''
   }
+  return ''
 }

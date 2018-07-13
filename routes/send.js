@@ -47,21 +47,16 @@ module.exports = function send (request, response) {
     }
   }, function (error, results) {
     /* istanbul ignore if */
-    if (error) {
-      internalError(request, response, error)
-    } else if (results.edition === false) {
-      notFound(request, response, [
+    if (error) return internalError(request, response, error)
+    if (results.edition === false) {
+      return notFound(request, response, [
         'There isn’t any form by that title and edition.'
       ])
-    } else {
-      results.edition.title = title
-      results.edition.allEditions = results.editions
-      if (request.method === 'POST') {
-        post(request, response, results.edition)
-      } else {
-        get(request, response, results.edition)
-      }
     }
+    results.edition.title = title
+    results.edition.allEditions = results.editions
+    if (request.method === 'POST') return post(request, response, results.edition)
+    get(request, response, results.edition)
   })
 }
 
@@ -224,10 +219,9 @@ function post (request, response, form) {
         var errors = validPost(data, form)
         if (errors.length !== 0) {
           data.errors = errors
-          get(request, response, form, data)
-        } else {
-          write(request, response, data, form)
+          return get(request, response, form, data)
         }
+        write(request, response, data, form)
       })
   )
 }
@@ -261,19 +255,18 @@ function write (request, response, data, form) {
             message: 'The coupon you entered is not valid.'
           }
         ]
-        get(request, response, form, data)
-      } else {
-        request.log.error(error)
-        internalError(request, response, error)
+        return get(request, response, form, data)
       }
-    } else {
-      htmlContent(response)
-      var sender = data.signatures.sender
-      var recipient = data.signatures.recipient
-      var recipientName = (
-        recipient.company || recipient.name || recipient.email
-      )
-      response.end(html`
+      request.log.error(error)
+      return internalError(request, response, error)
+    }
+    htmlContent(response)
+    var sender = data.signatures.sender
+    var recipient = data.signatures.recipient
+    var recipientName = (
+      recipient.company || recipient.name || recipient.email
+    )
+    response.end(html`
 ${preamble()}
 ${banner()}
 ${nav()}
@@ -292,6 +285,5 @@ ${nav()}
   </p>
 </main>
 ${footer()}`)
-    }
   })
 }

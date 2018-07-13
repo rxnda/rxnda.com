@@ -13,13 +13,9 @@ var preamble = require('../partials/preamble')
 var lists = ['lawyers@mail.rxnda.com']
 
 module.exports = function (request, response) {
-  if (request.method === 'GET') {
-    get.apply(null, arguments)
-  } else if (request.method === 'POST') {
-    post.apply(null, arguments)
-  } else {
-    methodNotAllowed.apply(null, arguments)
-  }
+  if (request.method === 'GET') return get.apply(null, arguments)
+  if (request.method === 'POST') return post.apply(null, arguments)
+  methodNotAllowed.apply(null, arguments)
 }
 
 function get (request, response) {
@@ -68,16 +64,16 @@ function post (request, response) {
       .once('finish', function () {
         if (!address || !list || !lists.includes(list)) {
           response.statusCode = 400
-          response.end()
-        } else {
-          subscribe(list, address, function (error) {
-            if (error) {
-              internalError(request, response, error)
-            } else {
-              response.setHeader(
-                'Content-Type', 'text/html; charset=ACII'
-              )
-              response.end(html`
+          return response.end()
+        }
+        subscribe(list, address, function (error) {
+          if (error) {
+            internalError(request, response, error)
+          } else {
+            response.setHeader(
+              'Content-Type', 'text/html; charset=ACII'
+            )
+            response.end(html`
 ${preamble('RxNDA Mailing Lists')}
 ${banner()}
 ${nav()}
@@ -86,9 +82,8 @@ ${nav()}
   <p>You are now subscribed to ${escape(list)}.</p>
 </main>
 ${footer()}`)
-            }
-          })
-        }
+          }
+        })
       })
   )
 }

@@ -6,13 +6,9 @@ module.exports = function (capability, callback) {
   readJSONFile(file, function (error, data) {
     if (error) {
       /* istanbul ignore else */
-      if (error.code === 'ENOENT') {
-        callback(null, false)
-      } else {
-        callback(error)
-      }
-    } else {
-      callback(null, data)
+      if (error.code === 'ENOENT') return callback(null, false)
+      return callback(error)
     }
+    callback(null, data)
   })
 }

@@ -5,17 +5,15 @@ module.exports = function (contentType, body) {
   var tag = etag(body)
   return function (request, response) {
     if (request.method !== 'GET') {
-      methodNotAllowed.apply(null, arguments)
-      return
+      return methodNotAllowed.apply(null, arguments)
     }
     var provided = request.headers['if-none-match']
     if (provided && provided === tag) {
       response.statusCode = 304
-      response.end()
-    } else {
-      response.setHeader('Content-Type', contentType)
-      response.setHeader('ETag', tag)
-      response.end(body)
+      return response.end()
     }
+    response.setHeader('Content-Type', contentType)
+    response.setHeader('ETag', tag)
+    response.end(body)
   }
 }

@@ -7,7 +7,6 @@ module.exports = function errorsFor (name, postData) {
       .map(function (error) {
         return error.message
       })
-  } else {
-    return []
   }
+  return []
 }

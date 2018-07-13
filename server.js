@@ -53,7 +53,5 @@ runSeries([
     done()
   }
 ], function (error) {
-  if (error) {
-    log.error(error)
-  }
+  if (error) log.error(error)
 })

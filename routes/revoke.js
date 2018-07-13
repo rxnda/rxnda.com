@@ -40,20 +40,12 @@ module.exports = function revoke (request, response) {
   ], function (error) {
     if (error) {
       /* istanbul ignore else */
-      if (error.code === 'ENOENT') {
-        respond404()
-      } else {
-        internalError(request, response, error)
-      }
-    } else {
-      if (expired(data)) {
-        respond404()
-      } else if (request.method === 'POST') {
-        post(request, response, data)
-      } else {
-        get(request, response, data)
-      }
+      if (error.code === 'ENOENT') return respond404()
+      return internalError(request, response, error)
     }
+    if (expired(data)) return respond404()
+    if (request.method === 'POST') return post(request, response, data)
+    get(request, response, data)
   })
 
   function respond404 () {
@@ -116,10 +108,10 @@ function post (request, response, data) {
     if (error) {
       request.log.error(error)
       response.statusCode = 500
-      response.end()
-    } else {
-      response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      response.end(html`
+      return response.end()
+    }
+    response.setHeader('Content-Type', 'text/html; charset=ASCII')
+    response.end(html`
 ${preamble('Revoked')}
 ${banner()}
 ${nav()}
@@ -130,16 +122,13 @@ ${nav()}
   </p>
 </main>
 ${footer()}`)
-    }
   })
 
   function continueOnError (task) {
     return function (done) {
       task(function (error) {
         /* istanbul ignore if */
-        if (error) {
-          request.log.error(error, 'continuing')
-        }
+        if (error) request.log.error(error, 'continuing')
         done()
       })
     }

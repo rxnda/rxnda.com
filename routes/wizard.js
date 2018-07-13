@@ -16,20 +16,16 @@ var preamble = require('../partials/preamble')
 
 module.exports = function forms (request, response) {
   if (request.method !== 'GET') {
-    methodNotAllowed.apply(null, arguments)
+    return methodNotAllowed.apply(null, arguments)
   }
   readWizard(function (error, wizard) {
     /* istanbul ignore if */
-    if (error) {
-      internalError(request, response, error)
-    } else {
-      var queryKeys = Object.keys(request.query)
-      if (queryKeys.length === 0) {
-        showForm(request, response, wizard)
-      } else {
-        redirect(request, response, wizard)
-      }
+    if (error) return internalError(request, response, error)
+    var queryKeys = Object.keys(request.query)
+    if (queryKeys.length === 0) {
+      return showForm(request, response, wizard)
     }
+    redirect(request, response, wizard)
   })
 }
 
@@ -112,31 +108,30 @@ function redirect (request, response, wizard) {
     })
     if (!title) {
       response.statusCode = 400
-      response.end()
-    } else {
-      readEditions(
-        title,
-        function (error, editions) {
-          /* istanbul ignore if */
-          if (error) {
-            internalError(request, response, error)
-          } else if (editions === false) {
-            internalError(request, response, error)
-          } else {
-            var latest = editions
-              .sort(revedCompare)
-              .reverse()[0]
-            response.statusCode = 303
-            response.setHeader(
-              'Location',
-              '/send' +
-              '/' + encodeTitle(title) +
-              '/' + latest
-            )
-            response.end()
-          }
-        }
-      )
+      return response.end()
     }
+    readEditions(
+      title,
+      function (error, editions) {
+        /* istanbul ignore if */
+        if (error) {
+          return internalError(request, response, error)
+        }
+        if (editions === false) {
+          return internalError(request, response, error)
+        }
+        var latest = editions
+          .sort(revedCompare)
+          .reverse()[0]
+        response.statusCode = 303
+        response.setHeader(
+          'Location',
+          '/send' +
+          '/' + encodeTitle(title) +
+          '/' + latest
+        )
+        response.end()
+      }
+    )
   }
 }

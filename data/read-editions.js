@@ -6,18 +6,14 @@ module.exports = function (title, callback) {
   fs.readdir(directory, function (error, files) {
     if (error) {
       /* istanbul ignore else */
-      if (error.code === 'ENOENT') {
-        callback(null, false)
-      } else {
-        callback(error)
-      }
-    } else {
-      callback(
-        null,
-        files.map(function (element) {
-          return element.replace(/\.json$/, '')
-        })
-      )
+      if (error.code === 'ENOENT') return callback(null, false)
+      return callback(error)
     }
+    callback(
+      null,
+      files.map(function (element) {
+        return element.replace(/\.json$/, '')
+      })
+    )
   })
 }

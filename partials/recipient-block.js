@@ -5,10 +5,8 @@ var asterisk = require('./asterisk')
 var input = require('./input')
 
 module.exports = function (page, postData, sendData) {
-  if (sendData) {
-    return rest(page, postData)
-  } else {
-    return html`
+  if (sendData) return rest(page, postData)
+  return html`
 <section class=field>
   <label>Their Email</label>
   ${asterisk()}
@@ -23,8 +21,7 @@ module.exports = function (page, postData, sendData) {
       }>
 </section>
 ${rest(page)}
-    `
-  }
+  `
 
   function rest (signature) {
     if (Array.isArray(signature.entities)) {
@@ -77,20 +74,19 @@ ${rest(page)}
           sendData && sendData.title
         )
       )
-    } else {
-      // Individual Signatory
-      return (
-        inputWithPrior(
-          'signatures-recipient-name', 'Their Name',
-          [
-            'If you leave this blank, the recipient can fill it out.',
-            'Enter the other side’s full legal name.',
-            'For example: “Jane Doe”'
-          ],
-          sendData && sendData.name
-       )
-      )
     }
+    // Individual Signatory
+    return (
+      inputWithPrior(
+        'signatures-recipient-name', 'Their Name',
+        [
+          'If you leave this blank, the recipient can fill it out.',
+          'Enter the other side’s full legal name.',
+          'For example: “Jane Doe”'
+        ],
+        sendData && sendData.name
+     )
+    )
   }
 
   function inputWithPrior (name, label, notes, sendValue) {

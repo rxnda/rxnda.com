@@ -34,19 +34,17 @@ module.exports = function send (request, response) {
   var capability = request.params.capability
   readPrescription(capability, function (error, prescription) {
     if (error) {
-      internalError(request, response, error)
+      return internalError(request, response, error)
     /* istanbul ignore if */
     } else if (prescription === false) {
-      notFound(request, response, [
+      return notFound(request, response, [
         'There isn’t any such prescription.'
       ])
-    } else {
-      if (request.method === 'POST') {
-        post(request, response, prescription)
-      } else {
-        get(request, response, prescription)
-      }
     }
+    if (request.method === 'POST') {
+      return post(request, response, prescription)
+    }
+    return get(request, response, prescription)
   })
 }
 
@@ -257,15 +255,15 @@ function write (request, response, data, prescription) {
     /* istanbul ignore if */
     if (error) {
       request.log.error(error)
-      internalError(request, response, error)
-    } else {
-      htmlContent(response)
-      var sender = data.signatures.sender
-      var recipient = data.signatures.recipient
-      var recipientName = (
-        recipient.company || recipient.name || recipient.email
-      )
-      response.end(html`
+      return internalError(request, response, error)
+    }
+    htmlContent(response)
+    var sender = data.signatures.sender
+    var recipient = data.signatures.recipient
+    var recipientName = (
+      recipient.company || recipient.name || recipient.email
+    )
+    response.end(html`
 ${preamble()}
 ${banner()}
 ${nav()}
@@ -284,6 +282,5 @@ ${nav()}
   </p>
 </main>
 ${footer()}`)
-    }
   })
 }

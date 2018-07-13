@@ -21,18 +21,17 @@ module.exports = function view (request, response) {
     if (error) {
       /* istanbul ignore else */
       if (error.code === 'ENOENT') {
-        notFound(request, response, [
+        return notFound(request, response, [
           'If you followed a link to this page to cancel an NDA ' +
           'offer the offer may have expired, the other side may have ' +
           'declined, or it may have been deleted from the system ' +
           'after countersigning.'
         ])
-      } else {
-        internalError(request, response, error)
       }
-    } else {
-      response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      response.end(html`
+      return internalError(request, response, error)
+    }
+    response.setHeader('Content-Type', 'text/html; charset=ASCII')
+    response.end(html`
 ${preamble('View')}
 ${banner()}
 <main>
@@ -50,6 +49,5 @@ ${banner()}
   </article>
 </main>
 ${footer()}`)
-    }
   })
 }

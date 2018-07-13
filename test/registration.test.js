@@ -149,7 +149,7 @@ tape.test('Register', function (test) {
           return fillStripe(webdriver)
         })
         .click('input[type=submit]')
-        .waitForExist('.sent')
+        .waitForExist('.sent', 2000)
         .then(function () {
           test.pass('sent')
         })

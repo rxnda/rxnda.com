@@ -70,22 +70,21 @@ if (process.env.NODE_ENV === 'test') {
       var status = response.statusCode
       if (status === 200) {
         log.info({event: 'sent'})
-        callback()
-      } else {
-        response
-          .once('error', function (error) {
-            log.error(error)
-            callback(error)
-          })
-          .pipe(require('concat-stream')(function (body) {
-            var error = {
-              status: response.statusCode,
-              body: body.toString()
-            }
-            log.error(error)
-            callback(error)
-          }))
+        return callback()
       }
+      response
+        .once('error', function (error) {
+          log.error(error)
+          callback(error)
+        })
+        .pipe(require('concat-stream')(function (body) {
+          var error = {
+            status: response.statusCode,
+            body: body.toString()
+          }
+          log.error(error)
+          callback(error)
+        }))
     }))
   }
 }

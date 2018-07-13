@@ -9,15 +9,11 @@ module.exports = function (title, edition, callback) {
   readJSONFile(file, function (error, data) {
     if (error) {
       /* istanbul ignore else */
-      if (error.code === 'ENOENT') {
-        callback(null, false)
-      } else {
-        callback(error)
-      }
-    } else {
-      data.edition = edition
-      data.title = title
-      callback(null, data)
+      if (error.code === 'ENOENT') return callback(null, false)
+      return callback(error)
     }
+    data.edition = edition
+    data.title = title
+    callback(null, data)
   })
 }

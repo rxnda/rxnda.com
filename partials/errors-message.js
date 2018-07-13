@@ -9,7 +9,6 @@ module.exports = function (postData) {
         like this one.
       </p>
     `
-  } else {
-    return ''
   }
+  return ''
 }

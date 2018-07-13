@@ -10,11 +10,8 @@ var nav = require('../partials/nav')
 var preamble = require('../partials/preamble')
 
 module.exports = function (request, response) {
-  if (request.method === 'POST') {
-    post(request, response)
-  } else {
-    get(request, response)
-  }
+  if (request.method === 'POST') return post(request, response)
+  get(request, response)
 }
 
 var WARNING = html`

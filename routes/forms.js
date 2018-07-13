@@ -28,48 +28,41 @@ var preamble = require('../partials/preamble')
 
 module.exports = function forms (request, response) {
   if (request.method === 'GET') {
-    if (!request.params.title) {
-      listForms(request, response)
-    } else {
-      if (!request.params.edition) {
-        listEditions(request, response)
-      } else {
-        showEdition(request, response)
-      }
-    }
-  } else {
-    methodNotAllowed.apply(null, arguments)
+    if (!request.params.title) return listForms(request, response)
+    if (!request.params.edition) return listEditions(request, response)
+    return showEdition(request, response)
   }
+  methodNotAllowed.apply(null, arguments)
 }
 
 function listForms (request, response) {
   readTitles(function (error, titles) {
     /* istanbul ignore if */
     if (error) {
-      internalError(request, response, error)
-    } else {
-      var list = ''
-      runParallel(
-        titles.map(function (title) {
-          return function (done) {
-            readEditions(
-              sanitize(title),
-              ecb(done, function (editions) {
-                var listOfEditions = editions
-                  .filter(function (edition) {
-                    return !revedParse(edition).draft
-                  })
-                if (listOfEditions.length === 0) {
-                  listOfEditions = editions
-                }
-                listOfEditions.sort(revedCompare)
-                listOfEditions.reverse()
-                var latestEdition = listOfEditions[0]
-                readEdition(
-                  title, latestEdition,
-                  ecb(done, function (latest) {
-                    var encoded = encodeTitle(title)
-                    list += `
+      return internalError(request, response, error)
+    }
+    var list = ''
+    runParallel(
+      titles.map(function (title) {
+        return function (done) {
+          readEditions(
+            sanitize(title),
+            ecb(done, function (editions) {
+              var listOfEditions = editions
+                .filter(function (edition) {
+                  return !revedParse(edition).draft
+                })
+              if (listOfEditions.length === 0) {
+                listOfEditions = editions
+              }
+              listOfEditions.sort(revedCompare)
+              listOfEditions.reverse()
+              var latestEdition = listOfEditions[0]
+              readEdition(
+                title, latestEdition,
+                ecb(done, function (latest) {
+                  var encoded = encodeTitle(title)
+                  list += `
 <li>
   <h3>${escape(title)}</h3>
   ${paragraphs(latest.notes)}
@@ -90,22 +83,22 @@ function listForms (request, response) {
       >View all available editions.</a>
   </p>
 </li>`
-                    done()
-                  })
-                )
-              })
-            )
-          }
-        }),
-        function (error) {
-          /* istanbul ignore if */
-          if (error) {
-            internalError(request, response, error)
-          } else {
-            response.setHeader(
-              'Content-Type', 'text/html; charset=ASCII'
-            )
-            response.end(html`
+                  done()
+                })
+              )
+            })
+          )
+        }
+      }),
+      function (error) {
+        /* istanbul ignore if */
+        if (error) {
+          return internalError(request, response, error)
+        }
+        response.setHeader(
+          'Content-Type', 'text/html; charset=ASCII'
+        )
+        response.end(html`
 ${preamble('Forms')}
 ${banner()}
 ${nav()}
@@ -194,10 +187,8 @@ ${nav()}
   <ul id=list class=listOfForms>${list}</ul>
 </main>
 ${footer()}`)
-          }
-        }
-      )
-    }
+      }
+    )
   })
 }
 
@@ -207,28 +198,28 @@ function listEditions (request, response) {
     sanitize(title),
     fail(function (editions) {
       if (editions === false) {
-        notFound(request, response, [
+        return notFound(request, response, [
           'There isn’t any form by that title.'
         ])
-      } else {
-        var list = ''
-        var listOfEditions = editions
-          .filter(function (edition) {
-            return !revedParse(edition).draft
-          })
-        if (listOfEditions.length === 0) {
-          listOfEditions = editions
-        }
-        runParallel(
-          listOfEditions
-            .sort(revedCompare)
-            .reverse()
-            .map(function (edition) {
-              return function (done) {
-                readEdition(
-                  title, edition,
-                  ecb(done, function (data) {
-                    list += `
+      }
+      var list = ''
+      var listOfEditions = editions
+        .filter(function (edition) {
+          return !revedParse(edition).draft
+        })
+      if (listOfEditions.length === 0) {
+        listOfEditions = editions
+      }
+      runParallel(
+        listOfEditions
+          .sort(revedCompare)
+          .reverse()
+          .map(function (edition) {
+            return function (done) {
+              readEdition(
+                title, edition,
+                ecb(done, function (data) {
+                  list += `
 <li>
   <h3>${escape(title)}</h3>
   <p class=edition>${escape(spell(edition))}</p>
@@ -250,16 +241,16 @@ function listEditions (request, response) {
       >Sign and Send</a>
   </p>
 </li>`
-                    done()
-                  })
-                )
-              }
-            }),
-          fail(function () {
-            response.setHeader(
-              'Content-Type', 'text/html; charset=ASCII'
-            )
-            response.end(html`
+                  done()
+                })
+              )
+            }
+          }),
+        fail(function () {
+          response.setHeader(
+            'Content-Type', 'text/html; charset=ASCII'
+          )
+          response.end(html`
 ${preamble(title)}
 ${banner()}
 ${nav()}
@@ -269,20 +260,16 @@ ${nav()}
   ${formsOverview()}
 </main>
 ${footer()}`)
-          })
-        )
-      }
+        })
+      )
     })
   )
 
   function fail (callback) {
     return function (error, value) {
       /* istanbul ignore if */
-      if (error) {
-        internalError(request, response, error)
-      } else {
-        callback(value)
-      }
+      if (error) return internalError(request, response, error)
+      callback(value)
     }
   }
 }
@@ -295,14 +282,15 @@ function showEdition (request, response) {
     function (error, data) {
       /* istanbul ignore if */
       if (error) {
-        internalError(request, response, error)
-      } else if (data === false) {
-        notFound(request, response, [
+        return internalError(request, response, error)
+      }
+      if (data === false) {
+        return notFound(request, response, [
           'There isn’t any such edition of the form.'
         ])
-      } else {
-        response.setHeader('Content-Type', 'text/html; charset=ASCII')
-        response.end(html`
+      }
+      response.setHeader('Content-Type', 'text/html; charset=ASCII')
+      response.end(html`
 ${banner()}
 ${preamble(data.title + ', ' + spell(data.edition))}
 ${nav()}
@@ -333,7 +321,6 @@ ${nav()}
   </article>
 </main>
 ${footer()}`)
-      }
     }
   )
 }

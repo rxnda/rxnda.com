@@ -19,14 +19,10 @@ var preamble = require('../partials/preamble')
 
 module.exports = function send (request, response) {
   var method = request.method
-  if (method === 'GET') {
-    get(request, response)
-  } else if (method === 'POST') {
-    post(request, response)
-  } else {
-    response.statusCode = 405
-    response.end()
-  }
+  if (method === 'GET') return get(request, response)
+  if (method === 'POST') return post(request, response)
+  response.statusCode = 405
+  response.end()
 }
 
 function get (request, response, postData) {
@@ -142,15 +138,14 @@ ${footer()}`)
 function errorsFor (name, postData) {
   if (!postData || !postData.errors) {
     return []
-  } else {
-    return postData.errors
-      .filter(function (error) {
-        return error.name === name
-      })
-      .map(function (error) {
-        return error.message
-      })
   }
+  return postData.errors
+    .filter(function (error) {
+      return error.name === name
+    })
+    .map(function (error) {
+      return error.message
+    })
 }
 
 function asterisk () {
@@ -181,10 +176,9 @@ function post (request, response) {
         var errors = validPost(data)
         if (errors.length !== 0) {
           data.errors = errors
-          get(request, response, data)
-        } else {
-          write(request, response, data)
+          return get(request, response, data)
         }
+        write(request, response, data)
       })
   )
 }
@@ -274,10 +268,10 @@ function write (request, response, data, form) {
     if (error) {
       request.log.error(error)
       response.statusCode = 500
-      response.end()
-    } else {
-      response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      response.end(html`
+      return response.end()
+    }
+    response.setHeader('Content-Type', 'text/html; charset=ASCII')
+    response.end(html`
 ${preamble()}
 ${banner()}
 ${nav()}
@@ -286,6 +280,5 @@ ${nav()}
   <p>Please check your e-mail for a link to create prescriptions.</p>
 </main>
 ${footer()}`)
-    }
   })
 }

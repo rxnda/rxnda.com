@@ -18,54 +18,47 @@ module.exports = function sweep (serverLog, callback) {
     /* istanbul ignore if */
     if (error) {
       log.error(error)
-      callback()
-    } else {
-      log.info(files.length.toString() + ' files')
-      runParallelLimit(
-        files.map(function (file) {
-          file = path.join(signs, file)
-          return function (done) {
-            var fileLog = log.child({file: file})
-            fileLog.info('reading')
-            readJSONFile(file, function (error, parsed) {
-              /* istanbul ignore if */
-              if (error) {
-                fileLog.error(error)
-                done()
-              } else {
-                if (expired(parsed)) {
-                  fileLog.info('expired')
-                  runSeries(
-                    [
-                      signPath(parsed.sign),
-                      chargePath(parsed.sign),
-                      cancelPath(parsed.cancel)
-                    ].map(function (file) {
-                      return function (done) {
-                        fs.unlink(file, function (error) {
-                          /* istanbul ignore if */
-                          if (error) {
-                            log.error(error)
-                          }
-                          done()
-                        })
-                      }
-                    }),
-                    done
-                  )
-                } else {
-                  fileLog.info('OK')
-                  done()
-                }
-              }
-            })
-          }
-        }),
-        CONCURRENCY,
-        function () {
-          callback()
-        }
-      )
+      return callback()
     }
+    log.info(files.length.toString() + ' files')
+    runParallelLimit(
+      files.map(function (file) {
+        file = path.join(signs, file)
+        return function (done) {
+          var fileLog = log.child({file: file})
+          fileLog.info('reading')
+          readJSONFile(file, function (error, parsed) {
+            /* istanbul ignore if */
+            if (error) {
+              fileLog.error(error)
+              return done()
+            }
+            if (expired(parsed)) {
+              fileLog.info('expired')
+              return runSeries([
+                signPath(parsed.sign),
+                chargePath(parsed.sign),
+                cancelPath(parsed.cancel)
+              ].map(function (file) {
+                return function (done) {
+                  fs.unlink(file, function (error) {
+                    /* istanbul ignore if */
+                    if (error) log.error(error)
+                    done()
+                  })
+                }
+              }),
+              done)
+            }
+            fileLog.info('OK')
+            done()
+          })
+        }
+      }),
+      CONCURRENCY,
+      function () {
+        callback()
+      }
+    )
   })
 }

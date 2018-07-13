@@ -31,9 +31,8 @@ function toString (value) {
     return value.join('')
   } else if (typeof value === 'string') {
     return value
-  } else {
-    throw new Error(
-      'Invalid template value ' + typeof value + JSON.stringify(value)
-    )
   }
+  throw new Error(
+    'Invalid template value ' + typeof value + JSON.stringify(value)
+  )
 }

@@ -17,7 +17,6 @@ module.exports = function draftWarning (
   The latest edition is the
   <a href=${href}>${escape(spell(latestEdition))}</a>.
 </p>`
-  } else {
-    return ''
   }
+  return ''
 }

@@ -7,8 +7,8 @@ var input = require('./input')
 module.exports = function (form, postData, priorValueOf) {
   if (form.directions.length === 0) {
     return ''
-  } else {
-    return html`
+  }
+  return html`
 <section class=blanks>
   <h3>Fill in the Blanks</h3>
   ${form
@@ -41,6 +41,5 @@ module.exports = function (form, postData, priorValueOf) {
       })
     })}
 </section>
-    `
-  }
+  `
 }

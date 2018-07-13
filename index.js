@@ -17,19 +17,15 @@ module.exports = function onRequest (serverLog, request, response) {
   // Routing
   var method = request.method
   if (method !== 'GET' && method !== 'POST') {
-    methodNotAllowed(request, response)
-    return
+    return methodNotAllowed(request, response)
   }
   var parsed = url.parse(request.url, true)
   request.query = parsed.query
   var route = routes.get(parsed.pathname)
   request.params = route.params
-  if (route.handler) {
-    route.handler(request, response)
-  } else {
-    notFound(request, response, [
-      'The link you followed here is broken.',
-      'Visit the pages linked above to learn more about RxNDA.'
-    ])
-  }
+  if (route.handler) return route.handler(request, response)
+  notFound(request, response, [
+    'The link you followed here is broken.',
+    'Visit the pages linked above to learn more about RxNDA.'
+  ])
 }

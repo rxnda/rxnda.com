@@ -71,16 +71,15 @@ function senderBlock (signature, postData, priorValueOf) {
       ) +
       byline(postData)
     )
-  } else {
-    // Individual Signatory
-    return (
-      inputWithPrior(
-        'signatures-sender-name', 'Your Name',
-        ['Enter your full legal name.']
-      ) +
-      byline(postData)
-    )
   }
+  // Individual Signatory
+  return (
+    inputWithPrior(
+      'signatures-sender-name', 'Your Name',
+      ['Enter your full legal name.']
+    ) +
+    byline(postData)
+  )
 
   function inputWithPrior (name, label, notes) {
     return input({

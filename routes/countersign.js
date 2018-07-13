@@ -39,20 +39,12 @@ module.exports = function counterisgn (request, response) {
   readJSONFile(signFile, function (error, data) {
     if (error) {
       /* istanbul ignore else */
-      if (error.code === 'ENOENT') {
-        respond404()
-      } else {
-        internalError(request, response, error)
-      }
-    } else {
-      if (expired(data)) {
-        respond404()
-      } else if (request.method === 'POST') {
-        post(request, response, data)
-      } else {
-        get(request, response, data)
-      }
+      if (error.code === 'ENOENT') return respond404()
+      return internalError(request, response, error)
     }
+    if (expired(data)) return respond404()
+    if (request.method === 'POST') return post(request, response, data)
+    get(request, response, data)
   })
 
   function respond404 () {
@@ -252,19 +244,18 @@ function recipientBlock (page, recipient, postData) {
         recipient.title
       )
     )
-  } else {
-    // Individual Signatory
-    return (
-      inputWithPrior(
-        'signatures-recipient-name', 'Your Name',
-        [
-          'Enter your full legal name.',
-          'For example: “Jane Doe”'
-        ],
-        recipient.name
-     )
-    )
   }
+  // Individual Signatory
+  return (
+    inputWithPrior(
+      'signatures-recipient-name', 'Your Name',
+      [
+        'Enter your full legal name.',
+        'For example: “Jane Doe”'
+      ],
+      recipient.name
+    )
+  )
 
   function inputWithPrior (name, label, notes, sendValue) {
     if (sendValue) {
@@ -282,9 +273,7 @@ function recipientBlock (page, recipient, postData) {
     }
     var prior
     var suffix = name.split('-').reverse()[0]
-    if (postData) {
-      prior = {value: postData[suffix]}
-    }
+    if (postData) prior = {value: postData[suffix]}
     return input({
       name: name,
       required: true,
@@ -379,15 +368,14 @@ function write (request, response, data) {
         function captureCharge (done) {
           if (chargeID === 'coupon') {
             request.log.info('applied coupon')
-            done()
-          } else {
-            stripe(process.env.STRIPE_SECRET_KEY)
-              .charges
-              .capture(chargeID, ecb(done, function (charge) {
-                request.log.info({charge: charge})
-                done()
-              }))
+            return done()
           }
+          stripe(process.env.STRIPE_SECRET_KEY)
+            .charges
+            .capture(chargeID, ecb(done, function (charge) {
+              request.log.info({charge: charge})
+              done()
+            }))
         },
         continueOnError(function rmChargeFile (done) {
           fs.unlink(chargeFile, done)
@@ -402,17 +390,17 @@ function write (request, response, data) {
     if (error) {
       request.log.error(error)
       response.statusCode = 500
-      response.end()
-    } else {
-      response.setHeader('Content-Type', 'text/html; charset=ASCII')
-      var sender = data.send.signatures.sender
-      var senderName = sender.company || sender.name
-      var recipient = xtend(
-        data.send.signatures.recipient,
-        data.countersign
-      )
-      var form = data.send.form
-      response.end(html`
+      return response.end()
+    }
+    response.setHeader('Content-Type', 'text/html; charset=ASCII')
+    var sender = data.send.signatures.sender
+    var senderName = sender.company || sender.name
+    var recipient = xtend(
+      data.send.signatures.recipient,
+      data.countersign
+    )
+    var form = data.send.form
+    response.end(html`
 ${preamble('Agreed')}
 ${banner()}
 ${nav()}
@@ -435,15 +423,12 @@ ${nav()}
   </p>
 </main>
 ${footer()}`)
-    }
   })
 
   function continueOnError (task) {
     return function (done) {
       task(function (error) {
-        if (error) {
-          request.log.error(error, 'continuing')
-        }
+        if (error) request.log.error(error, 'continuing')
         done()
       })
     }

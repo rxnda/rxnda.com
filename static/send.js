@@ -28,22 +28,22 @@ document.addEventListener('DOMContentLoaded', function () {
     if (couponInput.value) {
       card.unmount()
       form.submit()
-    } else {
-      stripe.createToken(card).then(function (result) {
-        if (result.error) {
-          var errorElement = document.getElementById('card-errors')
-          errorElement.textContent = result.error.message
-          button.value = 'Sign & Send'
-          button.setAttribute('disabled', false)
-        } else {
-          var input = document.createElement('input')
-          input.setAttribute('type', 'hidden')
-          input.setAttribute('name', 'token')
-          input.setAttribute('value', result.token.id)
-          form.appendChild(input)
-          form.submit()
-        }
-      })
+      return
     }
+    stripe.createToken(card).then(function (result) {
+      if (result.error) {
+        var errorElement = document.getElementById('card-errors')
+        errorElement.textContent = result.error.message
+        button.value = 'Sign & Send'
+        button.setAttribute('disabled', false)
+      } else {
+        var input = document.createElement('input')
+        input.setAttribute('type', 'hidden')
+        input.setAttribute('name', 'token')
+        input.setAttribute('value', result.token.id)
+        form.appendChild(input)
+        form.submit()
+      }
+    })
   })
 })
